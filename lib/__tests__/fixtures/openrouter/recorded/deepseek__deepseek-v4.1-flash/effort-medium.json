@@ -1,0 +1,54 @@
+{
+  "id": "gen-1790524372-hYaGqxL0iQNUvlMFv4Wq",
+  "object": "chat.completion",
+  "created": 1790524372,
+  "model": "deepseek/deepseek-v4.1-flash",
+  "provider": "DeepInfra",
+  "system_fingerprint": null,
+  "service_tier": "default",
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "ok",
+        "refusal": null,
+        "reasoning": "We need answer single word: ok. Must comply.",
+        "reasoning_details": [
+          {
+            "type": "reasoning.text",
+            "text": "We need answer single word: ok. Must comply.",
+            "format": "unknown",
+            "index": 0
+          }
+        ]
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 37,
+    "completion_tokens": 14,
+    "total_tokens": 51,
+    "cost": 0,
+    "is_byok": true,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.0000158,
+      "upstream_inference_prompt_cost": 0.0000074,
+      "upstream_inference_completions_cost": 0.0000084
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 11,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

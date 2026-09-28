@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Titration GitHub social preview</title>
+<!--
+  The repo's social preview (GitHub → Settings → Social preview): 1280x640, shown when the repo
+  link is pasted into LinkedIn, Reddit, Slack, X or a DM. Content stays inside a 60px safe margin
+  because some sites crop the card. Regenerate with: node docs/deck/build.mjs
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400..600&display=block" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c11; --line-2: #333a48; --text: #eef0f4; --muted: #a3aab8;
+    --pink: #ff4d8d; --pink-glow: rgba(255, 77, 141, .4);
+    --k-data: #36c7b1; --k-measure: #9491ff; --k-pipe: #f2b24b; --k-run: #98a2b3;
+    --sans: "Instrument Sans", "Segoe UI", Arial, sans-serif;
+    --mono: "JetBrains Mono", Consolas, monospace;
+    --serif: "Instrument Serif", Georgia, serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); }
+  .card {
+    width: 1280px; height: 640px; position: relative; overflow: hidden; color: var(--text); font-family: var(--sans);
+    -webkit-font-smoothing: antialiased; padding: 60px 70px;
+    background:
+      radial-gradient(700px 500px at 85% 20%, rgba(255, 77, 141, .13), transparent 60%),
+      radial-gradient(700px 500px at 0% 100%, rgba(148, 145, 255, .09), transparent 60%),
+      linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px) 0 0 / 40px 40px,
+      linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px) 0 0 / 40px 40px,
+      var(--bg);
+  }
+  .brand { display: flex; align-items: center; gap: 14px; font-family: var(--mono); font-size: 26px; letter-spacing: .26em; font-weight: 600; text-transform: uppercase; }
+  .brand svg { width: 22px; height: 30px; }
+  .quote { font-family: var(--serif); font-style: italic; font-size: 112px; line-height: .95; letter-spacing: -.02em; margin: 34px 0 0; }
+  .quote .mk { color: var(--pink); }
+  .quote .end { position: relative; top: .2em; margin-left: .04em; }
+  .payoff { font-size: 38px; line-height: 1.2; font-weight: 600; margin: 30px 0 0; }
+  .payoff .n { color: var(--pink); }
+  .payoff .soft { color: var(--muted); font-weight: 500; }
+  .pitch { position: absolute; left: 70px; right: 70px; bottom: 56px; display: flex; justify-content: space-between; align-items: baseline;
+    border-top: 2px solid var(--line-2); padding-top: 20px; }
+  .pitch b { font-size: 30px; font-weight: 600; white-space: nowrap; }
+  .pitch span { white-space: nowrap; font-family: var(--mono); font-size: 22px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--pink);
+    border: 2px solid var(--pink); border-radius: 10px; padding: 7px 16px; background: rgba(255,77,141,.12); box-shadow: 0 0 24px rgba(255,77,141,.25); }
+  .pitch { align-items: center; }
+
+  .grid { position: absolute; right: 70px; top: 70px; display: grid; grid-template-columns: repeat(3, 118px); gap: 12px; }
+  .el { --k: var(--k-run); position: relative; height: 118px; border-radius: 10px; overflow: hidden; display: flex; flex-direction: column;
+    justify-content: space-between; padding: 10px 12px; border: 2px solid color-mix(in srgb, var(--k) 38%, transparent);
+    background: linear-gradient(165deg, color-mix(in srgb, var(--k) 16%, #11141c), #0d1016 72%); }
+  .el::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 5px; background: var(--k); }
+  .el .num { font-family: var(--mono); font-size: 15px; color: var(--k); }
+  .el .sym { font-size: 48px; font-weight: 650; letter-spacing: -.03em; line-height: 1; }
+  .el:not(.lit) { opacity: .62; }
+  .el.lit { border-color: var(--pink); background: linear-gradient(160deg, #ff5b97, #d12a6c 75%); box-shadow: 0 0 70px var(--pink-glow); }
+  .el.lit::before { background: #fff; opacity: .55; }
+  .el.lit .num { color: #fff; }
+  .el.data { --k: var(--k-data); } .el.meas { --k: var(--k-measure); } .el.pipe { --k: var(--k-pipe); }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="brand"><svg viewBox="0 0 16 23" aria-hidden="true"><path d="M8 0C8 0 0 10 0 14.5a8 8 0 0 0 16 0C16 10 8 0 8 0Z" fill="#ff4d8d"/><path d="M4.5 14.5a3.5 3.5 0 0 0 3.5 3.5" stroke="#fff" stroke-opacity=".7" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>Titration</div>
+  <p class="quote"><span class="mk">“</span>The prompt<br>is broken.<span class="mk end">”</span></p>
+  <p class="payoff">An AI failure can come from <span class="n">9</span> places.<br><span class="soft">Only</span> <span class="n">1</span> <span class="soft">of them is the prompt.</span></p>
+  <div class="grid" aria-hidden="true">
+    <div class="el lit"><span class="num">01</span><span class="sym">Su</span></div>
+    <div class="el data"><span class="num">02</span><span class="sym">Cg</span></div>
+    <div class="el meas"><span class="num">03</span><span class="sym">Ra</span></div>
+    <div class="el meas"><span class="num">04</span><span class="sym">Jv</span></div>
+    <div class="el pipe"><span class="num">05</span><span class="sym">Fm</span></div>
+    <div class="el meas"><span class="num">06</span><span class="sym">If</span></div>
+    <div class="el data"><span class="num">07</span><span class="sym">Pp</span></div>
+    <div class="el pipe"><span class="num">08</span><span class="sym">Sa</span></div>
+    <div class="el"><span class="num">09</span><span class="sym">Ce</span></div>
+  </div>
+  <div class="pitch"><b>Fix a prompt until it actually works, and prove it.</b><span>MCP server · 18 tools</span></div>
+</div>
+</body>
+</html>

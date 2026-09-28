@@ -1,0 +1,594 @@
+{
+  "data": {
+    "id": "openai/gpt-6-luna",
+    "name": "OpenAI: GPT-6 Luna",
+    "created": 1790100786,
+    "description": "GPT-6 Luna is the fast, cost-efficient model in OpenAI's GPT-6 series, positioned below GPT-6 Sol. It is suited for high-volume and latency-sensitive workloads such as chat, classification, and lightweight agentic...",
+    "architecture": {
+      "tokenizer": "GPT",
+      "instruct_type": null,
+      "modality": "text+image+file->text",
+      "input_modalities": [
+        "file",
+        "image",
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ]
+    },
+    "endpoints": [
+      {
+        "name": "OpenAI | openai/gpt-6-luna-20260922",
+        "model_id": "openai/gpt-6-luna",
+        "model_name": "OpenAI: GPT-6 Luna",
+        "context_length": 1050000,
+        "pricing": {
+          "prompt": "0.00000005",
+          "completion": "0.00000025",
+          "web_search": "0.01",
+          "input_cache_read": "0.000000005",
+          "input_cache_write": "0.0000000625",
+          "discount": 0,
+          "overrides": [
+            {
+              "min_prompt_tokens": 272000,
+              "prompt": "0.0000001",
+              "completion": "0.000000375",
+              "input_cache_read": "0.00000001",
+              "input_cache_write": "0.000000125"
+            }
+          ]
+        },
+        "provider_name": "OpenAI",
+        "tag": "openai/flex",
+        "quantization": "unknown",
+        "max_completion_tokens": 128000,
+        "max_prompt_tokens": 922000,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "seed",
+          "max_tokens",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 99.99816517128126,
+        "uptime_last_5m": 100,
+        "uptime_last_1d": 99.99908755003078,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "supports_multiple_audio_references": false,
+        "supports_image_reference": false,
+        "latency_last_30m": {
+          "p50": 2112,
+          "p75": 3106.25,
+          "p90": 6259.800000000001,
+          "p99": 26559.350000000002
+        },
+        "throughput_last_30m": {
+          "p50": 123.5,
+          "p75": 172,
+          "p90": 204,
+          "p99": 249
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 2112,
+              "p75": 3106.25,
+              "p90": 6259.800000000001,
+              "p99": 26559.350000000002
+            },
+            "throughput": {
+              "p50": 123.5,
+              "p75": 172,
+              "p90": 204,
+              "p99": 249
+            },
+            "request_count": 57285
+          }
+        }
+      },
+      {
+        "name": "OpenAI | openai/gpt-6-luna-20260922",
+        "model_id": "openai/gpt-6-luna",
+        "model_name": "OpenAI: GPT-6 Luna",
+        "context_length": 1050000,
+        "pricing": {
+          "prompt": "0.0000001",
+          "completion": "0.0000005",
+          "web_search": "0.01",
+          "input_cache_read": "0.00000001",
+          "input_cache_write": "0.000000125",
+          "discount": 0,
+          "overrides": [
+            {
+              "min_prompt_tokens": 272000,
+              "prompt": "0.0000002",
+              "completion": "0.00000075",
+              "input_cache_read": "0.00000002",
+              "input_cache_write": "0.00000025"
+            }
+          ]
+        },
+        "provider_name": "OpenAI",
+        "tag": "openai",
+        "quantization": "unknown",
+        "max_completion_tokens": 128000,
+        "max_prompt_tokens": 922000,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "seed",
+          "max_tokens",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 99.99389206671084,
+        "uptime_last_5m": 99.99796375483608,
+        "uptime_last_1d": 99.97352229194429,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "supports_multiple_audio_references": false,
+        "supports_image_reference": false,
+        "latency_last_30m": {
+          "p50": 2200,
+          "p75": 3344,
+          "p90": 5655.800000000001,
+          "p99": 29857.390000000025
+        },
+        "throughput_last_30m": {
+          "p50": 76,
+          "p75": 101,
+          "p90": 126,
+          "p99": 165
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 2200,
+              "p75": 3344,
+              "p90": 5655.800000000001,
+              "p99": 29857.390000000025
+            },
+            "throughput": {
+              "p50": 76,
+              "p75": 101,
+              "p90": 126,
+              "p99": 165
+            },
+            "request_count": 371326
+          }
+        }
+      },
+      {
+        "name": "Azure | openai/gpt-6-luna-20260922",
+        "model_id": "openai/gpt-6-luna",
+        "model_name": "OpenAI: GPT-6 Luna",
+        "context_length": 1050000,
+        "pricing": {
+          "prompt": "0.0000001",
+          "completion": "0.0000005",
+          "web_search": "0.01",
+          "input_cache_read": "0.00000001",
+          "input_cache_write": "0.000000125",
+          "discount": 0,
+          "overrides": [
+            {
+              "min_prompt_tokens": 272000,
+              "prompt": "0.0000002",
+              "completion": "0.00000075",
+              "input_cache_read": "0.00000002",
+              "input_cache_write": "0.00000025"
+            }
+          ]
+        },
+        "provider_name": "Azure",
+        "tag": "azure",
+        "quantization": "unknown",
+        "max_completion_tokens": 128000,
+        "max_prompt_tokens": 922000,
+        "supported_parameters": [
+          "max_completion_tokens",
+          "reasoning",
+          "include_reasoning",
+          "seed",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 100,
+        "uptime_last_5m": 100,
+        "uptime_last_1d": 99.96300050713816,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "supports_multiple_audio_references": false,
+        "supports_image_reference": false,
+        "latency_last_30m": {
+          "p50": 3439,
+          "p75": 6254,
+          "p90": 11037.500000000004,
+          "p99": 37842.070000000065
+        },
+        "throughput_last_30m": {
+          "p50": 64,
+          "p75": 124,
+          "p90": 162,
+          "p99": 210
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 3439,
+              "p75": 6254,
+              "p90": 11037.500000000004,
+              "p99": 37842.070000000065
+            },
+            "throughput": {
+              "p50": 64,
+              "p75": 124,
+              "p90": 162,
+              "p99": 210
+            },
+            "request_count": 51780
+          }
+        }
+      },
+      {
+        "name": "Azure | openai/gpt-6-luna-20260922",
+        "model_id": "openai/gpt-6-luna",
+        "model_name": "OpenAI: GPT-6 Luna",
+        "context_length": 1050000,
+        "pricing": {
+          "prompt": "0.00000011",
+          "completion": "0.00000055",
+          "web_search": "0.01",
+          "input_cache_read": "0.000000011",
+          "input_cache_write": "0.0000001375",
+          "discount": 0,
+          "overrides": [
+            {
+              "min_prompt_tokens": 272000,
+              "prompt": "0.00000022",
+              "completion": "0.000000825",
+              "input_cache_read": "0.000000022",
+              "input_cache_write": "0.000000275"
+            }
+          ]
+        },
+        "provider_name": "Azure",
+        "tag": "azure/us",
+        "quantization": "unknown",
+        "max_completion_tokens": 128000,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "max_completion_tokens",
+          "reasoning",
+          "include_reasoning",
+          "seed",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 100,
+        "uptime_last_5m": 100,
+        "uptime_last_1d": 99.87483711127913,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "supports_multiple_audio_references": false,
+        "supports_image_reference": false,
+        "latency_last_30m": {
+          "p50": 9108,
+          "p75": 16341.5,
+          "p90": 26468.4,
+          "p99": 73070.79999999996
+        },
+        "throughput_last_30m": {
+          "p50": 85,
+          "p75": 101,
+          "p90": 114.30000000000001,
+          "p99": 137.65999999999997
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 9108,
+              "p75": 16341.5,
+              "p90": 26468.4,
+              "p99": 73070.79999999996
+            },
+            "throughput": {
+              "p50": 85,
+              "p75": 101,
+              "p90": 114.30000000000001,
+              "p99": 137.65999999999997
+            },
+            "request_count": 268
+          }
+        }
+      },
+      {
+        "name": "Azure | openai/gpt-6-luna-20260922",
+        "model_id": "openai/gpt-6-luna",
+        "model_name": "OpenAI: GPT-6 Luna",
+        "context_length": 1050000,
+        "pricing": {
+          "prompt": "0.00000011",
+          "completion": "0.00000055",
+          "web_search": "0.01",
+          "input_cache_read": "0.000000011",
+          "input_cache_write": "0.0000001375",
+          "discount": 0,
+          "overrides": [
+            {
+              "min_prompt_tokens": 272000,
+              "prompt": "0.00000022",
+              "completion": "0.000000825",
+              "input_cache_read": "0.000000022",
+              "input_cache_write": "0.000000275"
+            }
+          ]
+        },
+        "provider_name": "Azure",
+        "tag": "azure/eu",
+        "quantization": "unknown",
+        "max_completion_tokens": 128000,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "max_completion_tokens",
+          "reasoning",
+          "include_reasoning",
+          "seed",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 100,
+        "uptime_last_5m": null,
+        "uptime_last_1d": 99.99212319325746,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "supports_multiple_audio_references": false,
+        "supports_image_reference": false,
+        "latency_last_30m": {
+          "p50": 1993,
+          "p75": 3271.75,
+          "p90": 5421.5,
+          "p99": 16823.45000000002
+        },
+        "throughput_last_30m": {
+          "p50": 103.5,
+          "p75": 183,
+          "p90": 219.5,
+          "p99": 273.60000000000036
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 1993,
+              "p75": 3271.75,
+              "p90": 5421.5,
+              "p99": 16823.45000000002
+            },
+            "throughput": {
+              "p50": 103.5,
+              "p75": 183,
+              "p90": 219.5,
+              "p99": 273.60000000000036
+            },
+            "request_count": 466
+          }
+        }
+      },
+      {
+        "name": "Amazon Bedrock | openai/gpt-6-luna-20260922",
+        "model_id": "openai/gpt-6-luna",
+        "model_name": "OpenAI: GPT-6 Luna",
+        "context_length": 1050000,
+        "pricing": {
+          "prompt": "0.00000011",
+          "completion": "0.00000055",
+          "web_search": "0.01",
+          "input_cache_read": "0.000000011",
+          "input_cache_write": "0.0000001375",
+          "discount": 0,
+          "overrides": [
+            {
+              "min_prompt_tokens": 272000,
+              "prompt": "0.00000022",
+              "completion": "0.000000825",
+              "input_cache_read": "0.000000022",
+              "input_cache_write": "0.000000275"
+            }
+          ]
+        },
+        "provider_name": "Amazon Bedrock",
+        "tag": "amazon-bedrock/us-east-1",
+        "quantization": "unknown",
+        "max_completion_tokens": 128000,
+        "max_prompt_tokens": 922000,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": null,
+        "uptime_last_5m": null,
+        "uptime_last_1d": 0.03931976801336872,
+        "supports_implicit_caching": true,
+        "supports_voice_cloning": false,
+        "supports_multiple_audio_references": false,
+        "supports_image_reference": false,
+        "latency_last_30m": {
+          "p50": 1489,
+          "p75": 2251,
+          "p90": 4590.400000000001,
+          "p99": 10327.880000000021
+        },
+        "throughput_last_30m": {
+          "p50": 94,
+          "p75": 109,
+          "p90": 121,
+          "p99": 160.52000000000044
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 1489,
+              "p75": 2251,
+              "p90": 4590.400000000001,
+              "p99": 10327.880000000021
+            },
+            "throughput": {
+              "p50": 94,
+              "p75": 109,
+              "p90": 121,
+              "p99": 160.52000000000044
+            },
+            "request_count": 365
+          }
+        }
+      },
+      {
+        "name": "OpenAI | openai/gpt-6-luna-20260922",
+        "model_id": "openai/gpt-6-luna",
+        "model_name": "OpenAI: GPT-6 Luna",
+        "context_length": 1050000,
+        "pricing": {
+          "prompt": "0.0000002",
+          "completion": "0.000001",
+          "web_search": "0.01",
+          "input_cache_read": "0.00000002",
+          "input_cache_write": "0.00000025",
+          "discount": 0,
+          "overrides": [
+            {
+              "min_prompt_tokens": 272000,
+              "prompt": "0.0000004",
+              "completion": "0.0000015",
+              "input_cache_read": "0.00000004",
+              "input_cache_write": "0.0000005"
+            }
+          ]
+        },
+        "provider_name": "OpenAI",
+        "tag": "openai/fast",
+        "quantization": "unknown",
+        "max_completion_tokens": 128000,
+        "max_prompt_tokens": 922000,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "seed",
+          "max_tokens",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 99.34718100890207,
+        "uptime_last_5m": 98.582995951417,
+        "uptime_last_1d": 99.97647166844564,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "supports_multiple_audio_references": false,
+        "supports_image_reference": false,
+        "latency_last_30m": {
+          "p50": 1429,
+          "p75": 2682,
+          "p90": 4829.0000000000055,
+          "p99": 12295.560000000001
+        },
+        "throughput_last_30m": {
+          "p50": 102,
+          "p75": 140,
+          "p90": 180,
+          "p99": 249
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 1429,
+              "p75": 2682,
+              "p90": 4829.0000000000055,
+              "p99": 12295.560000000001
+            },
+            "throughput": {
+              "p50": 102,
+              "p75": 140,
+              "p90": 180,
+              "p99": 249
+            },
+            "request_count": 3463
+          }
+        }
+      }
+    ]
+  }
+}

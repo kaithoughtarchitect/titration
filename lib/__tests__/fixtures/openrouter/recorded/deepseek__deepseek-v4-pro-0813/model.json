@@ -1,0 +1,80 @@
+{
+  "id": "deepseek/deepseek-v4-pro-0813",
+  "canonical_slug": "deepseek/deepseek-v4-pro-20260813",
+  "hugging_face_id": "deepseek-ai/DeepSeek-V4-Pro-0813",
+  "name": "DeepSeek: DeepSeek V4 Pro 0813",
+  "created": 1786549364,
+  "description": "DeepSeek V4 Pro 0813 is a large-scale mixture-of-experts model from DeepSeek. This is the GA release of DeepSeek V4 Pro.",
+  "context_length": 1048576,
+  "architecture": {
+    "modality": "text->text",
+    "input_modalities": [
+      "text"
+    ],
+    "output_modalities": [
+      "text"
+    ],
+    "tokenizer": "DeepSeek",
+    "instruct_type": null
+  },
+  "pricing": {
+    "prompt": "0.00000066",
+    "completion": "0.00000198",
+    "input_cache_read": "0.000000022"
+  },
+  "top_provider": {
+    "context_length": 1024000,
+    "max_completion_tokens": 384000,
+    "is_moderated": false
+  },
+  "per_request_limits": null,
+  "supported_parameters": [
+    "frequency_penalty",
+    "include_reasoning",
+    "logit_bias",
+    "logprobs",
+    "max_tokens",
+    "min_p",
+    "presence_penalty",
+    "reasoning",
+    "reasoning_effort",
+    "repetition_penalty",
+    "response_format",
+    "seed",
+    "stop",
+    "structured_outputs",
+    "temperature",
+    "tool_choice",
+    "tools",
+    "top_k",
+    "top_logprobs",
+    "top_p"
+  ],
+  "default_parameters": {
+    "temperature": 1,
+    "top_p": 1
+  },
+  "supported_voices": null,
+  "knowledge_cutoff": null,
+  "expiration_date": null,
+  "links": {
+    "details": "/api/v1/models/deepseek/deepseek-v4-pro-20260813/endpoints"
+  },
+  "benchmarks": {
+    "design_arena": [],
+    "artificial_analysis": {
+      "intelligence_index": 42.1,
+      "coding_index": 68.8,
+      "agentic_index": 42.5
+    }
+  },
+  "reasoning": {
+    "mandatory": false,
+    "supported_efforts": [
+      "max",
+      "high",
+      "low"
+    ],
+    "default_effort": "high"
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "id": "gen-1788802134-giCmnR40ediuefmtLy5m",
+  "object": "chat.completion",
+  "created": 1788802134,
+  "model": "google/gemini-3.8-flash",
+  "provider": "Google",
+  "system_fingerprint": null,
+  "service_tier": "default",
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "STOP",
+      "message": {
+        "role": "assistant",
+        "content": "ok",
+        "refusal": null,
+        "reasoning": null,
+        "reasoning_details": [
+          {
+            "type": "reasoning.text",
+            "signature": "AY89a1/SqHh3ndS+08IuVnS3hebq+ErahIH5JryOAM0GBU5I+1BfFVA4OzyVUOJgi2yFJrroZXZvTcidyEag/xyUiiukejwSGU+V7ZSxpu+uq6jLC6a85UnUerVVuIjEI/lPajWIz8r9v4/ZibjwUfWmTAFwLE+blexA3/UkZiIXlbdko5/ZrPWfoPXZFi9rHUCFQs7ZHe2Ddb/BKVqPXhTmIK5ZvumVXIm7gvAkJqfIFT75uJfhE1/Vt4n/JlyvvsoU+qYzHgEDi1d7bKkpu6RJW6NV7vIbNvbQKTfxox7cOeKpW6JlNUeXPEvGf0EWGv8ujiIUMcRwjrTzg5s46ZpmezJnQsyOyAIsRaVV/xeZxA0S2s5Jht3PyClvdPfoNTjRFuUcjbBDCayfK7PxBoHcxHmuGJswhCp/lfG4vDIgLq+hH7n/tqxagMDlUgM9+56kM7b01g6Kt3KvPeNhRdP9wYzd4ijqYdjjDPrQdKXRegbjYi2clzNB9JZTXoZ4KROY7FluUp1Lm2WHD/re",
+            "format": "google-gemini-v1",
+            "index": 0
+          }
+        ]
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 7,
+    "completion_tokens": 78,
+    "total_tokens": 85,
+    "cost": 0.00029775,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00029775,
+      "upstream_inference_prompt_cost": 0.00000525,
+      "upstream_inference_completions_cost": 0.0002925
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 77,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

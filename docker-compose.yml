@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: titration
+      POSTGRES_PASSWORD: titration
+      POSTGRES_DB: titration
+    ports:
+      - "5432:5432"
+    volumes:
+      - titration-pgdata:/var/lib/postgresql/data
+
+volumes:
+  titration-pgdata:

@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Titration social carousel</title>
+<!--
+  Portrait (4:5, 1080x1350) carousel for LinkedIn document posts and Reddit galleries.
+  Same design as the talk deck (../titration-deck.html), with type sized to read on a phone:
+  nothing smaller than 30px here, because a feed shows this at roughly 400px wide.
+  Regenerate with: node docs/deck/build.mjs   (writes the PDF and one PNG per slide)
+  Open ?slide=N to show a single slide.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400..600&display=block" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c11; --panel: #10131a; --line: #232834; --line-2: #333a48;
+    --text: #eef0f4; --muted: #a3aab8; --dim: #6b7384;
+    --pink: #ff4d8d; --pink-glow: rgba(255, 77, 141, .38);
+    --k-model: #ff4d8d; --k-data: #36c7b1; --k-measure: #9491ff; --k-pipe: #f2b24b; --k-run: #98a2b3;
+    --sans: "Instrument Sans", "Segoe UI", Arial, sans-serif;
+    --mono: "JetBrains Mono", Consolas, monospace;
+    --serif: "Instrument Serif", Georgia, serif;
+  }
+  @page { size: 1080px 1350px; margin: 0; }
+  * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+
+  .slide {
+    width: 1080px; height: 1350px; position: relative; overflow: hidden; padding: 150px 80px 150px;
+    page-break-after: always; break-after: page;
+    background:
+      radial-gradient(900px 700px at 90% 5%, rgba(255, 77, 141, .10), transparent 60%),
+      radial-gradient(800px 600px at 0% 100%, rgba(148, 145, 255, .08), transparent 60%),
+      linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px) 0 0 / 45px 45px,
+      linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px) 0 0 / 45px 45px,
+      var(--bg);
+  }
+  .slide:last-child { page-break-after: auto; break-after: auto; }
+
+  /* frame: brand top-left, page top-right, swipe cue bottom */
+  .top { position: absolute; left: 80px; right: 80px; top: 64px; display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--mono); font-size: 30px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
+  .brand { display: flex; align-items: center; gap: 16px; }
+  .brand b { color: var(--text); font-weight: 600; letter-spacing: .26em; }
+  .brand svg { width: 24px; height: 33px; }
+  .top .pg b { color: var(--pink); font-weight: 500; }
+  .foot { position: absolute; left: 80px; right: 80px; bottom: 64px; display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--mono); font-size: 30px; letter-spacing: .1em; color: var(--muted); }
+  .foot .swipe { color: var(--pink); letter-spacing: .14em; text-transform: uppercase; }
+
+  .kicker { font-family: var(--mono); font-size: 32px; letter-spacing: .16em; text-transform: uppercase; color: var(--pink); margin: 0 0 22px; }
+  h2 { font-size: 88px; line-height: 1.02; letter-spacing: -.012em; font-weight: 650; margin: 0; }
+  .it { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spacing: -.005em; color: var(--pink); font-size: 1.1em; }
+
+  /* element tile */
+  .el { --k: var(--k-run); position: relative; border: 2px solid color-mix(in srgb, var(--k) 38%, transparent); border-radius: 14px;
+    background: linear-gradient(165deg, color-mix(in srgb, var(--k) 16%, #11141c), #0d1016 72%);
+    display: flex; flex-direction: column; overflow: hidden; }
+  .el::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 7px; background: var(--k); }
+  .el .num { font-family: var(--mono); color: var(--k); }
+  .el .sym { font-weight: 650; letter-spacing: -.03em; line-height: 1; }
+  .el .nm { font-family: var(--mono); color: var(--muted); }
+  .el.lit { border-color: var(--pink); background: linear-gradient(160deg, #ff5b97, #d12a6c 75%); box-shadow: 0 0 90px var(--pink-glow); }
+  .el.lit::before { background: #fff; opacity: .55; }
+  .el.lit .num, .el.lit .nm, .el.lit .sym, .el.lit .fix { color: #fff; }
+  .el.data { --k: var(--k-data); } .el.meas { --k: var(--k-measure); } .el.pipe { --k: var(--k-pipe); } .el.run { --k: var(--k-run); }
+
+  /* 1 · hook */
+  .said { font-family: var(--mono); font-size: 34px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 10px 0 8px; }
+  .quote { font-family: var(--serif); font-style: italic; font-size: 158px; line-height: .95; letter-spacing: -.02em; margin: 0; }
+  .quote .mk { color: var(--pink); }
+  .quote .end { position: relative; top: .2em; margin-left: .04em; }
+  .payoff { font-size: 66px; line-height: 1.12; font-weight: 600; letter-spacing: -.01em; margin: 48px 0 0; }
+  .payoff .n { color: var(--pink); }
+  .payoff .soft { color: var(--muted); font-weight: 500; }
+  .mini { display: grid; grid-template-columns: repeat(9, 1fr); gap: 10px; margin: 56px 0 0; }
+  .mini .el { height: 100px; justify-content: flex-end; padding: 0 0 12px 12px; border-radius: 10px; }
+  .mini .el .sym { font-size: 40px; }
+  .mini .el:not(.lit) { opacity: .6; }
+  .pitch { position: absolute; left: 80px; right: 80px; bottom: 140px; border-top: 2px solid var(--line-2); padding-top: 30px; }
+  .pitch b { display: block; font-size: 46px; line-height: 1.15; font-weight: 600; letter-spacing: -.01em; }
+  .pitch .badges { display: flex; align-items: center; gap: 14px; margin-top: 20px; flex-wrap: nowrap; }
+  .pitch .mcp { font-family: var(--mono); font-size: 30px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--pink);
+    border: 3px solid var(--pink); border-radius: 12px; padding: 8px 18px; background: rgba(255,77,141,.12); box-shadow: 0 0 30px rgba(255,77,141,.25); white-space: nowrap; }
+  .pitch .soft { font-size: 30px; color: var(--muted); white-space: nowrap; }
+
+  /* 2 · periodic table */
+  .ptable { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 50px; }
+  .ptable .el { height: 214px; padding: 16px 18px; }
+  .ptable .el .num { font-size: 26px; }
+  .ptable .el .sym { font-size: 76px; margin-top: 6px; }
+  .ptable .el .nm { font-size: 21px; margin-top: 6px; white-space: nowrap; }
+  .ptable .el .fix { margin-top: auto; font-family: var(--mono); font-size: 24px; color: var(--k); white-space: nowrap; }
+  .tnote { margin: 30px 0 0; font-size: 46px; line-height: 1.2; font-weight: 600; }
+  .tnote .pk { color: var(--pink); }
+
+  /* 3 · the split vote */
+  .votes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 40px; }
+  .judge { border: 2px solid var(--line-2); border-radius: 14px; background: rgba(16,19,26,.92); padding: 16px 18px 18px; text-align: center; }
+  .judge .who { font-size: 38px; font-weight: 600; }
+  .judge .v { font-family: var(--mono); font-size: 26px; color: var(--muted); margin: 2px 0 12px; }
+  .judge .el { height: 110px; justify-content: center; align-items: center; }
+  .judge .el .sym { font-size: 60px; }
+  .down { text-align: center; font-size: 48px; color: var(--dim); line-height: 1; margin: 8px 0; }
+  .card { border: 2px solid var(--line-2); border-radius: 14px; background: rgba(16,19,26,.92); padding: 22px 28px; }
+  .card .lbl { font-family: var(--mono); font-size: 28px; letter-spacing: .14em; text-transform: uppercase; color: var(--dim); }
+  .card .lbl b { color: var(--pink); font-weight: 500; }
+  .card p { margin: 12px 0 0; font-size: 38px; line-height: 1.3; color: var(--muted); }
+  .card p b { color: var(--text); }
+  .stick { display: inline-block; font-family: var(--mono); font-size: 34px; letter-spacing: .08em; color: var(--k-pipe);
+    border: 2px solid var(--k-pipe); border-radius: 10px; padding: 8px 18px; margin-right: 16px; }
+  .verdict { display: grid; grid-template-columns: 128px 1fr; gap: 30px; align-items: center; border-color: rgba(242,178,75,.6); }
+  .verdict .el { height: 128px; justify-content: center; align-items: center; }
+  .verdict .el .sym { font-size: 62px; }
+  .verdict .t { font-size: 46px; font-weight: 600; line-height: 1.15; }
+  .verdict .t small { display: block; font-family: var(--mono); font-size: 28px; font-weight: 400; color: var(--k-pipe); margin-top: 12px; }
+
+  /* 4 · the loop, with the real result */
+  .result { margin-top: 44px; border: 2px solid rgba(255,77,141,.5); border-radius: 18px; padding: 34px 40px;
+    background: linear-gradient(140deg, rgba(255,77,141,.16), rgba(16,19,26,.92) 65%); }
+  .result .lbl { font-family: var(--mono); font-size: 28px; letter-spacing: .14em; text-transform: uppercase; color: var(--pink); }
+  .result .num { font-size: 170px; font-weight: 650; letter-spacing: -.04em; line-height: 1; margin: 18px 0 10px; }
+  .result .num .from { color: var(--muted); }
+  .result .num .arrow { color: var(--dim); font-weight: 400; margin: 0 14px; font-size: .7em; vertical-align: .12em; }
+  .result .num .to { color: var(--pink); }
+  .result p { margin: 0; font-size: 38px; line-height: 1.3; color: var(--muted); }
+  .result p b { color: var(--text); }
+  .laws { margin: 26px 0 0; padding: 0; list-style: none; }
+  .laws li { display: grid; grid-template-columns: 70px 1fr; align-items: baseline; font-size: 38px; font-weight: 600; line-height: 1.2; padding: 11px 0; border-bottom: 2px solid var(--line); }
+  .laws li:last-child { border-bottom: 0; }
+  .laws li span { font-family: var(--serif); font-style: italic; font-weight: 400; color: var(--pink); font-size: 52px; }
+
+  /* 5 · try it */
+  .term { margin-top: 50px; border: 2px solid var(--line-2); border-radius: 16px; background: #07080c; overflow: hidden; }
+  .term .bar { height: 56px; display: flex; align-items: center; gap: 12px; padding: 0 22px; border-bottom: 2px solid var(--line); background: #0d1016; }
+  .term .bar i { width: 16px; height: 16px; border-radius: 50%; background: #2a303c; }
+  .term pre { margin: 0; padding: 26px 30px; font-family: var(--mono); font-size: 34px; line-height: 1.6; white-space: pre; }
+  .term .p { color: var(--pink); }
+  .repo { margin: 50px 0 0; font-family: var(--mono); font-size: 37px; color: var(--pink); white-space: nowrap; }
+  .asks { margin: 18px 0 0; font-size: 38px; line-height: 1.35; color: var(--muted); }
+  .asks b { color: var(--text); }
+  .feyn { position: absolute; left: 80px; right: 80px; bottom: 150px; border-top: 2px solid var(--line-2); padding-top: 30px;
+    font-family: var(--serif); font-style: italic; font-size: 44px; line-height: 1.2; }
+  .feyn small { display: block; font-family: var(--mono); font-style: normal; font-size: 26px; letter-spacing: .14em; text-transform: uppercase; color: var(--dim); margin-top: 12px; }
+
+  @media screen { body { background: #030305; } .slide { margin: 24px auto; } body.single .slide { margin: 0; } }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="drop" viewBox="0 0 16 23"><path d="M8 0 C8 0 0 10 0 14.5 A8 8 0 0 0 16 14.5 C16 10 8 0 8 0 Z" fill="#ff4d8d"/><path d="M4.5 14.5 a3.5 3.5 0 0 0 3.5 3.5" stroke="#fff" stroke-opacity=".7" stroke-width="1.4" fill="none" stroke-linecap="round"/></symbol>
+</svg>
+
+<!-- 1 · hook -->
+<section class="slide">
+  <div class="top"><span class="brand"><svg><use href="#drop"/></svg><b>Titration</b></span><span class="pg"><b>1</b> / 5</span></div>
+  <p class="said">Your coding agent says</p>
+  <p class="quote"><span class="mk">“</span>The prompt<br>is broken.<span class="mk end">”</span></p>
+  <p class="payoff">An AI failure can come from <span class="n">9</span> places.<br><span class="soft">Only</span> <span class="n">1</span> <span class="soft">of them is the prompt.</span></p>
+  <div class="mini" aria-hidden="true">
+    <div class="el lit"><span class="sym">Su</span></div><div class="el data"><span class="sym">Cg</span></div><div class="el meas"><span class="sym">Ra</span></div>
+    <div class="el meas"><span class="sym">Jv</span></div><div class="el pipe"><span class="sym">Fm</span></div><div class="el meas"><span class="sym">If</span></div>
+    <div class="el data"><span class="sym">Pp</span></div><div class="el pipe"><span class="sym">Sa</span></div><div class="el run"><span class="sym">Ce</span></div>
+  </div>
+  <div class="pitch"><b>Titration: let your agent fix a prompt until it actually works, and prove it did.</b><div class="badges"><span class="mcp">MCP server</span><span class="mcp">18 tools</span><span class="soft">open source · self-hosted</span></div></div>
+  <div class="foot"><span>Claude Code · Codex · Cursor</span><span class="swipe">swipe →</span></div>
+</section>
+
+<!-- 2 · periodic table -->
+<section class="slide">
+  <div class="top"><span class="brand"><svg><use href="#drop"/></svg><b>Titration</b></span><span class="pg"><b>2</b> / 5</span></div>
+  <p class="kicker">The nine failure origins</p>
+  <h2>The periodic table of <span class="it">agent failure.</span></h2>
+  <div class="ptable">
+    <div class="el lit"><span class="num">01</span><span class="sym">Su</span><span class="nm">system-under-test</span><span class="fix">fix → the prompt</span></div>
+    <div class="el data"><span class="num">02</span><span class="sym">Cg</span><span class="nm">corpus-gap</span><span class="fix">fix → the tests</span></div>
+    <div class="el meas"><span class="num">03</span><span class="sym">Ra</span><span class="nm">rubric-ambiguity</span><span class="fix">fix → the rubric</span></div>
+    <div class="el meas"><span class="num">04</span><span class="sym">Jv</span><span class="nm">judge-variance</span><span class="fix">fix → the judges</span></div>
+    <div class="el pipe"><span class="num">05</span><span class="sym">Fm</span><span class="nm">formatter</span><span class="fix">fix → the code</span></div>
+    <div class="el meas"><span class="num">06</span><span class="sym">If</span><span class="nm">instrument-failure</span><span class="fix">fix → the harness</span></div>
+    <div class="el data"><span class="num">07</span><span class="sym">Pp</span><span class="nm">pre-existing</span><span class="fix">not this change</span></div>
+    <div class="el pipe"><span class="num">08</span><span class="sym">Sa</span><span class="nm">state-artifact</span><span class="fix">fix → upstream</span></div>
+    <div class="el run"><span class="num">09</span><span class="sym">Ce</span><span class="nm">cost-exhausted</span><span class="fix">fix → the budget</span></div>
+  </div>
+  <p class="tnote">Only <span class="pk">01</span> means “edit the prompt.”</p>
+  <div class="foot"><span>classify_failure</span><span class="swipe">swipe →</span></div>
+</section>
+
+<!-- 3 · the split vote -->
+<section class="slide">
+  <div class="top"><span class="brand"><svg><use href="#drop"/></svg><b>Titration</b></span><span class="pg"><b>3</b> / 5</span></div>
+  <p class="kicker">How it decides</p>
+  <h2>Three vendors judge.<br>A split gets <span class="it">argued.</span></h2>
+  <div class="votes">
+    <div class="judge"><div class="who">Judge A</div><div class="v">vendor 1</div><div class="el pipe"><span class="sym">Fm</span></div></div>
+    <div class="judge"><div class="who">Judge B</div><div class="v">vendor 2</div><div class="el pipe"><span class="sym">Fm</span></div></div>
+    <div class="judge"><div class="who">Judge C</div><div class="v">vendor 3</div><div class="el lit"><span class="sym">Su</span></div></div>
+  </div>
+  <div class="down">↓</div>
+  <div class="card"><div class="lbl">Reconsider · <b>2–1 split</b></div>
+    <p>A and B must answer C’s dissent:</p>
+    <p><span class="stick">STICKING</span><b>no real defect found</b></p></div>
+  <div class="down">↓</div>
+  <div class="card verdict"><div class="el pipe"><span class="sym">Fm</span></div>
+    <div class="t">Formatter.<small>→ fix the code, leave the prompt alone</small></div></div>
+  <div class="foot"><span>your agent’s vendor never judges</span><span class="swipe">swipe →</span></div>
+</section>
+
+<!-- 4 · the loop, with the real result -->
+<section class="slide">
+  <div class="top"><span class="brand"><svg><use href="#drop"/></svg><b>Titration</b></span><span class="pg"><b>4</b> / 5</span></div>
+  <p class="kicker">The improvement loop</p>
+  <h2>One change at a time, against a baseline that <span class="it">doesn’t move.</span></h2>
+  <div class="result">
+    <div class="lbl">Real run · examples/ticket-triage</div>
+    <div class="num"><span class="from">90%</span><span class="arrow">→</span><span class="to">0%</span></div>
+    <p><b>Billing tickets wrongly marked urgent</b>, fixed in one measured change. 90 of 90 judge votes.</p>
+  </div>
+  <ul class="laws">
+    <li><span>i.</span>The model never grades its own work.</li>
+    <li><span>ii.</span>No agreement, no score.</li>
+    <li><span>iii.</span>Every lesson becomes memory.</li>
+  </ul>
+  <div class="foot"><span>goal_titrate</span><span class="swipe">swipe →</span></div>
+</section>
+
+<!-- 5 · try it -->
+<section class="slide">
+  <div class="top"><span class="brand"><svg><use href="#drop"/></svg><b>Titration</b></span><span class="pg"><b>5</b> / 5</span></div>
+  <p class="kicker">Open source · Apache-2.0</p>
+  <h2>Runs on <span class="it">your machine.</span></h2>
+  <div class="term"><div class="bar"><i></i><i></i><i></i></div>
+<pre><span class="p">$</span> git clone …/titration
+<span class="p">$</span> docker compose up -d
+<span class="p">$</span> npm install
+<span class="p">$</span> npm run setup</pre></div>
+  <p class="repo">github.com/kaithoughtarchitect/titration</p>
+  <p class="asks"><b>Star it, fork it,</b> or start with the worked example in <b>examples/ticket-triage</b>.</p>
+  <div class="feyn">“…you must not fool yourself and you are the easiest person to fool.”<small>Richard Feynman</small></div>
+  <div class="foot"><span>self-hosted · any MCP client</span><span></span></div>
+</section>
+
+<script>
+  const n = Number(new URLSearchParams(location.search).get("slide"));
+  if (n >= 1 && n <= 5) {
+    document.body.classList.add("single");
+    document.querySelectorAll(".slide").forEach((s, i) => { if (i + 1 !== n) s.style.display = "none"; });
+  }
+</script>
+</body>
+</html>

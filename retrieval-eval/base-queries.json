@@ -1,0 +1,128 @@
+{
+  "tenant": "__base__",
+  "search_k": 10,
+  "k_values": [1, 3, 5, 10],
+  "_status": "FROZEN as part of a prior retirement curation on 2026-08-04. These are user questions, intentionally phrased differently from the Base card titles and bodies. The set covers foundational methodology plus every newly curated retirement method; re-confirm before changing an expected ref.",
+  "queries": [
+    {
+      "id": "b01",
+      "query": "Can a deterministic string check decide whether a response means the right thing, or is that the kind of question that needs semantic judgment?",
+      "expected": ["T-MET-001"],
+      "note": "Structural-vs-semantic judgment boundary."
+    },
+    {
+      "id": "b02",
+      "query": "The candidate score rose slightly, but the reviewers disagree a lot. How do I tell whether that improvement is signal rather than evaluator noise?",
+      "expected": ["T-MET-020"],
+      "note": "Effective-N and judge-noise discipline."
+    },
+    {
+      "id": "b03",
+      "query": "Our synthetic cases never reproduce what users actually report. What is the disciplined way to turn real incidents into test evidence?",
+      "expected": ["T-MET-029"],
+      "note": "Production-trace corpus flywheel."
+    },
+    {
+      "id": "b04",
+      "query": "A test scaffold calls its own panel of models and labels outputs locally. Why is that not a valid release verdict?",
+      "expected": ["T-MET-040"],
+      "note": "Evaluation-engine versus harness boundary."
+    },
+    {
+      "id": "b05",
+      "query": "The evaluator refuses to freeze the baseline. Should we relax the threshold to get a result, or treat that refusal as evidence?",
+      "expected": ["T-MET-041"],
+      "note": "Gate refusal is a diagnosis, not permission to lower the gate."
+    },
+    {
+      "id": "b06",
+      "query": "A behavior is missing, but how do I first establish whether the system ever receives the facts needed to produce it?",
+      "expected": ["T-MET-058"],
+      "note": "Source availability and eligibility before prompt attribution."
+    },
+    {
+      "id": "b07",
+      "query": "The same instruction template is reused across many features. If one use is flawed, how should we scope the repair and its regression test?",
+      "expected": ["T-MET-059"],
+      "note": "Shared instruction-frame repair."
+    },
+    {
+      "id": "b08",
+      "query": "Our experiment pins a provider and configuration, but production may run something else. Is the experiment still a valid control?",
+      "expected": ["T-MET-060"],
+      "note": "Production-divergent harness constants."
+    },
+    {
+      "id": "b09",
+      "query": "A context value looks correct before cleanup, yet the model behaves as if it never saw it. Where should I inspect?",
+      "expected": ["T-MET-061"],
+      "note": "Final assembled request verification."
+    },
+    {
+      "id": "b10",
+      "query": "Repeated runs are either completely clean or completely broken. What should the report show instead of a reassuring small-sample average?",
+      "expected": ["T-MET-062"],
+      "note": "Bimodal outcome probability."
+    },
+    {
+      "id": "b11",
+      "query": "One recurring defect is inflating our failure rate and different quality dimensions have different judge agreement. What has to be measured before trusting the gate?",
+      "expected": ["T-MET-063"],
+      "note": "Feature-level agreement, distinct failures, and paired deltas."
+    },
+    {
+      "id": "b12",
+      "query": "A quick smoke run proves the code path changed. Why is that still not enough evidence to close a statistical quality claim?",
+      "expected": ["T-MET-064"],
+      "note": "Structural confirmation versus full remeasurement."
+    },
+    {
+      "id": "b13",
+      "query": "How can a natural-language test actor be graded when it may invent facts, and how do we stop an adversarial probe from poisoning the state it tests?",
+      "expected": ["T-MET-065"],
+      "note": "Explicit truth sheet and adversarial-probe isolation."
+    },
+    {
+      "id": "b14",
+      "query": "Why might an evaluator call a correct answer fabricated even though the user had already established the fact earlier in the exchange?",
+      "expected": ["T-MET-066"],
+      "note": "Time-correct judge oracle."
+    },
+    {
+      "id": "b15",
+      "query": "A structured grader occasionally returns malformed data. What should the system budget and expose instead of quietly treating the run as unavailable?",
+      "expected": ["T-MET-067"],
+      "note": "Worst-case structured output and parse failure."
+    },
+    {
+      "id": "b16",
+      "query": "I just wrote a knowledge record, but search does not find it. What is the authoritative way to decide whether the write succeeded?",
+      "expected": ["T-MET-068"],
+      "note": "Reference read, not ranked retrieval, confirms persistence."
+    },
+    {
+      "id": "b17",
+      "query": "How do we test our own knowledge search without accidentally rewarding queries that merely repeat card wording or stale answers?",
+      "expected": ["T-MET-069"],
+      "note": "Diagnostic self-retrieval with current truth."
+    },
+    {
+      "id": "b18",
+      "query": "A frozen regression test turned red after several changes landed. What must we establish before blaming the newest edit or replacing the snapshot?",
+      "expected": ["T-MET-070"],
+      "note": "Attribute a red frozen test before revert or re-freeze."
+    },
+    {
+      "id": "b19",
+      "query": "Two observations disagree about one stored fact. Why is choosing either the newest or oldest value automatically unsafe?",
+      "expected": ["T-MET-071"],
+      "note": "Evidence-preserving fact-conflict handling."
+    },
+    {
+      "id": "b20",
+      "query": "An extractor misses an explicit detail when it is buried in a long batch. Besides wording, what operating parameter should we tune?",
+      "expected": ["T-MET-072"],
+      "note": "Extraction salience plus batch scope."
+    }
+  ]
+}

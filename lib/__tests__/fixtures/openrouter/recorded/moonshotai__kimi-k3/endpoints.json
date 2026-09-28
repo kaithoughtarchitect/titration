@@ -1,0 +1,1335 @@
+{
+  "data": {
+    "id": "moonshotai/kimi-k3",
+    "name": "MoonshotAI: Kimi K3",
+    "created": 1784215858,
+    "description": "Kimi K3 is a 2.8T parameter open-weight multimodal reasoning model from Moonshot AI. It is suited for complex coding, knowledge work, and long-horizon agentic workflows, and is particularly strong at...",
+    "architecture": {
+      "tokenizer": "Other",
+      "instruct_type": null,
+      "modality": "text+image+video->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "video"
+      ],
+      "output_modalities": [
+        "text"
+      ]
+    },
+    "endpoints": [
+      {
+        "name": "Makora | moonshotai/kimi-k3-20260715",
+        "model_id": "moonshotai/kimi-k3",
+        "model_name": "MoonshotAI: Kimi K3",
+        "context_length": 1048576,
+        "pricing": {
+          "prompt": "0.00000255",
+          "completion": "0.00001275",
+          "input_cache_read": "0.00000025599999",
+          "discount": 0
+        },
+        "provider_name": "Makora",
+        "tag": "makora",
+        "quantization": "unknown",
+        "max_completion_tokens": 943718,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "structured_outputs",
+          "response_format",
+          "temperature",
+          "top_p",
+          "top_k",
+          "frequency_penalty",
+          "presence_penalty",
+          "repetition_penalty",
+          "stop",
+          "max_tokens",
+          "seed",
+          "tools",
+          "logprobs",
+          "top_logprobs",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": false,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": null,
+        "uptime_last_5m": null,
+        "uptime_last_1d": 93.11143880345482,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": {
+          "p50": 72215,
+          "p75": 109681.75,
+          "p90": 137179,
+          "p99": 203308.24999999997
+        },
+        "throughput_last_30m": {
+          "p50": 4,
+          "p75": 44.25,
+          "p90": 99.5,
+          "p99": 181.6999999999999
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 72215,
+              "p75": 109681.75,
+              "p90": 137179,
+              "p99": 203308.24999999997
+            },
+            "throughput": {
+              "p50": 4,
+              "p75": 44.25,
+              "p90": 99.5,
+              "p99": 181.6999999999999
+            },
+            "request_count": 36
+          }
+        }
+      },
+      {
+        "name": "Sail Research | moonshotai/kimi-k3-20260715",
+        "model_id": "moonshotai/kimi-k3",
+        "model_name": "MoonshotAI: Kimi K3",
+        "context_length": 1048576,
+        "pricing": {
+          "prompt": "0.0000026",
+          "completion": "0.000013",
+          "input_cache_read": "0.00000029",
+          "discount": 0
+        },
+        "provider_name": "Sail Research",
+        "tag": "sail-research/fp4",
+        "quantization": "fp4",
+        "max_completion_tokens": 943718,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "temperature",
+          "top_p",
+          "top_k",
+          "frequency_penalty",
+          "presence_penalty",
+          "stop",
+          "seed",
+          "max_tokens",
+          "tools",
+          "tool_choice",
+          "response_format",
+          "structured_outputs",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 99.96746380348137,
+        "uptime_last_5m": 99.97521685254027,
+        "uptime_last_1d": 99.94659661682351,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": {
+          "p50": 1594,
+          "p75": 2674.25,
+          "p90": 4626.900000000001,
+          "p99": 21836.460000000043
+        },
+        "throughput_last_30m": {
+          "p50": 45,
+          "p75": 63,
+          "p90": 84,
+          "p99": 138.09000000000015
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 1602,
+              "p75": 2683.5,
+              "p90": 4798.500000000003,
+              "p99": 21055.500000000007
+            },
+            "throughput": {
+              "p50": 46,
+              "p75": 64,
+              "p90": 85,
+              "p99": 140
+            },
+            "request_count": 24511
+          }
+        }
+      },
+      {
+        "name": "Morph | moonshotai/kimi-k3-20260715",
+        "model_id": "moonshotai/kimi-k3",
+        "model_name": "MoonshotAI: Kimi K3",
+        "context_length": 1048576,
+        "pricing": {
+          "prompt": "0.0000026",
+          "completion": "0.000014",
+          "input_cache_read": "0.00000029",
+          "discount": 0
+        },
+        "provider_name": "Morph",
+        "tag": "morph/fp4",
+        "quantization": "fp4",
+        "max_completion_tokens": 943718,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "stop",
+          "response_format",
+          "structured_outputs",
+          "logprobs",
+          "top_logprobs",
+          "tools",
+          "tool_choice",
+          "top_p",
+          "top_k",
+          "min_p",
+          "frequency_penalty",
+          "presence_penalty",
+          "repetition_penalty",
+          "seed",
+          "logit_bias",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": null,
+        "uptime_last_5m": null,
+        "uptime_last_1d": 97.16957777472149,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": null,
+        "throughput_last_30m": null
+      },
+      {
+        "name": "DeepInfra | moonshotai/kimi-k3-20260715",
+        "model_id": "moonshotai/kimi-k3",
+        "model_name": "MoonshotAI: Kimi K3",
+        "context_length": 1048576,
+        "pricing": {
+          "prompt": "0.00000285",
+          "completion": "0.00001425",
+          "input_cache_read": "0.000000285",
+          "discount": 0
+        },
+        "provider_name": "DeepInfra",
+        "tag": "deepinfra/bf16",
+        "quantization": "bf16",
+        "max_completion_tokens": 16384,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "repetition_penalty",
+          "top_k",
+          "seed",
+          "min_p",
+          "response_format",
+          "logit_bias",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 99.00811541929666,
+        "uptime_last_5m": 98.47826086956522,
+        "uptime_last_1d": 99.37712462737305,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": {
+          "p50": 4001.5,
+          "p75": 8771.25,
+          "p90": 18063.6,
+          "p99": 50390.05999999995
+        },
+        "throughput_last_30m": {
+          "p50": 13,
+          "p75": 17,
+          "p90": 22,
+          "p99": 31
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 4004,
+              "p75": 8775,
+              "p90": 18063.4,
+              "p99": 50388.03999999999
+            },
+            "throughput": {
+              "p50": 13,
+              "p75": 17,
+              "p90": 22,
+              "p99": 31
+            },
+            "request_count": 3299
+          }
+        }
+      },
+      {
+        "name": "DigitalOcean | moonshotai/kimi-k3-20260715",
+        "model_id": "moonshotai/kimi-k3",
+        "model_name": "MoonshotAI: Kimi K3",
+        "context_length": 1048576,
+        "pricing": {
+          "prompt": "0.00000285",
+          "completion": "0.00001425",
+          "input_cache_read": "0.000000285",
+          "discount": 0
+        },
+        "provider_name": "DigitalOcean",
+        "tag": "digitalocean",
+        "quantization": "unknown",
+        "max_completion_tokens": 943718,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "temperature",
+          "top_p",
+          "max_tokens",
+          "response_format",
+          "logprobs",
+          "top_logprobs",
+          "tools",
+          "tool_choice",
+          "structured_outputs",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 99.95048687902293,
+        "uptime_last_5m": 100,
+        "uptime_last_1d": 99.93372193803852,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": {
+          "p50": 1055,
+          "p75": 1878.5,
+          "p90": 4185.0000000000055,
+          "p99": 16603.659999999993
+        },
+        "throughput_last_30m": {
+          "p50": 28,
+          "p75": 31,
+          "p90": 32,
+          "p99": 34
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 1055,
+              "p75": 1878,
+              "p90": 4180.800000000001,
+              "p99": 16594.709999999963
+            },
+            "throughput": {
+              "p50": 28,
+              "p75": 31,
+              "p90": 32,
+              "p99": 34
+            },
+            "request_count": 6052
+          }
+        }
+      },
+      {
+        "name": "Wafer | moonshotai/kimi-k3-20260715",
+        "model_id": "moonshotai/kimi-k3",
+        "model_name": "MoonshotAI: Kimi K3",
+        "context_length": 1048576,
+        "pricing": {
+          "prompt": "0.000003",
+          "completion": "0.00001275",
+          "input_cache_read": "0.0000003",
+          "discount": 0
+        },
+        "provider_name": "Wafer",
+        "tag": "wafer",
+        "quantization": "unknown",
+        "max_completion_tokens": 943718,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "temperature",
+          "top_p",
+          "top_k",
+          "min_p",
+          "frequency_penalty",
+          "presence_penalty",
+          "repetition_penalty",
+          "stop",
+          "seed",
+          "max_tokens",
+          "logit_bias",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": null,
+        "uptime_last_5m": null,
+        "uptime_last_1d": 99.83314794215795,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": {
+          "p50": 27856,
+          "p75": 75108,
+          "p90": 206584.99999999994,
+          "p99": 585967.1599999993
+        },
+        "throughput_last_30m": {
+          "p50": 11,
+          "p75": 26.5,
+          "p90": 31.599999999999994,
+          "p99": 45.079999999999956
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 27856,
+              "p75": 75108,
+              "p90": 206584.99999999994,
+              "p99": 585967.1599999993
+            },
+            "throughput": {
+              "p50": 11,
+              "p75": 26.5,
+              "p90": 31.599999999999994,
+              "p99": 45.079999999999956
+            },
+            "request_count": 83
+          }
+        }
+      },
+      {
+        "name": "Phala | moonshotai/kimi-k3-20260715",
+        "model_id": "moonshotai/kimi-k3",
+        "model_name": "MoonshotAI: Kimi K3",
+        "context_length": 1048576,
+        "pricing": {
+          "prompt": "0.000003",
+          "completion": "0.000015",
+          "input_cache_read": "0.0000003",
+          "discount": 0
+        },
+        "provider_name": "Phala",
+        "tag": "phala",
+        "quantization": "unknown",
+        "max_completion_tokens": 943718,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "top_k",
+          "min_p",
+          "repetition_penalty",
+          "response_format",
+          "structured_outputs",
+          "logprobs",
+          "top_logprobs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 97.61104889884285,
+        "uptime_last_5m": 98.81656804733728,
+        "uptime_last_1d": 97.7260844668332,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": {
+          "p50": 3386,
+          "p75": 5422,
+          "p90": 9274.2,
+          "p99": 30431.44000000012
+        },
+        "throughput_last_30m": {
+          "p50": 40,
+          "p75": 50,
+          "p90": 59,
+          "p99": 126
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 3386,
+              "p75": 5422,
+              "p90": 9274.2,
+              "p99": 30431.44000000012
+            },
+            "throughput": {
+              "p50": 40,
+              "p75": 50,
+              "p90": 59,
+              "p99": 126
+            },
+            "request_count": 2609
+          }
+        }
+      },
+      {
+        "name": "Chutes | moonshotai/kimi-k3-20260715",
+        "model_id": "moonshotai/kimi-k3",
+        "model_name": "MoonshotAI: Kimi K3",
+        "context_length": 1048576,
+        "pricing": {
+          "prompt": "0.000003",
+          "completion": "0.000015",
+          "input_cache_read": "0.0000003",
+          "discount": 0
+        },
+        "provider_name": "Chutes",
+        "tag": "chutes/mxfp4",
+        "quantization": "mxfp4",
+        "max_completion_tokens": 65535,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "top_k",
+          "repetition_penalty",
+          "response_format",
+          "structured_outputs",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 96.04221635883906,
+        "uptime_last_5m": 98.52941176470588,
+        "uptime_last_1d": 98.42546833697277,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": {
+          "p50": 2477,
+          "p75": 3454,
+          "p90": 4597.2,
+          "p99": 22665.700000000044
+        },
+        "throughput_last_30m": {
+          "p50": 18.5,
+          "p75": 24,
+          "p90": 28,
+          "p99": 32
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 2477,
+              "p75": 3454,
+              "p90": 4597.2,
+              "p99": 22665.700000000044
+            },
+            "throughput": {
+              "p50": 18.5,
+              "p75": 24,
+              "p90": 28,
+              "p99": 32
+            },
+            "request_count": 364
+          }
+        }
+      },
+      {
+        "name": "Parasail | moonshotai/kimi-k3-20260715",
+        "model_id": "moonshotai/kimi-k3",
+        "model_name": "MoonshotAI: Kimi K3",
+        "context_length": 1048576,
+        "pricing": {
+          "prompt": "0.000003",
+          "completion": "0.000015",
+          "input_cache_read": "0.0000003",
+          "discount": 0
+        },
+        "provider_name": "Parasail",
+        "tag": "parasail/fp4",
+        "quantization": "fp4",
+        "max_completion_tokens": 943718,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "frequency_penalty",
+          "presence_penalty",
+          "repetition_penalty",
+          "seed",
+          "stop",
+          "top_k",
+          "logit_bias",
+          "logprobs",
+          "top_logprobs",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": -2,
+        "uptime_last_30m": 91.87817258883248,
+        "uptime_last_5m": 85.71428571428571,
+        "uptime_last_1d": 90.57220708446867,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": {
+          "p50": 1688,
+          "p75": 3081.5,
+          "p90": 6660.4,
+          "p99": 31855.390000000003
+        },
+        "throughput_last_30m": {
+          "p50": 39,
+          "p75": 58,
+          "p90": 89,
+          "p99": 137.8800000000001
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 1688,
+              "p75": 3081.5,
+              "p90": 6660.4,
+              "p99": 31855.390000000003
+            },
+            "throughput": {
+              "p50": 39,
+              "p75": 58,
+              "p90": 89,
+              "p99": 137.8800000000001
+            },
+            "request_count": 904
+          }
+        }
+      },
+      {
+        "name": "Modal | moonshotai/kimi-k3-20260715",
+        "model_id": "moonshotai/kimi-k3",
+        "model_name": "MoonshotAI: Kimi K3",
+        "context_length": 1048576,
+        "pricing": {
+          "prompt": "0.000003",
+          "completion": "0.000015",
+          "input_cache_read": "0.0000003",
+          "discount": 0
+        },
+        "provider_name": "Modal",
+        "tag": "modal/mxfp4",
+        "quantization": "mxfp4",
+        "max_completion_tokens": 943718,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "temperature",
+          "top_p",
+          "stop",
+          "max_tokens",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 99.92228784581908,
+        "uptime_last_5m": 99.9151103565365,
+        "uptime_last_1d": 99.92494618300168,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": {
+          "p50": 838,
+          "p75": 2070.75,
+          "p90": 4818.5,
+          "p99": 17802.5
+        },
+        "throughput_last_30m": {
+          "p50": 75,
+          "p75": 107,
+          "p90": 137,
+          "p99": 218
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 838,
+              "p75": 2070.75,
+              "p90": 4822.500000000002,
+              "p99": 17794.26000000001
+            },
+            "throughput": {
+              "p50": 75,
+              "p75": 107,
+              "p90": 137,
+              "p99": 218
+            },
+            "request_count": 6430
+          }
+        }
+      },
+      {
+        "name": "Together | moonshotai/kimi-k3-20260715",
+        "model_id": "moonshotai/kimi-k3",
+        "model_name": "MoonshotAI: Kimi K3",
+        "context_length": 1048576,
+        "pricing": {
+          "prompt": "0.000003",
+          "completion": "0.000015",
+          "input_cache_read": "0.0000003",
+          "discount": 0
+        },
+        "provider_name": "Together",
+        "tag": "together",
+        "quantization": "unknown",
+        "max_completion_tokens": 943718,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "top_k",
+          "repetition_penalty",
+          "logit_bias",
+          "min_p",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 99.94318827405976,
+        "uptime_last_5m": 100,
+        "uptime_last_1d": 99.91168229991473,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": {
+          "p50": 1673,
+          "p75": 2251.25,
+          "p90": 2982.800000000001,
+          "p99": 7880.540000000001
+        },
+        "throughput_last_30m": {
+          "p50": 48,
+          "p75": 65,
+          "p90": 82,
+          "p99": 114
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 1679,
+              "p75": 2255.25,
+              "p90": 3011.800000000001,
+              "p99": 7839.440000000002
+            },
+            "throughput": {
+              "p50": 48,
+              "p75": 65,
+              "p90": 82,
+              "p99": 115
+            },
+            "request_count": 8805
+          }
+        }
+      },
+      {
+        "name": "Fireworks | moonshotai/kimi-k3-20260715",
+        "model_id": "moonshotai/kimi-k3",
+        "model_name": "MoonshotAI: Kimi K3",
+        "context_length": 1048576,
+        "pricing": {
+          "prompt": "0.000003",
+          "completion": "0.000015",
+          "input_cache_read": "0.0000003",
+          "discount": 0
+        },
+        "provider_name": "Fireworks",
+        "tag": "fireworks",
+        "quantization": "unknown",
+        "max_completion_tokens": 943718,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "top_k",
+          "repetition_penalty",
+          "logit_bias",
+          "logprobs",
+          "top_logprobs",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 100,
+        "uptime_last_5m": 100,
+        "uptime_last_1d": 99.87624690617265,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": {
+          "p50": 2810,
+          "p75": 4668,
+          "p90": 9043.600000000008,
+          "p99": 37572.03999999988
+        },
+        "throughput_last_30m": {
+          "p50": 40,
+          "p75": 48,
+          "p90": 52,
+          "p99": 56
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 2809,
+              "p75": 4671,
+              "p90": 9038,
+              "p99": 37539.28000000016
+            },
+            "throughput": {
+              "p50": 40,
+              "p75": 48,
+              "p90": 52,
+              "p99": 56
+            },
+            "request_count": 5633
+          }
+        }
+      },
+      {
+        "name": "BaseTen | moonshotai/kimi-k3-20260715",
+        "model_id": "moonshotai/kimi-k3",
+        "model_name": "MoonshotAI: Kimi K3",
+        "context_length": 1048576,
+        "pricing": {
+          "prompt": "0.000003",
+          "completion": "0.000015",
+          "input_cache_read": "0.0000003",
+          "discount": 0
+        },
+        "provider_name": "BaseTen",
+        "tag": "baseten/fp8",
+        "quantization": "fp8",
+        "max_completion_tokens": 262144,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 100,
+        "uptime_last_5m": null,
+        "uptime_last_1d": 99.6707572583059,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": {
+          "p50": 1269,
+          "p75": 2420,
+          "p90": 6266.600000000007,
+          "p99": 27452.16
+        },
+        "throughput_last_30m": {
+          "p50": 51,
+          "p75": 72,
+          "p90": 88,
+          "p99": 105.18
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 1269,
+              "p75": 2420,
+              "p90": 6266.600000000007,
+              "p99": 27452.16
+            },
+            "throughput": {
+              "p50": 51,
+              "p75": 72,
+              "p90": 88,
+              "p99": 105.18
+            },
+            "request_count": 383
+          }
+        }
+      },
+      {
+        "name": "Moonshot AI | moonshotai/kimi-k3-20260715",
+        "model_id": "moonshotai/kimi-k3",
+        "model_name": "MoonshotAI: Kimi K3",
+        "context_length": 1048576,
+        "pricing": {
+          "prompt": "0.000003",
+          "completion": "0.000015",
+          "input_cache_read": "0.0000003",
+          "discount": 0
+        },
+        "provider_name": "Moonshot AI",
+        "tag": "moonshotai/mxfp4",
+        "quantization": "mxfp4",
+        "max_completion_tokens": 943718,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "structured_outputs",
+          "response_format",
+          "tool_choice",
+          "tools",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 99.96947683291619,
+        "uptime_last_5m": 100,
+        "uptime_last_1d": 99.96205463089979,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": {
+          "p50": 4270.5,
+          "p75": 6423,
+          "p90": 8962.900000000001,
+          "p99": 19593.830000000013
+        },
+        "throughput_last_30m": {
+          "p50": 25,
+          "p75": 29,
+          "p90": 33,
+          "p99": 40
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 4246.5,
+              "p75": 6502,
+              "p90": 8798.900000000001,
+              "p99": 19805.350000000002
+            },
+            "throughput": {
+              "p50": 25,
+              "p75": 29,
+              "p90": 33,
+              "p99": 40
+            },
+            "request_count": 18094
+          }
+        }
+      },
+      {
+        "name": "Fireworks | moonshotai/kimi-k3-20260715",
+        "model_id": "moonshotai/kimi-k3",
+        "model_name": "MoonshotAI: Kimi K3",
+        "context_length": 1048576,
+        "pricing": {
+          "prompt": "0.0000033",
+          "completion": "0.0000165",
+          "input_cache_read": "0.00000033",
+          "discount": 0
+        },
+        "provider_name": "Fireworks",
+        "tag": "fireworks/us",
+        "quantization": "unknown",
+        "max_completion_tokens": 943718,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "top_k",
+          "repetition_penalty",
+          "logit_bias",
+          "logprobs",
+          "top_logprobs",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 99.56546929316339,
+        "uptime_last_5m": 100,
+        "uptime_last_1d": 98.4433385871394,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": {
+          "p50": 2130,
+          "p75": 3656,
+          "p90": 6171.200000000003,
+          "p99": 25307.22000000014
+        },
+        "throughput_last_30m": {
+          "p50": 46,
+          "p75": 64,
+          "p90": 77,
+          "p99": 93
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 2130,
+              "p75": 3655,
+              "p90": 6170.599999999999,
+              "p99": 25298.759999999955
+            },
+            "throughput": {
+              "p50": 46,
+              "p75": 64,
+              "p90": 77,
+              "p99": 93
+            },
+            "request_count": 3445
+          }
+        }
+      },
+      {
+        "name": "Alibaba | moonshotai/kimi-k3-20260715",
+        "model_id": "moonshotai/kimi-k3",
+        "model_name": "MoonshotAI: Kimi K3",
+        "context_length": 1048576,
+        "pricing": {
+          "prompt": "0.00000345",
+          "completion": "0.00001725",
+          "input_cache_read": "0.000000345",
+          "discount": 0
+        },
+        "provider_name": "Alibaba",
+        "tag": "alibaba",
+        "quantization": "unknown",
+        "max_completion_tokens": 943718,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "seed",
+          "presence_penalty",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "logprobs",
+          "top_logprobs",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 99.94438264738599,
+        "uptime_last_5m": 100,
+        "uptime_last_1d": 99.47507953340403,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": {
+          "p50": 2745.5,
+          "p75": 3830.75,
+          "p90": 5699.700000000001,
+          "p99": 14631.550000000008
+        },
+        "throughput_last_30m": {
+          "p50": 27,
+          "p75": 36,
+          "p90": 42,
+          "p99": 49
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 2745.5,
+              "p75": 3832.5,
+              "p90": 5700.700000000001,
+              "p99": 14756.480000000003
+            },
+            "throughput": {
+              "p50": 27,
+              "p75": 36,
+              "p90": 42,
+              "p99": 49
+            },
+            "request_count": 2784
+          }
+        }
+      },
+      {
+        "name": "Fireworks | moonshotai/kimi-k3-20260715",
+        "model_id": "moonshotai/kimi-k3",
+        "model_name": "MoonshotAI: Kimi K3",
+        "context_length": 1048576,
+        "pricing": {
+          "prompt": "0.0000045",
+          "completion": "0.0000225",
+          "input_cache_read": "0.00000045",
+          "discount": 0
+        },
+        "provider_name": "Fireworks",
+        "tag": "fireworks/fast",
+        "quantization": "unknown",
+        "max_completion_tokens": 943718,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "top_k",
+          "repetition_penalty",
+          "logit_bias",
+          "logprobs",
+          "top_logprobs",
+          "response_format",
+          "structured_outputs",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 99.56043956043956,
+        "uptime_last_5m": 100,
+        "uptime_last_1d": 98.54880237184989,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": {
+          "p50": 1946,
+          "p75": 4015,
+          "p90": 6844,
+          "p99": 15640.560000000001
+        },
+        "throughput_last_30m": {
+          "p50": 78,
+          "p75": 95,
+          "p90": 111,
+          "p99": 147.84000000000015
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 1946,
+              "p75": 4015,
+              "p90": 6844,
+              "p99": 15640.560000000001
+            },
+            "throughput": {
+              "p50": 78,
+              "p75": 95,
+              "p90": 111,
+              "p99": 147.84000000000015
+            },
+            "request_count": 453
+          }
+        }
+      },
+      {
+        "name": "Morph | moonshotai/kimi-k3-20260715",
+        "model_id": "moonshotai/kimi-k3",
+        "model_name": "MoonshotAI: Kimi K3",
+        "context_length": 1048576,
+        "pricing": {
+          "prompt": "0.000006",
+          "completion": "0.0000225",
+          "input_cache_read": "0.0000006",
+          "discount": 0
+        },
+        "provider_name": "Morph",
+        "tag": "morph/fast",
+        "quantization": "fp4",
+        "max_completion_tokens": 943718,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "stop",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "logprobs",
+          "top_logprobs",
+          "tool_choice",
+          "top_p",
+          "top_k",
+          "min_p",
+          "frequency_penalty",
+          "presence_penalty",
+          "repetition_penalty",
+          "seed",
+          "logit_bias",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": null,
+        "uptime_last_5m": null,
+        "uptime_last_1d": 95.14323657749952,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": null,
+        "throughput_last_30m": null
+      }
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+Titration — Copyright 2026 kaithoughtarchitect and Titration contributors
+
+This product includes the curated base learnings under docs/core-learnings/,
+which are part of this project and are licensed under the same Apache
+License, Version 2.0 as the rest of this repository (see LICENSE).
+
+The judge picker page bundles three typefaces under the SIL Open Font License,
+Version 1.1, which is not Apache-2.0. Each font's license text sits next to its
+file in server/picker/fonts/:
+  - Instrument Sans, Copyright 2022 The Instrument Sans Project Authors
+    (OFL-InstrumentSans.txt)
+  - Instrument Serif, Copyright 2022 The Instrument Serif Project Authors
+    (OFL-InstrumentSerif.txt)
+  - JetBrains Mono, Copyright 2020 The JetBrains Mono Project Authors
+    (OFL-JetBrainsMono.txt)

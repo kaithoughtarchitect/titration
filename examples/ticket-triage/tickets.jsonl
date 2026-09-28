@@ -1,0 +1,34 @@
+{"id":"t01","text":"Hi, which payment methods do you accept? We'd like to pay by bank transfer next year."}
+{"id":"t02","text":"Can I get a copy of last month's invoice for our accountant?"}
+{"id":"t03","text":"What's the price difference between the Team and Business plans?"}
+{"id":"t04","text":"We were charged twice this month. Could you refund the duplicate when you get a chance?"}
+{"id":"t05","text":"Do you offer a discount for non-profits?"}
+{"id":"t06","text":"Please update the billing address on our invoices to 12 Harbour Road."}
+{"id":"t07","text":"How do I switch from monthly to yearly billing?"}
+{"id":"t08","text":"Is VAT included in the price shown on the pricing page?"}
+{"id":"t09","text":"Our card expires next month. Where do I change it?"}
+{"id":"t10","text":"Can you explain the extra seat charge on our latest invoice?"}
+{"id":"t11","text":"Following up on my ticket from last Tuesday about the export. Any news?"}
+{"id":"t12","text":"Just checking in again on the SSO question I sent a week ago."}
+{"id":"t13","text":"Any update on ticket #4412? Still waiting for a reply."}
+{"id":"t14","text":"Following up: you said the fix would ship this week. Did it?"}
+{"id":"t15","text":"Second follow-up on my data deletion request from the 3rd."}
+{"id":"t16","text":"Hello again, is anyone looking at my earlier message about the API limits?"}
+{"id":"t17","text":"Checking back on the invite problem I reported on Monday."}
+{"id":"t18","text":"Re: my previous ticket. Still no answer about the webhook retries."}
+{"id":"t19","text":"The dashboard shows a blank page since this morning and nobody on our team can log in to do any work."}
+{"id":"t20","text":"CSV export puts all the dates in the wrong column."}
+{"id":"t21","text":"It would be great to have a dark mode."}
+{"id":"t22","text":"I forgot my password and the reset email never arrives."}
+{"id":"t23","text":"Could you add a Slack integration for new comments?"}
+{"id":"t24","text":"How do I remove a former colleague from our team?"}
+{"id":"t25","text":"The search box ignores accented characters."}
+{"id":"t26","text":"We think someone outside our company accessed our account. Please help now."}
+{"id":"t27","text":"Please let us reorder columns in the board view."}
+{"id":"t28","text":"Can I change the email address on my profile?"}
+{"id":"t29","text":"Notifications arrive twice for every comment."}
+{"id":"t30","text":"Would love keyboard shortcuts for moving cards."}
+{"id":"t31","text":"Our card payment failed and now the whole team is locked out of the account. Nobody here can work until this is fixed."}
+{"id":"t32","text":"Since your update the checkout page crashes for every one of our customers, so nobody can pay us at all."}
+{"id":"t33","text":"Someone changed our billing email and card details without our permission. We think the account was hacked."}
+{"id":"t34","text":"We were charged for 50 seats instead of 5 this month. No rush, but please refund the difference."}

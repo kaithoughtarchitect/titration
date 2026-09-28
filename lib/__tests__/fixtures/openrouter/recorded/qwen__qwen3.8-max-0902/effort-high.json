@@ -1,0 +1,54 @@
+{
+  "id": "gen-1788803205-9idoQQ4Z3X0MUYp3q8s2",
+  "object": "chat.completion",
+  "created": 1788803205,
+  "model": "qwen/qwen3.8-max-0902",
+  "provider": "Alibaba",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "ok",
+        "refusal": null,
+        "reasoning": "We need answer user's request: \"Reply with the single word ok.\" Need output exactly ok. Done.",
+        "reasoning_details": [
+          {
+            "type": "reasoning.text",
+            "text": "We need answer user's request: \"Reply with the single word ok.\" Need output exactly ok. Done.",
+            "format": "unknown",
+            "index": 0
+          }
+        ]
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 68,
+    "completion_tokens": 26,
+    "total_tokens": 94,
+    "cost": 0.000292,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.000292,
+      "upstream_inference_prompt_cost": 0.000136,
+      "upstream_inference_completions_cost": 0.000156
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 22,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

@@ -1,0 +1,14 @@
+title = "titration gitleaks config"
+
+[extend]
+useDefault = true
+
+# Synthetic secrets that tests use on purpose. Neither is a real credential:
+# - the picker seam test mints a ticket with a fixed fake secret;
+# - the redaction test feeds a fake OpenRouter-shaped key to prove it is hidden.
+[allowlist]
+description = "synthetic test fixtures"
+paths = [
+  '''lib/__tests__/referee-panel-seam\.test\.ts''',
+  '''lib/__tests__/tool-error-redaction-core\.test\.ts''',
+]

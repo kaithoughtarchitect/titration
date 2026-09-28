@@ -1,0 +1,54 @@
+{
+  "id": "gen-1788801756-KmLB7xNh9ZeDG7fPeqne",
+  "object": "chat.completion",
+  "created": 1788801756,
+  "model": "deepseek/deepseek-v4-flash-0731",
+  "provider": "DeepInfra",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "ok",
+        "refusal": null,
+        "reasoning": "1.  The user asks to reply with the single word \"ok\".\n2.  The instruction is clear and direct.\n3.  I will output exactly \"ok\".",
+        "reasoning_details": [
+          {
+            "type": "reasoning.text",
+            "text": "1.  The user asks to reply with the single word \"ok\".\n2.  The instruction is clear and direct.\n3.  I will output exactly \"ok\".",
+            "format": "unknown",
+            "index": 0
+          }
+        ]
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 11,
+    "completion_tokens": 38,
+    "total_tokens": 49,
+    "cost": 0,
+    "is_byok": true,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.0000075,
+      "upstream_inference_prompt_cost": 6.6e-7,
+      "upstream_inference_completions_cost": 0.00000684
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 34,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

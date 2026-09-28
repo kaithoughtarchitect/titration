@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg17
+        env:
+          POSTGRES_USER: titration
+          POSTGRES_PASSWORD: titration
+          POSTGRES_DB: titration
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U titration -d titration"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history, so the secret scan covers every commit
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Offline unit suite + import-graph check
+        run: npm test
+
+      - name: Apply migrations
+        env:
+          TITRATION_DATABASE_URL: postgres://titration:titration@localhost:5432/titration
+        run: npm run migrate
+
+      - name: Apply migrations again (must be a no-op)
+        env:
+          TITRATION_DATABASE_URL: postgres://titration:titration@localhost:5432/titration
+        run: npm run migrate
+
+      - name: Smoke — schema
+        env:
+          TITRATION_DATABASE_URL: postgres://titration:titration@localhost:5432/titration
+        run: npx tsx scripts/smoke-schema.ts
+
+      - name: Smoke — projects
+        env:
+          TITRATION_DATABASE_URL: postgres://titration:titration@localhost:5432/titration
+        run: npx tsx scripts/smoke-projects.ts
+
+      - name: Smoke — evolution
+        env:
+          TITRATION_DATABASE_URL: postgres://titration:titration@localhost:5432/titration
+        run: npx tsx scripts/smoke-evolution.ts
+
+      - name: Smoke — jobs
+        env:
+          TITRATION_DATABASE_URL: postgres://titration:titration@localhost:5432/titration
+        run: npx tsx scripts/smoke-jobs.ts
+
+      - name: Smoke — judge picker
+        env:
+          TITRATION_DATABASE_URL: postgres://titration:titration@localhost:5432/titration
+        run: npx tsx scripts/smoke-picker.ts
+
+      - name: Scrub check (public-surface hygiene)
+        run: node scripts/scrub-check.mjs
+
+      - name: Skill check (tool names, description length)
+        run: node skills/check-skills.mjs
+
+      - name: Secret scan (gitleaks, full history)
+        run: docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:latest detect --source /repo --config /repo/.gitleaks.toml --no-banner --redact
+
+# No secrets are used by this workflow and no OpenRouter calls are made — the
+# Postgres service above is disposable and local to the job, and every smoke
+# script above runs with OPENROUTER_API_KEY unset by construction.

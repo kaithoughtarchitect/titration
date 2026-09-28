@@ -1,0 +1,183 @@
+{
+  "version": 1,
+  "families": [
+    "anthropic",
+    "openai",
+    "moonshotai",
+    "qwen",
+    "meta",
+    "google",
+    "deepseek",
+    "z-ai",
+    "x-ai",
+    "minimax"
+  ],
+  "judges": [
+    {
+      "id": "claude",
+      "name": "Claude (claude CLI, claude-opus-5-5)",
+      "family": "anthropic",
+      "door": "claude",
+      "model": "claude-opus-5-5",
+      "efforts": ["low", "medium", "high"],
+      "cost_class": "subscription",
+      "recommended": true,
+      "verified": true
+    },
+    {
+      "id": "codex",
+      "name": "Codex (codex CLI, gpt-6-astra)",
+      "family": "openai",
+      "door": "codex",
+      "model": "gpt-6-astra",
+      "efforts": ["low", "medium", "high"],
+      "cost_class": "subscription",
+      "recommended": true,
+      "verified": true
+    },
+    {
+      "id": "grok",
+      "name": "Grok (grok CLI, grok-4.6)",
+      "family": "x-ai",
+      "door": "grok",
+      "model": "grok-4.6",
+      "efforts": ["low", "medium", "high"],
+      "cost_class": "subscription",
+      "recommended": false,
+      "verified": false,
+      "note": "unverified — help wanted"
+    },
+    {
+      "id": "openai/gpt-6-sol",
+      "name": "OpenAI: GPT-6 Sol",
+      "family": "openai",
+      "door": "openrouter",
+      "model": "openai/gpt-6-sol",
+      "efforts": ["low", "medium", "high"],
+      "cost_class": "metered",
+      "recommended": true,
+      "verified": true
+    },
+    {
+      "id": "moonshotai/kimi-k3",
+      "name": "MoonshotAI: Kimi K3",
+      "family": "moonshotai",
+      "door": "openrouter",
+      "model": "moonshotai/kimi-k3",
+      "efforts": ["low", "medium", "high"],
+      "cost_class": "metered",
+      "recommended": false,
+      "verified": true
+    },
+    {
+      "id": "deepseek/deepseek-v4-pro-0813",
+      "name": "DeepSeek: DeepSeek V4 Pro 0813",
+      "family": "deepseek",
+      "door": "openrouter",
+      "model": "deepseek/deepseek-v4-pro-0813",
+      "efforts": ["low", "medium", "high"],
+      "cost_class": "metered",
+      "recommended": false,
+      "verified": true
+    },
+    {
+      "id": "z-ai/glm-5.3",
+      "name": "Z.ai: GLM 5.3",
+      "family": "z-ai",
+      "door": "openrouter",
+      "model": "z-ai/glm-5.3",
+      "efforts": ["low", "medium", "high"],
+      "cost_class": "metered",
+      "recommended": false,
+      "verified": true
+    },
+    {
+      "id": "deepseek/deepseek-v4.1-flash",
+      "name": "DeepSeek: DeepSeek V4.1 Flash",
+      "family": "deepseek",
+      "door": "openrouter",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "efforts": ["low", "medium", "high"],
+      "cost_class": "metered",
+      "recommended": false,
+      "verified": true
+    },
+    {
+      "id": "x-ai/grok-4.7",
+      "name": "SpaceXAI: Grok 4.7",
+      "family": "x-ai",
+      "door": "openrouter",
+      "model": "x-ai/grok-4.7",
+      "efforts": ["low", "medium", "high"],
+      "cost_class": "metered",
+      "recommended": true,
+      "verified": true
+    },
+    {
+      "id": "minimax/minimax-m3",
+      "name": "MiniMax: MiniMax M3",
+      "family": "minimax",
+      "door": "openrouter",
+      "model": "minimax/minimax-m3",
+      "efforts": ["low", "medium", "high"],
+      "cost_class": "metered",
+      "recommended": false,
+      "verified": true
+    },
+    {
+      "id": "openai/gpt-6-luna",
+      "name": "OpenAI: GPT-6 Luna",
+      "family": "openai",
+      "door": "openrouter",
+      "model": "openai/gpt-6-luna",
+      "efforts": ["low", "medium", "high"],
+      "cost_class": "metered",
+      "recommended": false,
+      "verified": true
+    },
+    {
+      "id": "google/gemini-3.8-flash",
+      "name": "Google: Gemini 3.8 Flash",
+      "family": "google",
+      "door": "openrouter",
+      "model": "google/gemini-3.8-flash",
+      "efforts": ["low", "medium", "high"],
+      "cost_class": "metered",
+      "recommended": true,
+      "verified": true
+    },
+    {
+      "id": "z-ai/glm-5.3-flash",
+      "name": "Z.ai: GLM 5.3 Flash",
+      "family": "z-ai",
+      "door": "openrouter",
+      "model": "z-ai/glm-5.3-flash",
+      "efforts": ["low", "medium", "high"],
+      "cost_class": "metered",
+      "recommended": false,
+      "verified": true
+    },
+    {
+      "id": "meta/muse-spark-1.3",
+      "name": "Meta: Muse Spark 1.3",
+      "family": "meta",
+      "door": "openrouter",
+      "model": "meta/muse-spark-1.3",
+      "efforts": ["low", "medium", "high"],
+      "cost_class": "metered",
+      "recommended": false,
+      "verified": true
+    },
+    {
+      "id": "qwen/qwen3.8-max-0902",
+      "name": "Qwen: Qwen3.8 Max (0902)",
+      "family": "qwen",
+      "door": "openrouter",
+      "model": "qwen/qwen3.8-max-0902",
+      "efforts": ["low", "medium", "high"],
+      "cost_class": "metered",
+      "recommended": false,
+      "verified": true
+    }
+  ]
+}

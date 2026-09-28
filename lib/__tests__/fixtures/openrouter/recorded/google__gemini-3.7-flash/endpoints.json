@@ -1,0 +1,484 @@
+{
+  "data": {
+    "id": "google/gemini-3.7-flash",
+    "name": "Google: Gemini 3.7 Flash",
+    "created": 1786640581,
+    "description": "Gemini 3.7 Flash is a multimodal model from Google for fast agentic workflows, coding, and complex multi-step reasoning. It is designed for tasks that require responsive performance and reliable multi-step...",
+    "architecture": {
+      "tokenizer": "Gemini",
+      "instruct_type": null,
+      "modality": "text+image+file+audio+video->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "video",
+        "file",
+        "audio"
+      ],
+      "output_modalities": [
+        "text"
+      ]
+    },
+    "endpoints": [
+      {
+        "name": "Google | google/gemini-3.7-flash-20260813",
+        "model_id": "google/gemini-3.7-flash",
+        "model_name": "Google: Gemini 3.7 Flash",
+        "context_length": 1048576,
+        "pricing": {
+          "prompt": "0.000000375",
+          "completion": "0.000001875",
+          "image": "0.000000375",
+          "audio": "0.000000375",
+          "input_audio_cache": "0.0000000375",
+          "web_search": "0.014",
+          "internal_reasoning": "0.000001875",
+          "input_cache_read": "0.0000000375",
+          "input_cache_write": "0.0000000208333333333333",
+          "discount": 0.5
+        },
+        "provider_name": "Google",
+        "tag": "google-vertex/global/flex",
+        "quantization": "unknown",
+        "max_completion_tokens": 65536,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "seed",
+          "response_format",
+          "stop",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": -5,
+        "uptime_last_30m": 47.6056338028169,
+        "uptime_last_5m": null,
+        "uptime_last_1d": 36.35059994146913,
+        "supports_implicit_caching": true,
+        "supports_voice_cloning": false,
+        "latency_last_30m": {
+          "p50": 14592,
+          "p75": 19328.5,
+          "p90": 27188.800000000007,
+          "p99": 85088.98000000001
+        },
+        "throughput_last_30m": {
+          "p50": 19,
+          "p75": 41.5,
+          "p90": 82.20000000000005,
+          "p99": 139.70000000000002
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 14592,
+              "p75": 19328.5,
+              "p90": 27188.800000000007,
+              "p99": 85088.98000000001
+            },
+            "throughput": {
+              "p50": 19,
+              "p75": 41.5,
+              "p90": 82.20000000000005,
+              "p99": 139.70000000000002
+            },
+            "request_count": 167
+          }
+        }
+      },
+      {
+        "name": "Google AI Studio | google/gemini-3.7-flash-20260813",
+        "model_id": "google/gemini-3.7-flash",
+        "model_name": "Google: Gemini 3.7 Flash",
+        "context_length": 1048576,
+        "pricing": {
+          "prompt": "0.000000375",
+          "completion": "0.000001875",
+          "image": "0.000000375",
+          "audio": "0.000000375",
+          "input_audio_cache": "0.0000000375",
+          "web_search": "0.014",
+          "internal_reasoning": "0.000001875",
+          "input_cache_read": "0.0000000375",
+          "input_cache_write": "0.0000000208333333333333",
+          "discount": 0.5
+        },
+        "provider_name": "Google AI Studio",
+        "tag": "google-ai-studio/flex",
+        "quantization": "unknown",
+        "max_completion_tokens": 65536,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "response_format",
+          "structured_outputs",
+          "tool_choice",
+          "tools",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 99.12253047498949,
+        "uptime_last_5m": 99.30345245305875,
+        "uptime_last_1d": 98.78916737513526,
+        "supports_implicit_caching": true,
+        "supports_voice_cloning": false,
+        "latency_last_30m": {
+          "p50": 1263,
+          "p75": 1854,
+          "p90": 2858,
+          "p99": 7104.560000000027
+        },
+        "throughput_last_30m": {
+          "p50": 187,
+          "p75": 247,
+          "p90": 298,
+          "p99": 414
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 1265,
+              "p75": 1905.5,
+              "p90": 2882,
+              "p99": 6931.650000000012
+            },
+            "throughput": {
+              "p50": 189,
+              "p75": 248,
+              "p90": 297,
+              "p99": 423.09000000000015
+            },
+            "request_count": 18692
+          }
+        }
+      },
+      {
+        "name": "Google AI Studio | google/gemini-3.7-flash-20260813",
+        "model_id": "google/gemini-3.7-flash",
+        "model_name": "Google: Gemini 3.7 Flash",
+        "context_length": 1048576,
+        "pricing": {
+          "prompt": "0.00000075",
+          "completion": "0.00000375",
+          "image": "0.00000075",
+          "audio": "0.00000075",
+          "input_audio_cache": "0.000000075",
+          "web_search": "0.014",
+          "internal_reasoning": "0.00000375",
+          "input_cache_read": "0.000000075",
+          "input_cache_write": "0.0000000416666666666667",
+          "discount": 0.5
+        },
+        "provider_name": "Google AI Studio",
+        "tag": "google-ai-studio",
+        "quantization": "unknown",
+        "max_completion_tokens": 65536,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "response_format",
+          "structured_outputs",
+          "tool_choice",
+          "tools",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 99.01608982521125,
+        "uptime_last_5m": 98.9247311827957,
+        "uptime_last_1d": 98.63872699746715,
+        "supports_implicit_caching": true,
+        "supports_voice_cloning": false,
+        "latency_last_30m": {
+          "p50": 1399.5,
+          "p75": 2058.25,
+          "p90": 2907.800000000001,
+          "p99": 7149.520000000004
+        },
+        "throughput_last_30m": {
+          "p50": 161,
+          "p75": 247.25,
+          "p90": 314,
+          "p99": 391
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 1401,
+              "p75": 2066,
+              "p90": 2931,
+              "p99": 6925.930000000011
+            },
+            "throughput": {
+              "p50": 164,
+              "p75": 252,
+              "p90": 315,
+              "p99": 394.09000000000015
+            },
+            "request_count": 19726
+          }
+        }
+      },
+      {
+        "name": "Google | google/gemini-3.7-flash-20260813",
+        "model_id": "google/gemini-3.7-flash",
+        "model_name": "Google: Gemini 3.7 Flash",
+        "context_length": 1048576,
+        "pricing": {
+          "prompt": "0.00000075",
+          "completion": "0.00000375",
+          "image": "0.00000075",
+          "audio": "0.00000075",
+          "input_audio_cache": "0.000000075",
+          "web_search": "0.014",
+          "internal_reasoning": "0.00000375",
+          "input_cache_read": "0.000000075",
+          "input_cache_write": "0.0000000416666666666667",
+          "discount": 0.5
+        },
+        "provider_name": "Google",
+        "tag": "google-vertex/global",
+        "quantization": "unknown",
+        "max_completion_tokens": 65536,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "seed",
+          "response_format",
+          "stop",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 99.53288408524045,
+        "uptime_last_5m": 99.51618398637137,
+        "uptime_last_1d": 99.51267813993687,
+        "supports_implicit_caching": true,
+        "supports_voice_cloning": false,
+        "latency_last_30m": {
+          "p50": 2312,
+          "p75": 3176,
+          "p90": 4709.900000000001,
+          "p99": 9991.380000000012
+        },
+        "throughput_last_30m": {
+          "p50": 82,
+          "p75": 120,
+          "p90": 152,
+          "p99": 197
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 2328.5,
+              "p75": 3164,
+              "p90": 4656.500000000003,
+              "p99": 11431.250000000004
+            },
+            "throughput": {
+              "p50": 82,
+              "p75": 119,
+              "p90": 152,
+              "p99": 196
+            },
+            "request_count": 98808
+          }
+        }
+      },
+      {
+        "name": "Google | google/gemini-3.7-flash-20260813",
+        "model_id": "google/gemini-3.7-flash",
+        "model_name": "Google: Gemini 3.7 Flash",
+        "context_length": 1048576,
+        "pricing": {
+          "prompt": "0.00000135",
+          "completion": "0.00000675",
+          "image": "0.00000135",
+          "audio": "0.00000135",
+          "input_audio_cache": "0.000000135",
+          "web_search": "0.014",
+          "internal_reasoning": "0.00000675",
+          "input_cache_read": "0.000000135",
+          "input_cache_write": "0.000000075",
+          "discount": 0.5
+        },
+        "provider_name": "Google",
+        "tag": "google-vertex/global/priority",
+        "quantization": "unknown",
+        "max_completion_tokens": 65536,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "seed",
+          "response_format",
+          "stop",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 99.79220779220779,
+        "uptime_last_5m": 100,
+        "uptime_last_1d": 99.76716482564436,
+        "supports_implicit_caching": true,
+        "supports_voice_cloning": false,
+        "latency_last_30m": {
+          "p50": 2672,
+          "p75": 2928.5,
+          "p90": 3254.8,
+          "p99": 4792.949999999999
+        },
+        "throughput_last_30m": {
+          "p50": 79,
+          "p75": 87,
+          "p90": 95,
+          "p99": 146.38999999999987
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 2672,
+              "p75": 2928.5,
+              "p90": 3254.8,
+              "p99": 4792.949999999999
+            },
+            "throughput": {
+              "p50": 79,
+              "p75": 87,
+              "p90": 95,
+              "p99": 146.38999999999987
+            },
+            "request_count": 1962
+          }
+        }
+      },
+      {
+        "name": "Google AI Studio | google/gemini-3.7-flash-20260813",
+        "model_id": "google/gemini-3.7-flash",
+        "model_name": "Google: Gemini 3.7 Flash",
+        "context_length": 1048576,
+        "pricing": {
+          "prompt": "0.00000135",
+          "completion": "0.00000675",
+          "image": "0.00000135",
+          "audio": "0.00000135",
+          "input_audio_cache": "0.000000135",
+          "web_search": "0.014",
+          "internal_reasoning": "0.00000675",
+          "input_cache_read": "0.000000135",
+          "input_cache_write": "0.000000075",
+          "discount": 0.5
+        },
+        "provider_name": "Google AI Studio",
+        "tag": "google-ai-studio/priority",
+        "quantization": "unknown",
+        "max_completion_tokens": 65536,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "response_format",
+          "structured_outputs",
+          "tool_choice",
+          "tools",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 100,
+        "uptime_last_5m": 100,
+        "uptime_last_1d": 99.40710145893011,
+        "supports_implicit_caching": true,
+        "supports_voice_cloning": false,
+        "latency_last_30m": {
+          "p50": 1199,
+          "p75": 1589,
+          "p90": 2252.3999999999996,
+          "p99": 6077.960000000001
+        },
+        "throughput_last_30m": {
+          "p50": 173,
+          "p75": 241,
+          "p90": 314.4,
+          "p99": 447
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 1199,
+              "p75": 1589,
+              "p90": 2252.3999999999996,
+              "p99": 6077.960000000001
+            },
+            "throughput": {
+              "p50": 173,
+              "p75": 241,
+              "p90": 314.4,
+              "p99": 447
+            },
+            "request_count": 1057
+          }
+        }
+      }
+    ]
+  }
+}

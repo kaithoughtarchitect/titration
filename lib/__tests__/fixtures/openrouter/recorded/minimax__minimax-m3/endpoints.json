@@ -1,0 +1,883 @@
+{
+  "data": {
+    "id": "minimax/minimax-m3",
+    "name": "MiniMax: MiniMax M3",
+    "created": 1780245374,
+    "description": "MiniMax-M3 is a multimodal foundation model from MiniMax. It supports text, image, and video inputs with text output, a 1M-token context window, and is suited for long-horizon agentic work, coding,...",
+    "architecture": {
+      "tokenizer": "Other",
+      "instruct_type": null,
+      "modality": "text+image+video->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "video"
+      ],
+      "output_modalities": [
+        "text"
+      ]
+    },
+    "endpoints": [
+      {
+        "name": "CoreWeave | minimax/minimax-m3-20260531",
+        "model_id": "minimax/minimax-m3",
+        "model_name": "MiniMax: MiniMax M3",
+        "context_length": 262144,
+        "pricing": {
+          "prompt": "0.00000023",
+          "completion": "0.00000096",
+          "input_cache_read": "0.00000005",
+          "discount": 0
+        },
+        "provider_name": "CoreWeave",
+        "tag": "coreweave/fp4",
+        "quantization": "fp4",
+        "max_completion_tokens": 235929,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "top_k",
+          "repetition_penalty",
+          "frequency_penalty",
+          "presence_penalty",
+          "stop",
+          "seed",
+          "response_format",
+          "structured_outputs",
+          "logprobs",
+          "top_logprobs"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 100,
+        "uptime_last_5m": 100,
+        "uptime_last_1d": 99.98029529873007,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": {
+          "p50": 505,
+          "p75": 731,
+          "p90": 1097.800000000001,
+          "p99": 4007.9800000000014
+        },
+        "throughput_last_30m": {
+          "p50": 121,
+          "p75": 153,
+          "p90": 179,
+          "p99": 226
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 505,
+              "p75": 731,
+              "p90": 1097.800000000001,
+              "p99": 4007.9800000000014
+            },
+            "throughput": {
+              "p50": 121,
+              "p75": 153,
+              "p90": 179,
+              "p99": 226
+            },
+            "request_count": 2559
+          }
+        }
+      },
+      {
+        "name": "GMICloud | minimax/minimax-m3-20260531",
+        "model_id": "minimax/minimax-m3",
+        "model_name": "MiniMax: MiniMax M3",
+        "context_length": 1048576,
+        "pricing": {
+          "prompt": "0.00000024",
+          "completion": "0.00000096",
+          "input_cache_read": "0.000000048",
+          "discount": 0.6
+        },
+        "provider_name": "GMICloud",
+        "tag": "gmicloud/fp8",
+        "quantization": "fp8",
+        "max_completion_tokens": 943718,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "response_format"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 98.97488467452588,
+        "uptime_last_5m": 99.45945945945947,
+        "uptime_last_1d": 98.87525271220706,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": {
+          "p50": 1341.5,
+          "p75": 2094.75,
+          "p90": 3023.500000000001,
+          "p99": 7260.800000000015
+        },
+        "throughput_last_30m": {
+          "p50": 81.5,
+          "p75": 149,
+          "p90": 185,
+          "p99": 266
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 1341.5,
+              "p75": 2096.75,
+              "p90": 3027.5000000000005,
+              "p99": 7257.199999999977
+            },
+            "throughput": {
+              "p50": 81.5,
+              "p75": 149,
+              "p90": 185,
+              "p99": 266
+            },
+            "request_count": 1912
+          }
+        }
+      },
+      {
+        "name": "DeepInfra | minimax/minimax-m3-20260531",
+        "model_id": "minimax/minimax-m3",
+        "model_name": "MiniMax: MiniMax M3",
+        "context_length": 524288,
+        "pricing": {
+          "prompt": "0.00000028",
+          "completion": "0.0000011",
+          "input_cache_read": "0.000000056",
+          "discount": 0
+        },
+        "provider_name": "DeepInfra",
+        "tag": "deepinfra/fp8",
+        "quantization": "fp8",
+        "max_completion_tokens": 512000,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "repetition_penalty",
+          "top_k",
+          "seed",
+          "min_p",
+          "response_format",
+          "tools",
+          "tool_choice",
+          "logit_bias"
+        ],
+        "supports_tool_choice": {
+          "none": false,
+          "auto": true,
+          "required": false,
+          "function": false
+        },
+        "status": 0,
+        "uptime_last_30m": 100,
+        "uptime_last_5m": 100,
+        "uptime_last_1d": 99.08980854593553,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": {
+          "p50": 1280,
+          "p75": 2398,
+          "p90": 5015.8,
+          "p99": 32450.320000000218
+        },
+        "throughput_last_30m": {
+          "p50": 21,
+          "p75": 24,
+          "p90": 26,
+          "p99": 30
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 1280,
+              "p75": 2398,
+              "p90": 5015.8,
+              "p99": 32450.320000000218
+            },
+            "throughput": {
+              "p50": 21,
+              "p75": 24,
+              "p90": 26,
+              "p99": 30
+            },
+            "request_count": 1509
+          }
+        }
+      },
+      {
+        "name": "StreamLake | minimax/minimax-m3-20260531",
+        "model_id": "minimax/minimax-m3",
+        "model_name": "MiniMax: MiniMax M3",
+        "context_length": 1000000,
+        "pricing": {
+          "prompt": "0.0000003",
+          "completion": "0.0000012",
+          "input_cache_read": "0.00000006",
+          "discount": 0.5
+        },
+        "provider_name": "StreamLake",
+        "tag": "streamlake/fp8",
+        "quantization": "fp8",
+        "max_completion_tokens": 512000,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "response_format",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 99.72677595628416,
+        "uptime_last_5m": 100,
+        "uptime_last_1d": 99.07036527769475,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": {
+          "p50": 1674,
+          "p75": 2726,
+          "p90": 3539,
+          "p99": 8268
+        },
+        "throughput_last_30m": {
+          "p50": 82,
+          "p75": 147,
+          "p90": 222,
+          "p99": 292.68000000000006
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 1679,
+              "p75": 2724.25,
+              "p90": 3538.000000000001,
+              "p99": 8267.75
+            },
+            "throughput": {
+              "p50": 82,
+              "p75": 146.75,
+              "p90": 222,
+              "p99": 292.6600000000001
+            },
+            "request_count": 718
+          }
+        }
+      },
+      {
+        "name": "Venice | minimax/minimax-m3-20260531",
+        "model_id": "minimax/minimax-m3",
+        "model_name": "MiniMax: MiniMax M3",
+        "context_length": 524288,
+        "pricing": {
+          "prompt": "0.0000003",
+          "completion": "0.0000012",
+          "input_cache_read": "0.00000006",
+          "discount": 0
+        },
+        "provider_name": "Venice",
+        "tag": "venice/fp8",
+        "quantization": "fp8",
+        "max_completion_tokens": 65536,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "top_k",
+          "tools",
+          "tool_choice"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 99.9857163262391,
+        "uptime_last_5m": 100,
+        "uptime_last_1d": 99.96809084569128,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": {
+          "p50": 990,
+          "p75": 1546,
+          "p90": 2674.9000000000005,
+          "p99": 8749.020000000011
+        },
+        "throughput_last_30m": {
+          "p50": 86,
+          "p75": 113,
+          "p90": 139,
+          "p99": 184
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 991,
+              "p75": 1537,
+              "p90": 2651,
+              "p99": 8065.170000000002
+            },
+            "throughput": {
+              "p50": 85,
+              "p75": 113,
+              "p90": 139,
+              "p99": 184.09000000000015
+            },
+            "request_count": 13998
+          }
+        }
+      },
+      {
+        "name": "Together | minimax/minimax-m3-20260531",
+        "model_id": "minimax/minimax-m3",
+        "model_name": "MiniMax: MiniMax M3",
+        "context_length": 524288,
+        "pricing": {
+          "prompt": "0.0000003",
+          "completion": "0.0000012",
+          "input_cache_read": "0.00000006",
+          "discount": 0
+        },
+        "provider_name": "Together",
+        "tag": "together",
+        "quantization": "unknown",
+        "max_completion_tokens": 471859,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "top_k",
+          "repetition_penalty",
+          "logit_bias",
+          "min_p",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice"
+        ],
+        "supports_tool_choice": {
+          "none": false,
+          "auto": true,
+          "required": false,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 99.79066985645933,
+        "uptime_last_5m": 99.86449864498645,
+        "uptime_last_1d": 99.94224827466721,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": {
+          "p50": 658,
+          "p75": 1164,
+          "p90": 2580.6000000000013,
+          "p99": 5842.68
+        },
+        "throughput_last_30m": {
+          "p50": 76,
+          "p75": 102,
+          "p90": 131,
+          "p99": 183
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 658,
+              "p75": 1164,
+              "p90": 2582.5,
+              "p99": 5842.65
+            },
+            "throughput": {
+              "p50": 76,
+              "p75": 102,
+              "p90": 131,
+              "p99": 183
+            },
+            "request_count": 6736
+          }
+        }
+      },
+      {
+        "name": "Parasail | minimax/minimax-m3-20260531",
+        "model_id": "minimax/minimax-m3",
+        "model_name": "MiniMax: MiniMax M3",
+        "context_length": 1048576,
+        "pricing": {
+          "prompt": "0.0000003",
+          "completion": "0.0000012",
+          "input_cache_read": "0.00000006",
+          "discount": 0
+        },
+        "provider_name": "Parasail",
+        "tag": "parasail/fp8",
+        "quantization": "fp8",
+        "max_completion_tokens": 524288,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "frequency_penalty",
+          "presence_penalty",
+          "repetition_penalty",
+          "seed",
+          "stop",
+          "top_k",
+          "logit_bias",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "logprobs",
+          "top_logprobs"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 99.00990099009901,
+        "uptime_last_5m": 100,
+        "uptime_last_1d": 99.3665301690007,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": {
+          "p50": 681.5,
+          "p75": 1052.5,
+          "p90": 2296.500000000005,
+          "p99": 19078.59999999998
+        },
+        "throughput_last_30m": {
+          "p50": 97,
+          "p75": 148,
+          "p90": 191.9000000000002,
+          "p99": 297.38999999999965
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 681.5,
+              "p75": 1052.5,
+              "p90": 2296.500000000005,
+              "p99": 19078.59999999998
+            },
+            "throughput": {
+              "p50": 97,
+              "p75": 148,
+              "p90": 191.9000000000002,
+              "p99": 297.38999999999965
+            },
+            "request_count": 698
+          }
+        }
+      },
+      {
+        "name": "AtlasCloud | minimax/minimax-m3-20260531",
+        "model_id": "minimax/minimax-m3",
+        "model_name": "MiniMax: MiniMax M3",
+        "context_length": 524300,
+        "pricing": {
+          "prompt": "0.0000003",
+          "completion": "0.0000012",
+          "input_cache_read": "0.00000006",
+          "discount": 0
+        },
+        "provider_name": "AtlasCloud",
+        "tag": "atlas-cloud/fp8",
+        "quantization": "fp8",
+        "max_completion_tokens": 524288,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "tools"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 99.51100244498777,
+        "uptime_last_5m": 100,
+        "uptime_last_1d": 99.7261792222186,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": {
+          "p50": 976,
+          "p75": 1261,
+          "p90": 1864.8000000000002,
+          "p99": 4434.100000000002
+        },
+        "throughput_last_30m": {
+          "p50": 55,
+          "p75": 129,
+          "p90": 163,
+          "p99": 233
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 976,
+              "p75": 1260.5,
+              "p90": 1864.7,
+              "p99": 4433.150000000002
+            },
+            "throughput": {
+              "p50": 55,
+              "p75": 129,
+              "p90": 163,
+              "p99": 233
+            },
+            "request_count": 804
+          }
+        }
+      },
+      {
+        "name": "Novita | minimax/minimax-m3-20260531",
+        "model_id": "minimax/minimax-m3",
+        "model_name": "MiniMax: MiniMax M3",
+        "context_length": 1000000,
+        "pricing": {
+          "prompt": "0.0000003",
+          "completion": "0.0000012",
+          "input_cache_read": "0.00000006",
+          "discount": 0
+        },
+        "provider_name": "Novita",
+        "tag": "novita/fp8",
+        "quantization": "fp8",
+        "max_completion_tokens": 131072,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "stop",
+          "frequency_penalty",
+          "presence_penalty",
+          "seed",
+          "top_k",
+          "repetition_penalty",
+          "tools",
+          "tool_choice"
+        ],
+        "supports_tool_choice": {
+          "none": false,
+          "auto": true,
+          "required": false,
+          "function": false
+        },
+        "status": 0,
+        "uptime_last_30m": 99.8300764655905,
+        "uptime_last_5m": 100,
+        "uptime_last_1d": 99.39693107457991,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": {
+          "p50": 1683,
+          "p75": 2973.75,
+          "p90": 5315.2000000000035,
+          "p99": 62414.13
+        },
+        "throughput_last_30m": {
+          "p50": 68,
+          "p75": 117,
+          "p90": 169,
+          "p99": 267.27
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 1683,
+              "p75": 2973.75,
+              "p90": 5315.2000000000035,
+              "p99": 62414.13
+            },
+            "throughput": {
+              "p50": 68,
+              "p75": 117,
+              "p90": 169,
+              "p99": 267.27
+            },
+            "request_count": 1174
+          }
+        }
+      },
+      {
+        "name": "Minimax | minimax/minimax-m3-20260531",
+        "model_id": "minimax/minimax-m3",
+        "model_name": "MiniMax: MiniMax M3",
+        "context_length": 524288,
+        "pricing": {
+          "prompt": "0.0000003",
+          "completion": "0.0000012",
+          "input_cache_read": "0.00000006",
+          "discount": 0
+        },
+        "provider_name": "Minimax",
+        "tag": "minimax/fp8",
+        "quantization": "fp8",
+        "max_completion_tokens": 512000,
+        "max_prompt_tokens": 524288,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "response_format",
+          "tool_choice",
+          "tools"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": false,
+          "function": false
+        },
+        "status": 0,
+        "uptime_last_30m": 99.8110151187905,
+        "uptime_last_5m": 99.69788519637463,
+        "uptime_last_1d": 99.62112672528242,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": {
+          "p50": 1103,
+          "p75": 1852,
+          "p90": 2668.7000000000016,
+          "p99": 8752.18
+        },
+        "throughput_last_30m": {
+          "p50": 71,
+          "p75": 115.25,
+          "p90": 173,
+          "p99": 272.1800000000003
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 1108,
+              "p75": 1874.25,
+              "p90": 2741.7000000000016,
+              "p99": 12031.590000000007
+            },
+            "throughput": {
+              "p50": 71,
+              "p75": 115,
+              "p90": 173,
+              "p99": 268
+            },
+            "request_count": 65416
+          }
+        }
+      },
+      {
+        "name": "SambaNova | minimax/minimax-m3-20260531",
+        "model_id": "minimax/minimax-m3",
+        "model_name": "MiniMax: MiniMax M3",
+        "context_length": 1048576,
+        "pricing": {
+          "prompt": "0.0000006",
+          "completion": "0.0000024",
+          "discount": 0
+        },
+        "provider_name": "SambaNova",
+        "tag": "sambanova",
+        "quantization": "unknown",
+        "max_completion_tokens": 943718,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "top_k",
+          "stop",
+          "response_format",
+          "logprobs",
+          "top_logprobs"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 98.88888888888889,
+        "uptime_last_5m": null,
+        "uptime_last_1d": 99.2446667347147,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": {
+          "p50": 1840,
+          "p75": 2268,
+          "p90": 2855,
+          "p99": 21235.799999999945
+        },
+        "throughput_last_30m": {
+          "p50": 172,
+          "p75": 206,
+          "p90": 220,
+          "p99": 253.99999999999977
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 1840,
+              "p75": 2268,
+              "p90": 2855,
+              "p99": 21235.799999999945
+            },
+            "throughput": {
+              "p50": 172,
+              "p75": 206,
+              "p90": 220,
+              "p99": 253.99999999999977
+            },
+            "request_count": 261
+          }
+        }
+      },
+      {
+        "name": "ModelRun | minimax/minimax-m3-20260531",
+        "model_id": "minimax/minimax-m3",
+        "model_name": "MiniMax: MiniMax M3",
+        "context_length": 1048576,
+        "pricing": {
+          "prompt": "0.00000075",
+          "completion": "0.000003",
+          "input_cache_read": "0.00000015",
+          "discount": 0
+        },
+        "provider_name": "ModelRun",
+        "tag": "modelrun/fp4",
+        "quantization": "fp4",
+        "max_completion_tokens": 943718,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "presence_penalty",
+          "repetition_penalty",
+          "frequency_penalty",
+          "top_p",
+          "top_k",
+          "stop",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": false,
+          "function": false
+        },
+        "status": 0,
+        "uptime_last_30m": 99.70588235294117,
+        "uptime_last_5m": 100,
+        "uptime_last_1d": 99.73364669016843,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": {
+          "p50": 475,
+          "p75": 1250,
+          "p90": 2034,
+          "p99": 4517.799999999999
+        },
+        "throughput_last_30m": {
+          "p50": 163,
+          "p75": 197.5,
+          "p90": 227,
+          "p99": 288.79999999999995
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 475,
+              "p75": 1250,
+              "p90": 2034,
+              "p99": 4517.799999999999
+            },
+            "throughput": {
+              "p50": 163,
+              "p75": 197.5,
+              "p90": 227,
+              "p99": 288.79999999999995
+            },
+            "request_count": 331
+          }
+        }
+      }
+    ]
+  }
+}

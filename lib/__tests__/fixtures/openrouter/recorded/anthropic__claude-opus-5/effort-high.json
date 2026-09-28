@@ -1,0 +1,55 @@
+{
+  "id": "gen-1788815130-LxGDYX0nVNYYcdsazzTu",
+  "object": "chat.completion",
+  "created": 1788815130,
+  "model": "anthropic/claude-opus-5",
+  "provider": "Claude Platform on AWS",
+  "system_fingerprint": null,
+  "service_tier": "default",
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "end_turn",
+      "message": {
+        "role": "assistant",
+        "content": "ok",
+        "refusal": null,
+        "reasoning": "The user just wants a simple \"ok\" response.\n\n",
+        "reasoning_details": [
+          {
+            "type": "reasoning.text",
+            "text": "The user just wants a simple \"ok\" response.\n\n",
+            "format": "anthropic-claude-v1",
+            "index": 0,
+            "signature": "CAISqgIKrgEIERgCKkA5Lx+W0wUJsj/HOmIrX8j64uuzwdk5WSaDb2XAvAejpW7tUDvUNF2jz5mGXH0U5K6dY5kfglcgvEvMfBu60+xsMg1jbGF1ZGUtb3B1cy01OAFCCHRoaW5raW5nWiQ0YzBmMDQ2Zi0yNWZkLTQ1ZmItYmZiMy1hMDhhOGUyNDljYTd6HnVwcm9mXzAxMUNlZUs2TFhtcmlSY2hBQmduN0U0aKgBnc781AYSDLe3Nag/SRAgBbGRdhoMGqIYvldqEDz3UF2dIjD0NdFQJJ8mK1uqYkbS098Y4I8eG/pyAX0KH5tbi0aNkFR/YSbMFzLPOTQVb0dQnQIqKfPrl3IbUTF4YrHz8CND681nEdcEc9mulXTKtD5TQDtHMj9+tDT85CsiGAE="
+          }
+        ]
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 16,
+    "completion_tokens": 15,
+    "total_tokens": 31,
+    "cost": 0.000455,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.000455,
+      "upstream_inference_prompt_cost": 0.00008,
+      "upstream_inference_completions_cost": 0.000375
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 11,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

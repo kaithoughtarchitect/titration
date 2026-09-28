@@ -1,0 +1,91 @@
+{
+  "id": "openai/gpt-6-luna",
+  "canonical_slug": "openai/gpt-6-luna-20260922",
+  "hugging_face_id": null,
+  "name": "OpenAI: GPT-6 Luna",
+  "created": 1790100786,
+  "description": "GPT-6 Luna is the fast, cost-efficient model in OpenAI's GPT-6 series, positioned below GPT-6 Sol. It is suited for high-volume and latency-sensitive workloads such as chat, classification, and lightweight agentic...",
+  "context_length": 1050000,
+  "architecture": {
+    "modality": "text+image+file->text",
+    "input_modalities": [
+      "file",
+      "image",
+      "text"
+    ],
+    "output_modalities": [
+      "text"
+    ],
+    "tokenizer": "GPT",
+    "instruct_type": null
+  },
+  "pricing": {
+    "prompt": "0.0000001",
+    "completion": "0.0000005",
+    "web_search": "0.01",
+    "input_cache_read": "0.00000001",
+    "input_cache_write": "0.000000125",
+    "overrides": [
+      {
+        "min_prompt_tokens": 272000,
+        "prompt": "0.0000002",
+        "completion": "0.00000075",
+        "input_cache_read": "0.00000002",
+        "input_cache_write": "0.00000025"
+      }
+    ]
+  },
+  "top_provider": {
+    "context_length": 1050000,
+    "max_completion_tokens": 128000,
+    "is_moderated": true
+  },
+  "per_request_limits": null,
+  "supported_parameters": [
+    "include_reasoning",
+    "max_completion_tokens",
+    "max_tokens",
+    "reasoning",
+    "reasoning_effort",
+    "response_format",
+    "seed",
+    "structured_outputs",
+    "tool_choice",
+    "tools"
+  ],
+  "default_parameters": {
+    "temperature": null,
+    "top_p": null,
+    "top_k": null,
+    "frequency_penalty": null,
+    "presence_penalty": null,
+    "repetition_penalty": null
+  },
+  "supported_voices": null,
+  "knowledge_cutoff": null,
+  "expiration_date": null,
+  "links": {
+    "details": "/api/v1/models/openai/gpt-6-luna-20260922/endpoints"
+  },
+  "benchmarks": {
+    "design_arena": [],
+    "artificial_analysis": {
+      "intelligence_index": 37.3,
+      "coding_index": null,
+      "agentic_index": null
+    }
+  },
+  "reasoning": {
+    "mandatory": false,
+    "default_enabled": true,
+    "supported_efforts": [
+      "max",
+      "xhigh",
+      "high",
+      "medium",
+      "low",
+      "none"
+    ],
+    "default_effort": "medium"
+  }
+}

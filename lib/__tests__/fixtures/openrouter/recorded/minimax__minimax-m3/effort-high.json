@@ -1,0 +1,54 @@
+{
+  "id": "gen-1788803200-17cs4erXjHlFAzREGnul",
+  "object": "chat.completion",
+  "created": 1788803200,
+  "model": "minimax/minimax-m3",
+  "provider": "DeepInfra",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "ok",
+        "refusal": null,
+        "reasoning": "The user is asking me to reply with a single word \"ok\". This is a simple request that I can fulfill directly.",
+        "reasoning_details": [
+          {
+            "type": "reasoning.text",
+            "text": "The user is asking me to reply with a single word \"ok\". This is a simple request that I can fulfill directly.",
+            "format": "unknown",
+            "index": 0
+          }
+        ]
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 180,
+    "completion_tokens": 28,
+    "total_tokens": 208,
+    "cost": 0,
+    "is_byok": true,
+    "prompt_tokens_details": {
+      "cached_tokens": 128,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.000052528,
+      "upstream_inference_prompt_cost": 0.000021728,
+      "upstream_inference_completions_cost": 0.0000308
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 28,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

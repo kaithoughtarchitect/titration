@@ -1,0 +1,176 @@
+{
+  "id": "anthropic/claude-opus-5",
+  "canonical_slug": "anthropic/claude-opus-5-20260723",
+  "hugging_face_id": null,
+  "name": "Claude Opus 5",
+  "created": 1784912544,
+  "description": "Claude Opus 5 is Anthropic’s flagship model for demanding reasoning, coding, and long-horizon agentic work. It is particularly strong at end-to-end software tasks, code review and bug finding, visual analysis...",
+  "context_length": 1000000,
+  "architecture": {
+    "modality": "text+image+file->text",
+    "input_modalities": [
+      "text",
+      "image",
+      "file"
+    ],
+    "output_modalities": [
+      "text"
+    ],
+    "tokenizer": "Claude",
+    "instruct_type": null
+  },
+  "pricing": {
+    "prompt": "0.000005",
+    "completion": "0.000025",
+    "web_search": "0.01",
+    "input_cache_read": "0.0000005",
+    "input_cache_write": "0.00000625",
+    "input_cache_write_1h": "0.00001"
+  },
+  "top_provider": {
+    "context_length": 1000000,
+    "max_completion_tokens": 128000,
+    "is_moderated": true
+  },
+  "per_request_limits": null,
+  "supported_parameters": [
+    "include_reasoning",
+    "max_completion_tokens",
+    "max_tokens",
+    "reasoning",
+    "reasoning_effort",
+    "response_format",
+    "stop",
+    "structured_outputs",
+    "temperature",
+    "tool_choice",
+    "tools",
+    "verbosity"
+  ],
+  "default_parameters": {},
+  "supported_voices": null,
+  "knowledge_cutoff": null,
+  "expiration_date": null,
+  "links": {
+    "details": "/api/v1/models/anthropic/claude-opus-5-20260723/endpoints"
+  },
+  "benchmarks": {
+    "design_arena": [
+      {
+        "arena": "agents",
+        "category": "agenticgamedev",
+        "elo": 1266,
+        "win_rate": 54.3,
+        "rank": 2
+      },
+      {
+        "arena": "agents",
+        "category": "androidnative",
+        "elo": 1271,
+        "win_rate": 54.9,
+        "rank": 3
+      },
+      {
+        "arena": "agents",
+        "category": "fullstack",
+        "elo": 1352,
+        "win_rate": 70.6,
+        "rank": 1
+      },
+      {
+        "arena": "agents",
+        "category": "mobileapps",
+        "elo": 1348,
+        "win_rate": 67.1,
+        "rank": 1
+      },
+      {
+        "arena": "agents",
+        "category": "python-pptxslides",
+        "elo": 1261,
+        "win_rate": 53,
+        "rank": 4
+      },
+      {
+        "arena": "agents",
+        "category": "webapps",
+        "elo": 1281,
+        "win_rate": 57.8,
+        "rank": 4
+      },
+      {
+        "arena": "models",
+        "category": "3d",
+        "elo": 1367,
+        "win_rate": 62.3,
+        "rank": 3
+      },
+      {
+        "arena": "models",
+        "category": "asciiart",
+        "elo": 1380,
+        "win_rate": 69.3,
+        "rank": 1
+      },
+      {
+        "arena": "models",
+        "category": "codecategories",
+        "elo": 1341,
+        "win_rate": 58.6,
+        "rank": 3
+      },
+      {
+        "arena": "models",
+        "category": "dataviz",
+        "elo": 1356,
+        "win_rate": 61.2,
+        "rank": 4
+      },
+      {
+        "arena": "models",
+        "category": "gamedev",
+        "elo": 1365,
+        "win_rate": 59.9,
+        "rank": 4
+      },
+      {
+        "arena": "models",
+        "category": "svg",
+        "elo": 1349,
+        "win_rate": 62.3,
+        "rank": 1
+      },
+      {
+        "arena": "models",
+        "category": "uicomponent",
+        "elo": 1368,
+        "win_rate": 62,
+        "rank": 2
+      },
+      {
+        "arena": "models",
+        "category": "website",
+        "elo": 1322,
+        "win_rate": 56.6,
+        "rank": 4
+      }
+    ],
+    "artificial_analysis": {
+      "intelligence_index": 54.1,
+      "coding_index": 78,
+      "agentic_index": 56.4
+    }
+  },
+  "reasoning": {
+    "mandatory": false,
+    "default_enabled": true,
+    "supported_efforts": [
+      "max",
+      "xhigh",
+      "high",
+      "medium",
+      "low"
+    ],
+    "default_effort": "high"
+  }
+}

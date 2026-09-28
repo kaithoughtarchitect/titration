@@ -1,0 +1,54 @@
+{
+  "id": "gen-1788802136-2ZsbFcCvKJEBHFjpUs6g",
+  "object": "chat.completion",
+  "created": 1788802136,
+  "model": "google/gemini-3.8-flash",
+  "provider": "Google",
+  "system_fingerprint": null,
+  "service_tier": "default",
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "STOP",
+      "message": {
+        "role": "assistant",
+        "content": "ok",
+        "refusal": null,
+        "reasoning": null,
+        "reasoning_details": [
+          {
+            "type": "reasoning.text",
+            "signature": "AY89a1/JUxGdXW9OBvwxSCqzIKqno1Ez205xk63O7AFrqY+Gp2UfpWONDW68vn/OZxoIa++Sg0iZf3r+aa42A5IzK53oNKANXtcjgdiLb78aChbgEiL1JKg68KCLy0C9A6mVQXnV0NTGNhMaBJ9yI2i5hcp3LyOhVZZ7GBiRQHLIWvWThvI7Wpi+EEWepQsI2LE4QWNAKEi0J09ltnlqpvr5toCdgwwiEXV9jvkuGpRsGE9u9RS8aDxcr9zR8YFSkTNu0ZtcJtHNvHTipzrZajYikhCvujy+U0zpzY4B8JT+Zjd+YF4IzLU35j0oi/IgUATiFXLREo38MMEKjrP2oGm4MqlP3MHSNwZZlDUMBsI6BWwfqljVECSn9exTORwxpLO6z1Yy9I1+GlO/9HL/+yv1RoCJWTPuNK5octJ0gmb+w0K1BuBeBvQyIZu5a2iLVOyO8srhjPIkA3InTObP1FIrG/1N1YOsM6Af9tnn65xoYxLAhQN3tRq5GtOzQ1feX60qhfQQSRSSqEgrn/TwTOu+bFr/McByxPi0bR7teifhAWlWM5D8DehrYAdP+tBO4ZzqvrKbmzEDfDqdlYkg5pVUdEy7LgiK+0FFAZ+R3g02sXLBdOsdqYaQBdvsnYBwo+feOQ+XGJ9e7IuYZHquJSkIFcjH5rW7omwSYr+KtMzIJTOZ6T+RfbMrV/mIMXIpBxJ1xnlg",
+            "format": "google-gemini-v1",
+            "index": 0
+          }
+        ]
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 7,
+    "completion_tokens": 111,
+    "total_tokens": 118,
+    "cost": 0.0004215,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.0004215,
+      "upstream_inference_prompt_cost": 0.00000525,
+      "upstream_inference_completions_cost": 0.00041625
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 110,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

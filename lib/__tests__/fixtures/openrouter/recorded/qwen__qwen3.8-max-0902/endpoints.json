@@ -1,0 +1,101 @@
+{
+  "data": {
+    "id": "qwen/qwen3.8-max-0902",
+    "name": "Qwen: Qwen3.8 Max (0902)",
+    "created": 1788469704,
+    "description": "Qwen3.8 Max 0902 is an updated snapshot of Qwen3.8 Max from Alibaba's Qwen team. It is a 2.4-trillion-parameter mixture-of-experts model that accepts text, image, and video input and returns text,...",
+    "architecture": {
+      "tokenizer": "Qwen",
+      "instruct_type": null,
+      "modality": "text+image+video->text",
+      "input_modalities": [
+        "text",
+        "image",
+        "video"
+      ],
+      "output_modalities": [
+        "text"
+      ]
+    },
+    "endpoints": [
+      {
+        "name": "Alibaba | qwen/qwen3.8-max-20260902",
+        "model_id": "qwen/qwen3.8-max-0902",
+        "model_name": "Qwen: Qwen3.8 Max (0902)",
+        "context_length": 1000000,
+        "pricing": {
+          "prompt": "0.000002",
+          "completion": "0.000006",
+          "input_cache_read": "0.00000025",
+          "input_cache_write": "0.0000025",
+          "discount": 0
+        },
+        "provider_name": "Alibaba",
+        "tag": "alibaba",
+        "quantization": "unknown",
+        "max_completion_tokens": 131072,
+        "max_prompt_tokens": 983616,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "temperature",
+          "top_p",
+          "seed",
+          "presence_penalty",
+          "response_format",
+          "tools",
+          "tool_choice",
+          "structured_outputs",
+          "logprobs",
+          "top_logprobs",
+          "top_k",
+          "frequency_penalty",
+          "stop",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": false,
+          "function": false
+        },
+        "status": 0,
+        "uptime_last_30m": 100,
+        "uptime_last_5m": 100,
+        "uptime_last_1d": 99.99957717297853,
+        "supports_implicit_caching": false,
+        "supports_voice_cloning": false,
+        "latency_last_30m": {
+          "p50": 2235,
+          "p75": 4316,
+          "p90": 9234.100000000004,
+          "p99": 46618.87
+        },
+        "throughput_last_30m": {
+          "p50": 37,
+          "p75": 43,
+          "p90": 47,
+          "p99": 55
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 2235.5,
+              "p75": 4251,
+              "p90": 9450.9,
+              "p99": 50779.81000000004
+            },
+            "throughput": {
+              "p50": 37,
+              "p75": 43,
+              "p90": 47,
+              "p99": 55
+            },
+            "request_count": 18352
+          }
+        }
+      }
+    ]
+  }
+}

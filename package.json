@@ -1,0 +1,41 @@
+{
+  "name": "titration",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Let your coding agent fix a prompt until it actually works, and prove it did. Cross-vendor judges, a frozen baseline and memory, as a self-hosted MCP server.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kaithoughtarchitect/titration.git"
+  },
+  "homepage": "https://github.com/kaithoughtarchitect/titration#readme",
+  "bugs": {
+    "url": "https://github.com/kaithoughtarchitect/titration/issues"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=22.11"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "node run-tests.mjs && node scripts/import-graph-check.mjs",
+    "server": "tsx server/server.ts",
+    "ingest:base": "tsx ingest/ingest-base.ts",
+    "embed": "tsx ingest/embed-cards.ts",
+    "search": "tsx query/card-search.ts",
+    "migrate:check": "tsx scripts/migrate.ts check",
+    "migrate": "tsx scripts/migrate.ts apply",
+    "setup": "tsx scripts/setup.ts",
+    "retrieval:eval": "tsx retrieval-eval/run.ts",
+    "import-graph": "node scripts/import-graph-check.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "postgres": "^3.4.9",
+    "tsx": "^4.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.3",
+    "typescript": "^5.9.3"
+  }
+}

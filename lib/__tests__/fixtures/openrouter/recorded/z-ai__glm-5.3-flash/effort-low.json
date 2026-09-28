@@ -1,0 +1,46 @@
+{
+  "id": "gen-1788802138-I8NvgG2p5ASUQmpg9sMS",
+  "object": "chat.completion",
+  "created": 1788802138,
+  "model": "z-ai/glm-5.3-flash",
+  "provider": "Novita",
+  "system_fingerprint": null,
+  "service_tier": null,
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "native_finish_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "ok",
+        "refusal": null,
+        "reasoning": null
+      }
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 19,
+    "completion_tokens": 3,
+    "total_tokens": 22,
+    "cost": 0,
+    "is_byok": true,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.00000435,
+      "upstream_inference_prompt_cost": 0.00000285,
+      "upstream_inference_completions_cost": 0.0000015
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "tenant": "__base__",
+  "embed_model": "openai/text-embedding-3-small",
+  "captured_at_sha": "f3f7d02",
+  "captured_at": "2026-08-04",
+  "n": 20,
+  "recall": {
+    "1": 0.95,
+    "3": 1,
+    "5": 1,
+    "10": 1
+  },
+  "mrr": 0.975
+}
