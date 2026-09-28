@@ -52,6 +52,11 @@ jobs:
           TITRATION_DATABASE_URL: postgres://titration:titration@localhost:5432/titration
         run: npm run migrate
 
+      - name: Load the base starter pack (no key, so cards load unembedded, as setup does)
+        env:
+          TITRATION_DATABASE_URL: postgres://titration:titration@localhost:5432/titration
+        run: npm run ingest:base
+
       - name: Smoke — schema
         env:
           TITRATION_DATABASE_URL: postgres://titration:titration@localhost:5432/titration
