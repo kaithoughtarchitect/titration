@@ -176,7 +176,6 @@ const ALLOWLIST = [
   { pattern: "kaithoughtarchitect", glob: "SECURITY.md", reason: "allowed location per SCRUB-LIST.md even if currently unused" },
   { pattern: "kaithoughtarchitect", glob: ".github/**", reason: "issue/PR templates and CI may reference the repo" },
   { pattern: "kaithoughtarchitect", glob: "docs/deck/titration-deck.html", reason: "clone command and repo URL on the overview deck" },
-  { pattern: "kaithoughtarchitect", glob: "docs/deck/social/titration-social.html", reason: "repo URL on the social carousel's last slide" },
   { pattern: "openrouter-secret", glob: "lib/__tests__/fixtures/**", reason: "recorded/synthetic OpenRouter door fixtures may contain placeholder key-shaped strings, never real credentials" },
   { pattern: "openrouter-secret", glob: "lib/__tests__/tool-error-redaction-core.test.ts", reason: "synthetic key-shaped fixture asserting the redaction pipeline actually redacts it, never a real credential" },
   { pattern: "internal-id-T", glob: "examples/ticket-triage/**", reason: "the example's sample tickets are numbered t01-t30; a ticket id, not an internal card ref" },

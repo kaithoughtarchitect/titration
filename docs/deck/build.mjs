@@ -1,4 +1,4 @@
-// Rebuilds docs/deck/titration-deck.pdf, the README images in docs/images/ and the social cut in docs/deck/social/
+// Rebuilds docs/deck/titration-deck.pdf and the README images in docs/images/
 // from docs/deck/titration-deck.html using a local Google Chrome (headless).
 // Run: node docs/deck/build.mjs   (set CHROME_PATH if Chrome is not found)
 
@@ -47,21 +47,5 @@ const exports = { 2: "nine-origins.png", 3: "how-it-decides.png", 4: "how-it-mea
 for (const [slide, name] of Object.entries(exports)) {
   const out = resolve(images, name);
   run(["--window-size=1600,900", "--force-device-scale-factor=1", `--screenshot=${out}`, `${url}?slide=${slide}`], out);
-  console.log(`wrote ${out}`);
-}
-
-// The portrait social cut (LinkedIn document post = the PDF, Reddit gallery = the PNGs).
-const socialDir = resolve(here, "social");
-const socialUrl = pathToFileURL(resolve(socialDir, "titration-social.html")).href;
-const socialPdf = resolve(socialDir, "titration-social.pdf");
-run(["--no-pdf-header-footer", `--print-to-pdf=${socialPdf}`, socialUrl], socialPdf);
-console.log(`wrote ${socialPdf}`);
-const preview = resolve(socialDir, "github-social-preview.png");
-run(["--window-size=1280,640", "--force-device-scale-factor=1", `--screenshot=${preview}`,
-  pathToFileURL(resolve(socialDir, "github-social-preview.html")).href], preview);
-console.log(`wrote ${preview}`);
-for (let slide = 1; slide <= 5; slide++) {
-  const out = resolve(socialDir, `titration-social-${slide}.png`);
-  run(["--window-size=1080,1350", "--force-device-scale-factor=1", `--screenshot=${out}`, `${socialUrl}?slide=${slide}`], out);
   console.log(`wrote ${out}`);
 }

@@ -11,16 +11,3 @@ node docs/deck/build.mjs   # needs Google Chrome and network for Google Fonts; s
 ```
 
 Open `titration-deck.html?slide=3` in a browser to preview a single slide.
-
-## Social cut
-
-`social/` holds a portrait (4:5, 1080×1350) version of the same story for feeds, with type sized
-to read on a phone:
-
-- `social/titration-social.pdf`: upload as a LinkedIn document post (it shows as a carousel).
-- `social/titration-social-1.png` … `-5.png`: post as a Reddit gallery, in order.
-
-- `social/github-social-preview.png` (1280×640): the repo's social preview, set under
-  GitHub → Settings → Social preview. It is the card shown whenever the repo link is pasted.
-
-The same `build.mjs` run rebuilds all of these from the HTML next to them.
