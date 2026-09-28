@@ -34,7 +34,9 @@ check("codex is an npm door on @openai/codex#codex", DOOR_TABLE.codex.kind === "
 check("claude is an npm door on @anthropic-ai/claude-code#claude", DOOR_TABLE.claude.kind === "npm" && (DOOR_TABLE.claude as any).packageName === "@anthropic-ai/claude-code" && (DOOR_TABLE.claude as any).binKey === "claude");
 check("grok is native-unverified (no npm package to check)", DOOR_TABLE.grok.kind === "native" && (DOOR_TABLE.grok as any).owner === "native-unverified");
 
-check("relative PATH entries are ignored", JSON.stringify(absolutePathDirectories(["relative-path", "C:\\ok"].join(delimiter))) === JSON.stringify(["C:\\ok"]));
+// An absolute directory for the OS running the test ("C:\ok" is relative on Linux/macOS).
+const ABS_DIR = process.platform === "win32" ? "C:\\ok" : "/usr/local/ok";
+check("relative PATH entries are ignored", JSON.stringify(absolutePathDirectories(["relative-path", ABS_DIR].join(delimiter))) === JSON.stringify([ABS_DIR]));
 
 check("wrong package name is never validated", validatedBinPath({ name: "unrelated", bin: { codex: "bin/codex.js" } }, DOOR_TABLE.codex as any) === null);
 check("missing bin key is never validated", validatedBinPath({ name: "@openai/codex", bin: { other: "bin/other.js" } }, DOOR_TABLE.codex as any) === null);
