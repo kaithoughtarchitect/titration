@@ -104,6 +104,32 @@ frozen *rubric*, so bake the reference's qualities INTO the rubric text.
 > **Fail** = vague ("be careful with prompts"), duplicative, or derivable just by reading the repo.
 > **Near-miss (still fail)** = a real principle, but tied to one pipeline / not abstracted.
 
+## Held-out cases — check the winner on cases the loop never saw
+
+The loop grades every turn on the same cases, so a prompt can learn those cases and still get worse
+on new inputs. To catch that, hold some cases back from the loop and grade the winner on them once, at
+the end. This uses only the tools below and adds a single grading pass.
+
+- **Split before the baseline.** If the corpus has **40 or more** cases, hold back 20% of them (at
+  least 20 — `verify` needs 20 scorable cases on each side, or it returns `inconclusive`). Pick them at
+  random within each `mode`, so every mode is on both sides. Write the held-back case ids to
+  `.titration/holdout/<system_ref>.json` before any spend. The rest are the **tuned** cases.
+- **Under 40 cases, run without a holdout.** Do not invent inputs to reach 40. The final report's
+  first line then says there was no holdout, and why (see "Output format" below).
+- **Two baselines, one rubric.** Establish a **tuned baseline** on the tuned cases and a **holdout
+  baseline** on the held-back cases, with the exact same rubric text, both at step 3. Only the tuned
+  baseline goes to `goal_titrate`.
+- **Keep the held-back cases out of the loop.** Never ship them in a `goal_titrate_step`, and never
+  use their outputs or grades to decide a change.
+- **If the holdout baseline is refused** (for example `reproduced=false`: the current prompt passes
+  those cases too often), carry on without a holdout; the final report's first line says so, with the
+  refusal reason. Do not re-split: that is more judge spend on the same corpus.
+- **Final check, once.** When the loop converges, run the winning prompt on the held-back cases and
+  call `verify { baseline_id: <holdout baseline>, candidate_outputs, player_model }`. Keep each case's
+  `id` and `mode` exactly as they were at the split. Only `passed` confirms the win. Anything else
+  (`inconclusive` or a regression) means the report leads with "likely overfit, don't ship" (see
+  "Output format" below). Do not restart the loop yourself — the user decides what happens next.
+
 ## The loop
 
 1. **Sharpen + confirm the goal + rubric — and STOP.** Name the independently improvable capability
@@ -116,7 +142,7 @@ frozen *rubric*, so bake the reference's qualities INTO the rubric text.
    explicit "go." A "go" approves the rubric only — it does **not** skip picking judges (step 3).
 2. **Capture the baseline.** Run the CURRENT (pre-change) prompt/system over your corpus; collect the
    outputs as `OUTPUT_ROW`s. They must actually **reproduce the failure** — a baseline that can't
-   exhibit the bug measures nothing.
+   exhibit the bug measures nothing. Then split off the held-out cases (see "Held-out cases" above).
 3. **Get a judge panel, then `establish_baseline`.** A baseline needs at least 2 distinct-vendor judges,
    and never one that shares the Player's family. Two ways to get there — pick one:
 
@@ -140,6 +166,10 @@ frozen *rubric*, so bake the reference's qualities INTO the rubric text.
      - On `expired` or a timeout: **HALT**. Do not call `establish_baseline`. A pending ticket is not
        revived — mint a fresh one only if the user retries.
      - On `confirmed`: call `establish_baseline` with `panel_receipt_id` set to that `ticket_id`.
+     - **With a holdout**, each baseline needs its own ticket, because a ticket is used up by one
+       `establish_baseline`. Mint both tickets up front, show both links together, and ask the user to
+       pick the same three judges on each. Poll both tickets, then establish each baseline with its
+       own `ticket_id`.
    - **`TITRATION_JUDGES` (unattended / CI).** If the user's `.env` sets `TITRATION_JUDGES` to a
      comma-separated list of roster ids, or to `auto`, the picker is skipped entirely and
      `establish_baseline` resolves the panel from that setting instead — do not mint a ticket, and do
@@ -158,7 +188,9 @@ frozen *rubric*, so bake the reference's qualities INTO the rubric text.
    system_ref, player_model, panel_receipt_id | (rely on TITRATION_JUDGES), corpus_ref? }` grades the
    baseline via the resolved judges, **confirms it reproduces the failure** (else REFUSES with
    `reproduced=false`), **freezes the rubric** (`rubric_hash`), and returns a **`baseline_id`**.
-4. **Start the loop — `goal_titrate`** `{ baseline_id, candidate: { name, version?, summary?,
+   With a holdout, call it twice with the same rubric: once with the tuned cases and once with the
+   held-back cases. Record both `baseline_id`s in the holdout file.
+4. **Start the loop — `goal_titrate`** `{ baseline_id (the tuned one, with a holdout), candidate: { name, version?, summary?,
    deferred_scope? }, player_model, budget?, target_rate?, ledger: true, capture: true }` →
    `{ job_id }`. Sub-objectives = the baseline's modes, locked at turn 1. `target_rate` default `0`
    (bug eliminated); omitted `budget` defaults to `20` turns. `capture` is locked here and promotes a
@@ -201,7 +233,9 @@ frozen *rubric*, so bake the reference's qualities INTO the rubric text.
      result in the note. Repeat while `continue`.
 6. **Terminal.** Converged (a real, non-inconclusive improvement with every sub-objective ≤ target)
    OR stopped with a `failure_origin` (`goal-complete` / `turn-budget-reached` / `progress-stalled`) + a
-   per-turn audit trail.
+   per-turn audit trail. On convergence with a holdout, run the one final `verify` against the holdout
+   baseline (see "Held-out cases" above) before you report a win. The final report's first line
+   follows "Output format" below, whatever the loop concluded.
 7. **Optional — extract reusable learnings.** `capture: true` at step 4 already handled the terminal
    verdict (a FINDING on convergence, a REGRESSION on a stalled-or-exhausted run) automatically — no
    further action needed for that. For anything else worth keeping — a METHOD, a MODEL_PROFILE, a
@@ -279,6 +313,16 @@ Rubric check:
 
 Next: <one concrete action>
 ```
+
+Final report (after the terminal turn) — its first line is exactly one of:
+
+```
+Held-out check: passed on <n> cases the loop never saw.
+Improved on tuned cases, not confirmed on held-out cases: likely overfit, don't ship.
+No holdout: <reason — corpus under 40 cases, or the holdout baseline was refused: <refusal>>, so this result is measured only on the cases the loop tuned against.
+```
+
+A run that did not converge leads with its `failure_origin` instead; there is no final check to run.
 
 ## Boundaries
 
