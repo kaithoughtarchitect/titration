@@ -119,8 +119,10 @@ the end. This uses only the tools below and adds a single grading pass.
 - **Two baselines, one rubric.** Establish a **tuned baseline** on the tuned cases and a **holdout
   baseline** on the held-back cases, with the exact same rubric text, both at step 3. Only the tuned
   baseline goes to `goal_titrate`.
-- **Keep the held-back cases out of the loop.** Never ship them in a `goal_titrate_step`, and never
-  use their outputs or grades to decide a change.
+- **Keep the held-back cases out of the loop.** While the loop runs, run the system on the tuned cases
+  only, so held-back outputs never appear mid-loop. Run it on the held-back cases once, for the final
+  check. Never ship them in a `goal_titrate_step`, and never use their outputs or grades to decide a
+  change.
 - **If the holdout baseline is refused** (for example `reproduced=false`: the current prompt passes
   those cases too often), carry on without a holdout; the final report's first line says so, with the
   refusal reason. Do not re-split: that is more judge spend on the same corpus.
@@ -314,7 +316,8 @@ Rubric check:
 Next: <one concrete action>
 ```
 
-Final report (after the terminal turn) — its first line is exactly one of:
+Final report (after the terminal turn): your final message to the user starts with exactly one of these
+lines, word for word, before any summary or table:
 
 ```
 Held-out check: passed on <n> cases the loop never saw.
