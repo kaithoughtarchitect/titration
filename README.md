@@ -1,4 +1,4 @@
-# Titration
+# <img src="docs/images/titration-logo.svg" alt="" width="36" height="36"> Titration
 
 **Let your coding agent fix a prompt until it actually works, and prove it did.**
 
