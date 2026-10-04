@@ -6,9 +6,9 @@
 // public `project` argument tool schemas expose to the internal tenant slug —
 // nothing downstream needs to know the word "project" exists.
 //
-// Every tool input takes an optional `project`
-// (default "default" — the ready-to-use workspace `db/001_schema.sql` seeds
-// alongside `__base__`). Reads of an unknown project behave as an empty project
+// Mandatory MCP scope uses selectMcpProject: explicit, configured, or refused.
+// resolveProject retains legacy defaulting for callers such as the search CLI.
+// Reads of an unknown project behave as an empty project
 // (never an "unknown tenant" throw — see lib/store.ts's non-throwing lookup); the
 // first write creates it (lib/store.ts's `tenantIdForWrite`). This module only
 // validates/normalizes the NAME; it does no I/O and knows nothing about reads,
@@ -29,6 +29,13 @@ const PROJECT_SLUG_PATTERN = /^[a-z0-9][a-z0-9_-]{0,62}$/;
 // read it) even though it fails the slug pattern above (leading/trailing `__`).
 const BASE_PROJECT = "__base__";
 
+export class ProjectRequiredError extends Error {
+  constructor() {
+    super("PROJECT_REQUIRED: pass project or configure TITRATION_PROJECT");
+    this.name = "ProjectRequiredError";
+  }
+}
+
 export class InvalidProjectError extends Error {
   constructor(message: string) {
     super(message);
@@ -37,7 +44,8 @@ export class InvalidProjectError extends Error {
 }
 
 /**
- * Normalize a caller-supplied `project` argument into the internal tenant slug.
+ * Legacy normalization into the internal tenant slug (including CLI defaulting).
+ * Mandatory MCP calls must use selectMcpProject before downstream normalization.
  *
  * - `undefined` / `null` / an empty (or whitespace-only) string -> `"default"`.
  * - a non-string value -> `InvalidProjectError` (the schema declares `project` as
@@ -67,4 +75,25 @@ export function resolveProject(input: unknown): string {
     );
   }
   return trimmed;
+}
+
+/** Select mandatory MCP scope without implicitly choosing the legacy default. */
+export function selectMcpProject(input: unknown, configuredProject?: string): string {
+  const omitted = input === undefined || input === null ||
+    (typeof input === "string" && input.trim() === "");
+  if (!omitted) return resolveProject(input);
+
+  const configured = configuredProject?.trim();
+  if (!configured) throw new ProjectRequiredError();
+  if (configured === BASE_PROJECT) {
+    throw new Error(`Invalid TITRATION_PROJECT: '${BASE_PROJECT}' cannot be a configured default`);
+  }
+  try {
+    return resolveProject(configured);
+  } catch (error) {
+    if (error instanceof InvalidProjectError) {
+      throw new Error(`Invalid TITRATION_PROJECT: ${error.message}`);
+    }
+    throw error;
+  }
 }

@@ -167,6 +167,7 @@ const FAIL_UNLESS_ALLOWLISTED = [
 // a `**` path segment (any depth). Matched against the repo-relative,
 // forward-slash-normalized path.
 const ALLOWLIST = [
+  { pattern: "scratch-tenant", glob: "scripts/smoke-mcp-project-isolation.ts", reason: "fixed disposable-test project used to restrict isolation-proof writes; not a private deployment reference" },
   { pattern: "kaithoughtarchitect", glob: "README.md", reason: "public repo pointer / author attribution" },
   { pattern: "kaithoughtarchitect", glob: "LICENSE", reason: "license boilerplate may name the repo owner" },
   { pattern: "kaithoughtarchitect", glob: "NOTICE", reason: "project NOTICE copyright line" },

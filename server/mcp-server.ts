@@ -14,7 +14,7 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import { cardCreate, cardRelate, runCapture, cardDistill } from "../lib/store";
 import { effectiveCardSearch, effectiveCardGet } from "../lib/effective-retrieval";
-import { resolveProject } from "../lib/project-core";
+import { resolveProject, selectMcpProject } from "../lib/project-core";
 import { EXTRACTION_RITUAL, attachExtractionHint, EXTRACT_LEARNINGS_PROMPT_NAME, EXTRACT_LEARNINGS_PROMPT_DESCRIPTION, buildExtractLearningsPrompt } from "../lib/extraction-ritual";
 import { proposeCards } from "../lib/card-propose";
 import { proposeEdges } from "../lib/edge-propose";
@@ -209,6 +209,7 @@ interface McpRegistryBase<TPrepared, TMode extends McpMode> {
 export interface TrustedLocalMcpRegistryOptions<TPrepared>
   extends McpRegistryBase<TPrepared, "trusted-local"> {
   mode: "trusted-local";
+  configuredProject?: string;
   prepareArguments?: TrustedLocalPrepareArguments;
   createJobContext: (
     tenant: string,
@@ -307,13 +308,12 @@ export async function withGradingKeepalive<T>(
     clearInterval(timer);
   }
 }
-// Every tool input takes an optional `project` — `resolveProject`
-// (lib/project-core.ts) maps it to the internal tenant slug at the top of each
-// handler below. Internal code and the DB keep "tenant" naming; this is the one
-// public-facing name.
+// Mandatory tools select explicit scope or the configured fallback before dispatch.
+// Advisory-optional tools override this description and receive no default injection.
+// Internal code and the DB retain the "tenant" name.
 const PROJECT_PROP = {
   type: "string",
-  description: 'project name (default "default"); "__base__" is the read-only starter pack',
+  description: 'Valid nonblank explicit project wins (trimmed); otherwise use nonblank TITRATION_PROJECT, or refuse PROJECT_REQUIRED. Blank configuration is unset; invalid explicit input never falls back, and invalid configuration is checked only when needed. Pass "default" explicitly for legacy data. "__base__" is read-only and cannot be configured as the fallback. No repository inference.',
 };
 const PREDICATES = ["cures", "extends", "complements", "supports", "supersedes", "superseded_by", "contradicts", "instance_of", "observed_in", "documented_in"];
 
@@ -524,7 +524,7 @@ export const TRUSTED_LOCAL_MCP_TOOLS = [
         judges: JUDGES,
         reconsider: { type: "boolean", description: "run the dissent-reconsideration round on a 2-of-3 split — re-prompt the majority judges with the dissenter's reasoning, then re-tally (counters agreeableness bias; default true)" },
         mode: { type: "string", enum: ["panel", "single", "adaptive"], description: "judging mode (margin lever; default 'panel'): 'panel' = full 3-vendor consensus + reconsideration; 'single' = one calibrated judge (cheapest); 'adaptive' = probe one judge, escalate to the panel only on ambiguity or a system-under-test verdict (the only origin that greenlights a prompt edit — never single-judge)" },
-        project: { ...PROJECT_PROP, description: "optional project whose private memory is consulted for ADVISORY domain-calibrated origins. The consensus origin is NOT influenced. Omit to skip the read." },
+        project: { ...PROJECT_PROP, description: "optional project whose private memory is consulted for ADVISORY domain-calibrated origins. The consensus origin is NOT influenced. Omit to skip the read; configured defaults do not activate it. ledger:false also skips it." },
         ledger: LEDGER_PROP,
       },
       required: ["observation"],
@@ -690,7 +690,7 @@ export const TRUSTED_LOCAL_MCP_TOOLS = [
           type: ["string", "object"],
           description: "strongly recommended: the concrete facts you read from the repo, verbatim — the exact allowed output values (e.g. the category and priority sets), the output schema, a few real sample inputs with their current outputs, the pipeline entry point and the relevant file names. The design uses ONLY these for concrete values and marks anything missing as UNKNOWN instead of guessing. Pass the same facts to harness_validate.",
         },
-        project: { ...PROJECT_PROP, description: "optional project whose private memory and internal platform methodology ground precedent. Raw platform cards are never returned; the precedent NEVER enters a verdict." },
+        project: { ...PROJECT_PROP, description: "optional project whose private memory and internal platform methodology ground precedent. Omit for base-only precedent; configured defaults do not activate private context. Raw platform cards are never returned; the precedent NEVER enters a verdict." },
         design_model: { type: "string", description: "optional OpenRouter model override for the single design call. Omit to resolve via TITRATION_HELPER_MODEL (a judges-roster.json id), else the first available verified door (subscription CLIs first)." },
       },
       required: ["system_description", "change_type"],
@@ -728,7 +728,7 @@ export const TRUSTED_LOCAL_MCP_TOOLS = [
       type: "object",
       properties: {
         run_summary: { type: "string", description: "what the completed run/analysis produced — the server cannot see your work, so supply the evidence the proposals must be grounded in" },
-        project: PROJECT_PROP,
+        project: { ...PROJECT_PROP, description: "optional project for neighbor dedup context. Omit to skip neighbor reads while retaining supplied existing_cards; configured defaults do not activate context." },
         run_ref: { type: "string", description: "optional run ref (RUN-...) for suggested observed_in edges" },
         existing_cards: { type: "string", description: "optional extra existing-card context to dedup against (merged with the project pull)" },
         k: { type: "number", description: "how many existing cards to pull for dedup context when a project is given (1-25, default 8)" },
@@ -838,6 +838,14 @@ type _TrustedLocalRegistryMatchesNames = AssertTrue<EqualUnions<
 // v1 extraction ritual: run-completion tools whose result carries the advisory extraction nudge.
 const NUDGE_TOOLS = new Set(["run_capture", "verify", "goal_titrate_step"]);
 
+// Exactly the stateful routes; the three advisory omissions and harness_validate
+// deliberately retain their existing semantics. The registry test pins all 18.
+const MANDATORY_PROJECT_TOOLS = new Set([
+  "card_search", "card_get", "card_create", "card_relate", "run_capture", "card_distill",
+  "establish_baseline", "verify", "job_status", "goal_titrate", "goal_titrate_step",
+  "edge_propose", "referee_panel_mint", "referee_panel_status",
+]);
+
 export function createMcpServer<TPrepared>(
   options: McpRegistryOptions<TPrepared>,
 ): McpServer {
@@ -850,7 +858,13 @@ export function createMcpServer<TPrepared>(
       const arguments_ = options.prepareArguments
         ? await options.prepareArguments(toolName, suppliedArguments)
         : suppliedArguments;
-      return { arguments: arguments_ };
+      // Enforce after trusted preparation, inside the request error boundary.
+      // A fresh object avoids contaminating a hook's reused/shared arguments.
+      return {
+        arguments: MANDATORY_PROJECT_TOOLS.has(toolName)
+          ? { ...arguments_, project: selectMcpProject(arguments_.project, options.configuredProject) }
+          : arguments_,
+      };
     },
     createJobContext(tenant) {
       return options.createJobContext(tenant);

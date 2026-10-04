@@ -33,6 +33,7 @@ await failStaleRunningJobs(new Date());
 const server = createMcpServer({
   mode: "trusted-local",
   tools: TRUSTED_LOCAL_MCP_TOOLS,
+  configuredProject: process.env.TITRATION_PROJECT,
   createJobContext: createStdioJobContext,
   evolution: createLocalEvolutionAdapter(),
   presentation: TRUSTED_LOCAL_MCP_PRESENTATION,

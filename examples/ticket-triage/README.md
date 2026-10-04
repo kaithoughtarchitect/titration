@@ -32,7 +32,24 @@ The support team has two complaints:
 With Titration connected to your agent and the skills installed (see the main README), open this
 folder in your agent and ask:
 
-> Our support team keeps complaining about ticket triage quality (see the README). Where should I start?
+> Our support team keeps complaining about ticket triage quality (see the README). Use project `ticket-triage` for this workflow. Where should I start?
+
+Opening this folder does **not** select MCP scope. Pass `project: "ticket-triage"` explicitly
+through picker mint/status, baseline, verification, job polling, every loop call, and memory writes.
+For advisory tools, pass it when you want this project's context. Alternatively, set
+`TITRATION_PROJECT=ticket-triage` in the MCP server's environment and restart that process; the
+example's local `.env` is for `triage.mjs`, not the MCP server. A global server default intentionally
+shares one project across repositories, rather than inferring a project from the open folder.
+
+Valid explicit scope wins even over invalid configuration. Omitted/null/blank scope uses nonblank
+configuration; blank configuration is unset, so without either the server returns `PROJECT_REQUIRED`.
+Invalid explicit input never falls back; invalid fallback returns `Invalid TITRATION_PROJECT:`.
+Correct the named input/configuration, or supply a valid explicit project. Use `default` explicitly
+only to access legacy data; nothing is moved. `__base__` remains read-only, not a configured fallback.
+Advisory omissions still mean no ledger (`classify_failure`), no neighbor reads (`propose_cards`,
+retaining supplied `existing_cards`), or base-only precedent (`harness_design`), even with a configured
+default; `harness_validate` is stateless. The standalone search CLI's `TITRATION_TENANT` behavior
+is unchanged. See the main README's project-selection section for the full policy.
 
 Then let it run the three skills in order: **scout** picks the target, `classify_failure` tells the
 two bugs apart, and **improve** freezes a baseline and runs the loop.

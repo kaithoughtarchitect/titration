@@ -106,7 +106,8 @@ args = ["tsx", "/absolute/path/to/titration/server/server.ts"]
 ```
 
 The server reads `.env` from the clone itself, so no secrets go into client config.
-Restart your agent after adding the server.
+Restart your agent after adding the server or changing its environment, so it starts a fresh MCP
+process. Choose a project as described below before making stateful calls.
 
 ### Optional: agent skills
 
@@ -149,8 +150,43 @@ and billed per token on OpenRouter models.
 | Grading | `referee_panel_mint`, `referee_panel_status`, `establish_baseline`, `verify`, `classify_failure`, `job_status` |
 | Improvement loop | `goal_titrate`, `goal_titrate_step` |
 
-Every memory, grading and loop tool takes an optional `project` (default `default`) so one
-database can keep several codebases apart. (`harness_validate` is stateless and takes none.) `__base__` is the read-only starter pack.
+### Choose a project deliberately
+
+For the 14 stateful tools above (all except `classify_failure`, `harness_design`,
+`propose_cards`, and `harness_validate`), MCP project selection is:
+
+1. A valid nonblank explicit `project` wins, after trimming.
+2. Otherwise, omitted/null/blank `project` uses a valid nonblank `TITRATION_PROJECT` from the
+   server process environment (or the clone's `.env`). Missing/blank configuration is **unset**.
+3. Without either, the call returns `PROJECT_REQUIRED: pass project or configure TITRATION_PROJECT`.
+   Pass a deliberate project or configure one, then restart the server.
+
+Names are 1–63 characters: lowercase letters/digits first, then lowercase letters/digits,
+underscores or hyphens. Invalid explicit input is refused, never replaced by configuration.
+Invalid nonblank configuration (including `__base__`) returns `Invalid TITRATION_PROJECT:` only
+when fallback is needed: fix the configuration or pass a valid explicit project, which bypasses it.
+These refusals happen before tool work; they do not disable the server's existing startup job sweep.
+
+For multiple repositories on one database, pass distinct names such as `project: "repo-a"` and
+`project: "repo-b"` on every stateful call, or give each server process its own intentional
+`TITRATION_PROJECT`. A globally configured default **intentionally shares one partition** across
+all callers of that process. Opening another folder does not select a project: there is no cwd or
+repository inference. Carry the same explicit project through picker mint/status, baseline,
+verification, job polling, and every loop call; ticket, baseline and job IDs do not select scope.
+
+To access legacy data, pass `project: "default"` explicitly (or deliberately configure
+`TITRATION_PROJECT=default`). Existing data is not moved or redistributed. Explicit `__base__`
+reads remain available, and the intentional shared base overlay is unchanged; base writes are
+refused, and `__base__` cannot be the configured fallback.
+
+The three advisory exceptions keep optional context: omitting `project` on `classify_failure`
+skips ledger reads (`ledger: false` also skips them); on `propose_cards` it skips neighbor reads
+while retaining supplied `existing_cards`; on `harness_design` it keeps base-only precedent.
+Configured defaults do not activate that omitted context. `harness_validate` is stateless and takes
+no project. Pass an explicit project to advisory tools when you want that project's context.
+
+This rule is MCP-only. The standalone `query/card-search.ts` CLI still uses `TITRATION_TENANT`
+and its legacy `default` fallback, not `TITRATION_PROJECT`.
 
 ## Contributing
 
