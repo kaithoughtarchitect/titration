@@ -1,10 +1,9 @@
 // Titration MCP — project-core unit test (no network, no DB).
-// Pins the `project` -> internal tenant slug normalizer every tool schema
-// routes through (server/mcp-server.ts, query/card-search.ts).
+// Pins strict MCP selection separately from legacy normalization (including CLI).
 // Mirrors db-connect-core.test.ts (check/total/failures + process.exit).
 // Run: npx tsx lib/__tests__/project-core.test.ts
 
-import { resolveProject, InvalidProjectError } from "../project-core";
+import { resolveProject, selectMcpProject, InvalidProjectError, ProjectRequiredError } from "../project-core";
 
 let failures = 0;
 let total = 0;
@@ -92,6 +91,50 @@ check(
   err?.message ?? "(no error)",
 );
 check("the error has a stable, greppable name", err?.name === "InvalidProjectError");
+
+// ── strict MCP policy: omission is never implicit default ────────────────────
+const omissions = [undefined, null, "", " \t\n "];
+const unsetConfigs = [undefined, "", " \t\n "];
+const validProjects = ["demo", "proj_9-two", "a", "9", "a".repeat(63), "default"];
+const invalidSlugs = ["Demo", "-demo", "_demo", "my project", "a/b", "base:x", "a".repeat(64), "__base__x"];
+const invalidInputs: unknown[] = [42, 0, false, true, {}, [], Symbol("project"), 1n, () => "demo", ...invalidSlugs];
+const invalidConfigs = [...invalidSlugs, "__base__", "  __base__  "];
+
+for (const input of omissions) {
+  for (const config of unsetConfigs) {
+    const error = throws(() => selectMcpProject(input, config));
+    check(`MCP missing ${JSON.stringify(input)} / config ${JSON.stringify(config)} refuses visibly`,
+      error instanceof ProjectRequiredError && error.name === "ProjectRequiredError" &&
+      error.message === "PROJECT_REQUIRED: pass project or configure TITRATION_PROJECT");
+  }
+  for (const config of validProjects) {
+    check(`MCP omitted ${JSON.stringify(input)} selects trimmed config ${config}`,
+      selectMcpProject(input, `  ${config}  `) === config);
+  }
+  for (const config of invalidConfigs) {
+    const error = throws(() => selectMcpProject(input, config));
+    check(`MCP omitted ${JSON.stringify(input)} refuses invalid config ${JSON.stringify(config)}`,
+      error instanceof Error && error.message.startsWith("Invalid TITRATION_PROJECT:") &&
+      error.message.includes(config.trim()));
+  }
+}
+
+for (const input of [...validProjects, "__base__"]) {
+  for (const config of [...unsetConfigs, "other-project", ...invalidConfigs]) {
+    check(`MCP explicit ${input} wins over config ${JSON.stringify(config)}`,
+      selectMcpProject(`  ${input}  `, config) === input);
+  }
+}
+
+for (const input of invalidInputs) {
+  const legacyError = throws(() => resolveProject(input));
+  for (const config of [undefined, "", "configured", "Bad Config", "__base__"]) {
+    const error = throws(() => selectMcpProject(input, config));
+    check(`MCP invalid explicit ${String(input)} never falls back to ${JSON.stringify(config)}`,
+      error instanceof InvalidProjectError && error.name === "InvalidProjectError" &&
+      error.message === legacyError?.message);
+  }
+}
 
 console.log(`\n${failures === 0 ? "PASS" : "FAIL"}  ${total - failures}/${total}`);
 process.exit(failures === 0 ? 0 : 1);
