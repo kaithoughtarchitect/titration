@@ -53,24 +53,48 @@ async function main(): Promise<void> {
   try {
     const [db] = await sql`select current_database() as name`;
     check("connected database exactly matches confirmation", db.name === confirmation);
-    const tables = await sql`select tablename from pg_tables where schemaname = 'public' order by tablename`;
+    const tables = await sql`select p.tablename, exists (
+      select 1 from information_schema.columns c
+      where c.table_schema = p.schemaname and c.table_name = p.tablename and c.column_name = 'tenant_id'
+    ) as tenant_scoped from pg_tables p where p.schemaname = 'public' order by p.tablename`;
     for (const required of ["tenants", "cards", "runs", "jobs", "card_relationships", "baselines"]) {
       check(`schema contains ${required}`, tables.some(t => t.tablename === required));
     }
     const [jobs] = await sql`select count(*)::int as n from jobs`;
     check("preflight has zero jobs (startup sweep has nothing to change)", jobs.n === 0);
-    const [absent] = await sql`select
-      (select count(*)::int from cards where card_ref = ${cardRef}) as cards,
-      (select count(*)::int from runs where ref = ${runRef}) as runs,
-      (select count(*)::int from tenants where slug = ${other}) as tenants`;
-    check("unique fixtures and comparison project absent before writes", absent.cards === 0 && absent.runs === 0 && absent.tenants === 0);
-    // Exact full-row snapshots detect edits, not just count changes.
+    async function fixtureRows(): Promise<{ cards: Record<string, unknown>[]; runs: Record<string, unknown>[] }> {
+      const cards: Record<string, unknown>[] = [];
+      const runs: Record<string, unknown>[] = [];
+      // Enumerate afresh so a newly created or unexpected tenant cannot escape the audit.
+      for (const tenant of await sql`select id from tenants`) {
+        cards.push(...await sql`select c.*, t.slug from cards c join tenants t on t.id = c.tenant_id
+          where c.tenant_id = ${tenant.id} and c.card_ref = ${cardRef}`);
+        runs.push(...await sql`select r.*, t.slug from runs r join tenants t on t.id = r.tenant_id
+          where r.tenant_id = ${tenant.id} and r.ref = ${runRef}`);
+      }
+      return { cards, runs };
+    }
+    const absent = await fixtureRows();
+    const [comparison] = await sql`select count(*)::int as n from tenants where slug = ${other}`;
+    check("unique fixtures and comparison project absent before writes", absent.cards.length === 0 && absent.runs.length === 0 && comparison.n === 0);
+    // Exact full-row snapshots detect edits, not just count changes. Audit every
+    // tenant, not only scratch; schema tenant_id columns are NOT NULL foreign keys.
     // This proof is limited to a small, exclusively used disposable database.
     async function snapshot(): Promise<Snapshot> {
       const result: Snapshot = {};
+      const tenants = await sql`select id from tenants`;
       for (const table of tables) {
-        const rows = await sql`select to_jsonb(t)::text as row from ${sql(table.tablename)} t order by to_jsonb(t)::text`;
-        result[table.tablename] = rows.map(r => r.row as string);
+        const rows: string[] = [];
+        if (table.tenant_scoped) {
+          for (const tenant of tenants) {
+            const scoped = await sql`select to_jsonb(t)::text as row from ${sql(table.tablename)} t where t.tenant_id = ${tenant.id}`;
+            rows.push(...scoped.map(r => r.row as string));
+          }
+        } else {
+          const global = await sql`select to_jsonb(t)::text as row from ${sql(table.tablename)} t`;
+          rows.push(...global.map(r => r.row as string));
+        }
+        result[table.tablename] = rows.sort();
       }
       return result;
     }
@@ -149,8 +173,7 @@ async function main(): Promise<void> {
       });
     }
     check("exactly one expected embed warning; no model request reachable on exercised paths", embedWarnings === 1);
-    const cards = await sql`select c.*, t.slug from cards c join tenants t on t.id = c.tenant_id where c.card_ref = ${cardRef}`;
-    const runs = await sql`select r.*, t.slug from runs r join tenants t on t.id = r.tenant_id where r.ref = ${runRef}`;
+    const { cards, runs } = await fixtureRows();
     check("one actual card row joins only to scratch with NULL embedding", cards.length === 1 && cards[0].slug === "scratch" && cards[0].embedding === null && cards[0].body === expectedBody);
     check("one actual run row joins only to same scratch tenant_id", runs.length === 1 && runs[0].slug === "scratch" && runs[0].tenant_id === cards[0].tenant_id && runs[0].summary === body);
     const after = await snapshot();
