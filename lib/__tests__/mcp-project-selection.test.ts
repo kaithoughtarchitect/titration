@@ -326,7 +326,9 @@ try {
         for (const project of [...omissions, derived, ` ${derived} `]) {
           allowedTool = name;
           const before = resolutions;
-          await call(client, name, { ...args, project });
+          const result = await call(client, name, { ...args, project });
+          // The guarded store blocks every read, so success proves the memory read fails open.
+          check(`${name} automatic context still returns advice`, !result.error, result.text);
           check(`${name} automatic context resolves exactly once`, resolutions === before + 1);
           check(`${name} automatic context reads repository memory`, storage > omittedStorage && subprocess === 0 && jobs === 0, counts());
           allowedTool = undefined;
