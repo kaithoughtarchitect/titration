@@ -396,6 +396,10 @@ try {
     await writeFile(join(remotePath, ".git", "config"), config([endpoint]));
     check("production: exact local working-tree and Git-directory endpoints remain valid", await prod.resolve() === expectedLocal);
   }
+  // A Git-directory endpoint whose own origin is an absolute local link has no working tree.
+  const chainMiddle = await repo("chain-middle", [sourcePath]);
+  await writeFile(join(remotePath, ".git", "config"), config([join(chainMiddle, ".git")]));
+  check("production: chain through a Git-directory endpoint with an absolute local origin", await prod.resolve() === expectedLocal);
   const bareEndpoint = join(await repo("bare-endpoint"), ".git");
   await writeFile(join(bareEndpoint, "config"), "[core]\nrepositoryformatversion = 0\nbare = true\n");
   await writeFile(join(remotePath, ".git", "config"), config([bareEndpoint]));

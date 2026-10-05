@@ -1,6 +1,10 @@
 // Direct shipped-stdio + PostgreSQL proof; excluded from the offline suite.
 // Requires an exclusive disposable schema-ready DB and permission for the two
 // pinned synthetic repository projects. Retains all fixtures; no models/deletes.
+// Writes deliberately do not use `scratch`: automatic mode derives scope from
+// repository roots and cannot target a named project, so the derived projects
+// are the subject under test. Containment is the exact-confirmed disposable
+// database, the exact confirmed projects, and full before/after table audits.
 // Set TITRATION_SMOKE_DATABASE_URL, TITRATION_SMOKE_CONFIRM_DATABASE (exact name)
 // and TITRATION_SMOKE_CONFIRM_PROJECTS (the two derived slugs, comma-separated,
 // in origin order below). TITRATION_SMOKE_ANCHORS selects qualified (default),

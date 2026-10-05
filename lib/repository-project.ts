@@ -177,11 +177,14 @@ export function createRepositoryProjectResolver(options: {
       for (const url of urls) {
         let candidate: string;
         if (/^file:/i.test(url) || isAbsolute(url) || !url.includes(":")) {
-          const bare = one(await git(directory, ["rev-parse", "--is-bare-repository"]));
-          const base = bare === "true" ? common : one(await git(directory, ["rev-parse", "--show-toplevel"]));
+          // Only a relative path needs a base; a Git-directory endpoint has no working tree.
+          let local = url;
+          if (!/^file:/i.test(url) && !isAbsolute(url)) {
+            const bare = one(await git(directory, ["rev-parse", "--is-bare-repository"]));
+            local = resolve(bare === "true" ? common : one(await git(directory, ["rev-parse", "--show-toplevel"])), url);
+          }
           let target: string;
           try {
-            const local = /^file:/i.test(url) || isAbsolute(url) ? url : resolve(base, url);
             target = fileURLToPath(localFileUri(local, process.platform === "win32"));
           } catch { throw failure("IDENTITY_UNRESOLVED"); }
           candidate = await identity(target, seen);
