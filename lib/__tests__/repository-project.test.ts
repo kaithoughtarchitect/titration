@@ -434,12 +434,14 @@ try {
 // Launch-directory fallback: only for clients that advertise no roots capability.
 const elsewhere = join(fixture, "server-install");
 await mkdir(join(elsewhere, "nested"), { recursive: true });
+await mkdir(join(elsewhere, "..cache"), { recursive: true });
 for (const [label, cwd, serverRoot, expected] of [
   ["launch directory selects its repository", sourcePath, elsewhere, expectedLocal],
   ["launch subdirectory selects its repository", subdirectory, elsewhere, expectedLocal],
   ["launch in a linked worktree shares the common directory", worktreePath, elsewhere, expectedLocal],
   ["launch in the server's own clone refuses", elsewhere, elsewhere, "REPOSITORY_CONTEXT_REQUIRED"],
   ["launch inside the server's own clone refuses", join(elsewhere, "nested"), elsewhere, "REPOSITORY_CONTEXT_REQUIRED"],
+  ["launch in a clone child named with two leading dots refuses", join(elsewhere, "..cache"), elsewhere, "REPOSITORY_CONTEXT_REQUIRED"],
   ["launch in the server's repository subfolder refuses", subdirectory, sourcePath, "REPOSITORY_CONTEXT_REQUIRED"],
   ["launch outside any repository refuses", fixture, elsewhere, "REPOSITORY_IDENTITY_UNRESOLVED"],
 ] as const) {

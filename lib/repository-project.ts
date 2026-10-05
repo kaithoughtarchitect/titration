@@ -2,7 +2,7 @@
 // directory is used only when the client advertises no roots capability.
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { realpath } from "node:fs/promises";
-import { isAbsolute, relative, resolve } from "node:path";
+import { isAbsolute, relative, resolve, sep } from "node:path";
 import { createHash } from "node:crypto";
 import { spawn } from "node:child_process";
 import type { Server } from "@modelcontextprotocol/sdk/server/index.js";
@@ -211,7 +211,9 @@ export function createRepositoryProjectResolver(options: {
         const cwd = await canonical(launchContext.cwd), serverRoot = await canonical(launchContext.serverRoot);
         const inside = relative(serverRoot, cwd);
         // A launch inside the server's own clone says nothing about the user's project.
-        if (!inside || (!inside.startsWith("..") && !isAbsolute(inside))) throw failure("CONTEXT_REQUIRED");
+        // Compare whole segments: a child folder named "..cache" is still inside.
+        const outside = inside === ".." || inside.startsWith(`..${sep}`) || isAbsolute(inside);
+        if (!outside) throw failure("CONTEXT_REQUIRED");
         const key = await identity(cwd);
         guard();
         return deriveRepositoryProject(createHash("sha256").update(key).digest("hex"));
