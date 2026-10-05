@@ -35,7 +35,8 @@ per-mode regression.
 For standard stdio, **omit `project` and leave `TITRATION_PROJECT` unset/blank**. The connected
 client must supply the intended local Git repository roots; Git must be available to the server.
 Local file URIs and absolute local paths share normalization and validation. Missing, failed,
-invalid or ambiguous roots refuse; the server never falls back to its installation or launch cwd.
+invalid or ambiguous roots refuse. Only a client with no roots support (e.g. Codex) uses the
+directory it launched the server in, and never the Titration clone itself.
 Do not invent a project name from the folder or follow older instructions to pass arbitrary names.
 Caller `project` and nonblank `TITRATION_PROJECT` are independent matching assertions, not
 routing overrides: invalid/conflicting values (including `default`/`__base__`) refuse.

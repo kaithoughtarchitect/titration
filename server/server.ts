@@ -3,6 +3,7 @@
 // Run: TITRATION_DATABASE_URL=... OPENROUTER_API_KEY=... npm run server
 
 import "./bootstrap-env"; // FIRST: store reads its database credential at import time.
+import { fileURLToPath } from "node:url";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import {
   createTrustedLocalJobContext,
@@ -45,6 +46,8 @@ const server = createMcpServer({
 resolveRepositoryProject = createRepositoryProjectResolver({
   protocol: server.server,
   timeoutMs: 5000,
+  // For clients that advertise no roots: the directory they launched us in.
+  launchContext: { cwd: process.cwd(), serverRoot: fileURLToPath(new URL("..", import.meta.url)) },
 });
 
 const transport = new StdioServerTransport();
