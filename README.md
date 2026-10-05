@@ -81,8 +81,8 @@ but card search (vector search) stays off until you add a key and run `npm run e
 
 The server speaks MCP over stdio. Point your client at `server/server.ts` in your clone
 (replace the path). These are configuration examples, not client certifications: local or
-global configuration works when that connection supplies the correct local repository roots.
-The server does not infer the active repository from where it was launched:
+global configuration works when that connection supplies the correct local repository roots, or
+(for clients without roots support) launches the server in the project directory:
 
 **Claude Code**
 
@@ -162,10 +162,15 @@ For the 14 stateful tools above (all except `classify_failure`, `harness_design`
 
 The MCP client must supply local repository roots. Valid file URIs and unambiguous raw absolute
 local paths use the same normalization and strict validation; Windows paths with spaces are
-supported. The server's installation directory or launch cwd cannot override those roots, and
-there is **no launch-cwd fallback**. Missing roots capability, failed lookup, malformed/relative/
-nonlocal roots, or roots resolving to different repositories refuse rather than guess a first root
-or use `default`. Multiple roots are accepted only when they resolve to the same identity.
+supported. Supplied roots always win over the server's launch directory. Failed lookup, empty,
+malformed/relative/nonlocal roots, or roots resolving to different repositories refuse rather than
+guess a first root or use `default`.
+
+**Clients without roots support** (observed: Codex CLI 0.160) start the server in the project they
+opened. Only when a client advertises **no** roots capability, the server uses that launch directory
+instead, with the same identity rules. It refuses if the launch directory is not inside a Git
+repository, or is inside the Titration clone the server runs from (a launch there says nothing about
+your project). Multiple roots are accepted only when they resolve to the same identity.
 Git must be available to the server, and the supplied roots must resolve to usable Git metadata.
 
 Identity uses current Git evidence: **origin wins**, otherwise the sole remote; verified local
@@ -202,7 +207,9 @@ repository reads; base writes remain refused.
 global configuration supplying raw absolute local roots. SDK **1.30.1** transport checks replay that
 shape and separately simulate local/global connections and lifecycle cases. A shipped-stdio/real
 Postgres check with synthetic Git metadata verified omitted-scope card/run persistence, same-repo
-visibility and unrelated-repo exclusion. These are not native certification of every client or setup.
+visibility and unrelated-repo exclusion. Claude Code (headless, Windows) was observed supplying roots;
+Codex CLI 0.160 advertises none and was observed launching servers in the opened project directory.
+These are not native certification of every client or setup.
 
 ### Advisory context and legacy data
 

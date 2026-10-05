@@ -1,7 +1,8 @@
-// Read-only connection-local discovery; never use ambient cwd as context.
+// Read-only connection-local discovery. Client roots are the context; the launch
+// directory is used only when the client advertises no roots capability.
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { realpath } from "node:fs/promises";
-import { isAbsolute, resolve } from "node:path";
+import { isAbsolute, relative, resolve } from "node:path";
 import { createHash } from "node:crypto";
 import { spawn } from "node:child_process";
 import type { Server } from "@modelcontextprotocol/sdk/server/index.js";
@@ -54,9 +55,11 @@ const failure = (category: string) => new Error(`REPOSITORY_${category}`);
 export function createRepositoryProjectResolver(options: {
   protocol: Server;
   timeoutMs: number;
-  verifiedLaunchCwd?: string;
+  // Clients without roots support (observed: Codex CLI) start stdio servers in the
+  // opened project. Used only when roots are NOT advertised; never inside serverRoot.
+  launchContext?: { cwd: string; serverRoot: string };
 }): () => Promise<string> {
-  const { protocol, timeoutMs } = options;
+  const { protocol, timeoutMs, launchContext } = options;
   if (!Number.isFinite(timeoutMs) || timeoutMs <= 0 || timeoutMs > 2_147_483_647) throw failure("LOOKUP_TIMEOUT");
   let ready = false, closed = false, generation = 0;
   const waiters = new Set<() => void>();
@@ -202,8 +205,17 @@ export function createRepositoryProjectResolver(options: {
         try { await bounded(pending); } finally { waiters.delete(wake); }
       }
       guard();
-      // No launch-cwd provenance is qualified; the reserved option is not a fallback.
-      if (!protocol.getClientCapabilities()?.roots) throw failure("CONTEXT_REQUIRED");
+      if (!protocol.getClientCapabilities()?.roots) {
+        // Advertised roots always win; this path exists only for clients without them.
+        if (!launchContext) throw failure("CONTEXT_REQUIRED");
+        const cwd = await canonical(launchContext.cwd), serverRoot = await canonical(launchContext.serverRoot);
+        const inside = relative(serverRoot, cwd);
+        // A launch inside the server's own clone says nothing about the user's project.
+        if (!inside || (!inside.startsWith("..") && !isAbsolute(inside))) throw failure("CONTEXT_REQUIRED");
+        const key = await identity(cwd);
+        guard();
+        return deriveRepositoryProject(createHash("sha256").update(key).digest("hex"));
+      }
       let roots;
       try {
         roots = await bounded(protocol.request({ method: "roots/list" }, rootsResult,

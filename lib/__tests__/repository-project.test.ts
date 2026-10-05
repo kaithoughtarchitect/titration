@@ -228,7 +228,7 @@ try {
 const absent = peer({});
 try {
   await absent.start();
-  await refused("simulation: absent capability has no unproven launch-cwd alternative", () => absent.oneRoot(), "REPOSITORY_CONTEXT_REQUIRED");
+  await refused("simulation: absent capability supplies no roots", () => absent.oneRoot(), "REPOSITORY_CONTEXT_REQUIRED");
   check("simulation: absent capability never requests roots", absent.requests === 0);
 } finally { await absent.close(); }
 
@@ -273,7 +273,8 @@ async function repo(name: string, urls: string[] = []) {
   await writeFile(join(path, ".git", "config"), config(urls));
   return path;
 }
-function productionPeer(path: string, timeoutMs = 5000, capabilities: ClientCapabilities = { roots: { listChanged: true } }) {
+function productionPeer(path: string, timeoutMs = 5000, capabilities: ClientCapabilities = { roots: { listChanged: true } },
+  launchContext?: { cwd: string; serverRoot: string }) {
   const server = new Server({ name: "resolver-test", version: "1" }, { capabilities: {} });
   const client = new Client({ name: "simulation", version: "1" }, { capabilities });
   const [ct, st] = InMemoryTransport.createLinkedPair();
@@ -282,7 +283,7 @@ function productionPeer(path: string, timeoutMs = 5000, capabilities: ClientCapa
   let handler: () => Result | Promise<Result> = () => ({ roots: [{ uri: path }] });
   server.oninitialized = function (this: Server) { initialized++; initializedReceiver = this; };
   server.onclose = function (this: Server) { closed++; closedReceiver = this; };
-  const resolve = createRepositoryProjectResolver({ protocol: server, timeoutMs, verifiedLaunchCwd: process.cwd() });
+  const resolve = createRepositoryProjectResolver({ protocol: server, timeoutMs, launchContext });
   if (capabilities.roots) client.setRequestHandler(ListRootsRequestSchema, request => {
     requests++; check("production: request omits tenant", request.params === undefined); return handler();
   });
@@ -427,9 +428,40 @@ const noReady = productionPeer(sourcePath, 30), noCapability = productionPeer(so
 try {
   await refused("production: withheld initialization bounded", noReady.resolve, "REPOSITORY_LOOKUP_TIMEOUT");
   await noCapability.start();
-  await refused("production: absent capability ignores unqualified launch cwd", noCapability.resolve, "REPOSITORY_CONTEXT_REQUIRED");
+  await refused("production: absent capability without launch context refuses", noCapability.resolve, "REPOSITORY_CONTEXT_REQUIRED");
   check("production: no capability means no roots requests", noCapability.requests === 0);
 } finally { await noReady.close(); await noCapability.close(); }
+// Launch-directory fallback: only for clients that advertise no roots capability.
+const elsewhere = join(fixture, "server-install");
+await mkdir(join(elsewhere, "nested"), { recursive: true });
+for (const [label, cwd, serverRoot, expected] of [
+  ["launch directory selects its repository", sourcePath, elsewhere, expectedLocal],
+  ["launch subdirectory selects its repository", subdirectory, elsewhere, expectedLocal],
+  ["launch in a linked worktree shares the common directory", worktreePath, elsewhere, expectedLocal],
+  ["launch in the server's own clone refuses", elsewhere, elsewhere, "REPOSITORY_CONTEXT_REQUIRED"],
+  ["launch inside the server's own clone refuses", join(elsewhere, "nested"), elsewhere, "REPOSITORY_CONTEXT_REQUIRED"],
+  ["launch in the server's repository subfolder refuses", subdirectory, sourcePath, "REPOSITORY_CONTEXT_REQUIRED"],
+  ["launch outside any repository refuses", fixture, elsewhere, "REPOSITORY_IDENTITY_UNRESOLVED"],
+] as const) {
+  const launched = productionPeer(sourcePath, 5000, {}, { cwd, serverRoot });
+  try {
+    await launched.start();
+    if (expected.startsWith("repo-")) check(`production: ${label}`, await launched.resolve() === expected && launched.requests === 0);
+    else await refused(`production: ${label}`, launched.resolve, expected);
+  } finally { await launched.close(); }
+}
+const unrelatedLaunch = productionPeer(sourcePath, 5000, {}, { cwd: separatePath, serverRoot: elsewhere });
+try {
+  await unrelatedLaunch.start();
+  check("production: launch directories of unrelated repositories stay separate", await unrelatedLaunch.resolve() !== expectedLocal);
+} finally { await unrelatedLaunch.close(); }
+const rootsWin = productionPeer(sourcePath, 5000, undefined, { cwd: separatePath, serverRoot: elsewhere });
+try {
+  await rootsWin.start();
+  check("production: advertised roots win over the launch directory", await rootsWin.resolve() === expectedLocal && rootsWin.requests === 1);
+  rootsWin.set(() => ({ roots: [] }));
+  await refused("production: empty advertised roots never fall back to the launch directory", rootsWin.resolve, "REPOSITORY_CONTEXT_REQUIRED");
+} finally { await rootsWin.close(); }
 const withheld = productionPeer(sourcePath, 40);
 try {
   await withheld.start(); const response = deferred<Result>(); withheld.set(() => response.promise);

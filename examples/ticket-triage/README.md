@@ -39,7 +39,9 @@ this folder's local Git repository roots; Git must be available to the server. T
 subdirectory of the Titration repository, so it uses that repository's memory, not a separate
 `ticket-triage` partition. An independent repository uses its own current Git anchor. Local/global
 client configuration both work when correct roots are supplied; opening a folder alone is not proof
-that the client sent them. Missing/failed/ambiguous roots refuse, with no server-cwd fallback.
+that the client sent them. Missing/failed/ambiguous roots refuse. A client without roots support
+(such as Codex) uses its launch directory instead, but refuses here: this folder is inside the
+Titration clone that runs the server. Copy the example into its own repository to use it that way.
 
 Keep the same repository context through picker mint/status, baseline, verification, job polling,
 every loop call and memory writes; IDs do not redirect scope. Arbitrary `project` names and nonblank
