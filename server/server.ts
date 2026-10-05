@@ -9,6 +9,7 @@ import {
   type JobExecutionContext,
 } from "../lib/jobs";
 import { failStaleRunningJobs } from "../lib/local-jobs";
+import { createRepositoryProjectResolver } from "../lib/repository-project";
 import {
   createMcpServer,
   TRUSTED_LOCAL_MCP_PRESENTATION,
@@ -30,13 +31,20 @@ function createStdioJobContext(tenant: string): JobExecutionContext {
 // throws) — a boot-time DB hiccup must not block server startup.
 await failStaleRunningJobs(new Date());
 
+let resolveRepositoryProject: () => Promise<string>;
 const server = createMcpServer({
   mode: "trusted-local",
   tools: TRUSTED_LOCAL_MCP_TOOLS,
   configuredProject: process.env.TITRATION_PROJECT,
+  resolveRepositoryProject: () => resolveRepositoryProject(),
   createJobContext: createStdioJobContext,
   evolution: createLocalEvolutionAdapter(),
   presentation: TRUSTED_LOCAL_MCP_PRESENTATION,
+});
+
+resolveRepositoryProject = createRepositoryProjectResolver({
+  protocol: server.server,
+  timeoutMs: 5000,
 });
 
 const transport = new StdioServerTransport();

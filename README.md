@@ -12,7 +12,7 @@ the problem.
 
 ![The nine failure origins: only system-under-test means you should edit the prompt; the other eight are measurement, data, or pipeline problems](docs/images/nine-origins.png)
 
-An open-source **MCP server** with 18 tools. Self-hosted. Setup for Claude Code, Codex and Cursor.
+An open-source **MCP server** with 18 tools. Self-hosted. Configuration examples for Claude Code, Codex and Cursor.
 [Five-slide overview (PDF)](docs/deck/titration-deck.pdf)
 
 ## Why you can trust the loop
@@ -54,7 +54,8 @@ calls the judges you pick, and stores everything in your own Postgres.
 
 ## Quickstart (about 5 minutes)
 
-You need **Node.js 22.11+**, **Docker**, and access to judges from **three vendor families
+You need **Node.js 22.11+**, **Git on the server process PATH** (for repository discovery),
+**Docker**, and access to judges from **three vendor families
 other than your agent's own** (a panel is three judges from three families, and your agent's
 family never judges its own work).
 
@@ -79,7 +80,9 @@ but card search (vector search) stays off until you add a key and run `npm run e
 ### Connect your agent
 
 The server speaks MCP over stdio. Point your client at `server/server.ts` in your clone
-(replace the path):
+(replace the path). These are configuration examples, not client certifications: local or
+global configuration works when that connection supplies the correct local repository roots.
+The server does not infer the active repository from where it was launched:
 
 **Claude Code**
 
@@ -107,7 +110,8 @@ args = ["tsx", "/absolute/path/to/titration/server/server.ts"]
 
 The server reads `.env` from the clone itself, so no secrets go into client config.
 Restart your agent after adding the server or changing its environment, so it starts a fresh MCP
-process. Choose a project as described below before making stateful calls.
+process. For normal use, omit `project` and leave `TITRATION_PROJECT` unset or blank.
+See [Automatic repository memory](#automatic-repository-memory) for context requirements and refusals.
 
 ### Optional: agent skills
 
@@ -150,43 +154,81 @@ and billed per token on OpenRouter models.
 | Grading | `referee_panel_mint`, `referee_panel_status`, `establish_baseline`, `verify`, `classify_failure`, `job_status` |
 | Improvement loop | `goal_titrate`, `goal_titrate_step` |
 
-### Choose a project deliberately
+### Automatic repository memory
 
 For the 14 stateful tools above (all except `classify_failure`, `harness_design`,
-`propose_cards`, and `harness_validate`), MCP project selection is:
+`propose_cards`, and `harness_validate`), standard stdio automatically selects repository memory.
+**Omit `project` and leave `TITRATION_PROJECT` unset or blank.** No tenant name needs to be computed.
 
-1. A valid nonblank explicit `project` wins, after trimming.
-2. Otherwise, omitted/null/blank `project` uses a valid nonblank `TITRATION_PROJECT` from the
-   server process environment (or the clone's `.env`). Missing/blank configuration is **unset**.
-3. Without either, the call returns `PROJECT_REQUIRED: pass project or configure TITRATION_PROJECT`.
-   Pass a deliberate project or configure one, then restart the server.
+The MCP client must supply local repository roots. Valid file URIs and unambiguous raw absolute
+local paths use the same normalization and strict validation; Windows paths with spaces are
+supported. The server's installation directory or launch cwd cannot override those roots, and
+there is **no launch-cwd fallback**. Missing roots capability, failed lookup, malformed/relative/
+nonlocal roots, or roots resolving to different repositories refuse rather than guess a first root
+or use `default`. Multiple roots are accepted only when they resolve to the same identity.
+Git must be available to the server, and the supplied roots must resolve to usable Git metadata.
 
-Names are 1–63 characters: lowercase letters/digits first, then lowercase letters/digits,
-underscores or hyphens. Invalid explicit input is refused, never replaced by configuration.
-Invalid nonblank configuration (including `__base__`) returns `Invalid TITRATION_PROJECT:` only
-when fallback is needed: fix the configuration or pass a valid explicit project, which bypasses it.
-These refusals happen before tool work; they do not disable the server's existing startup job sweep.
+Identity uses current Git evidence: **origin wins**, otherwise the sole remote; verified local
+remote links are followed, and a repository with no remote uses its canonical Git common directory.
+Branches, worktrees, subdirectories and clones share memory in the same database when they resolve
+to equal current anchors. On **github.com and gitlab.com only**, HTTPS, SSH and SCP-style remotes
+(for example `https://github.com/team/repo.git`, `ssh://git@github.com/team/repo.git` and
+`git@github.com:team/repo.git`) share an anchor, with an optional `.git` suffix. SSH forms require
+an explicit `git` user for this equivalence. Elsewhere, transport/address form, SSH user and the
+exact path including `.git` remain distinct: an absolute SSH path is not a home-relative SCP path.
+Equivalent self-hosted addresses may therefore select separate memory; identical addresses still
+share. Git's explicit `insteadOf` configuration is applied by `remote get-url` before identity is
+derived. Unsupported or ambiguous forms, including explicit ports and SSH passwords, refuse
+conservatively. Basenames, shared history and a fork's upstream do not
+establish equivalence; unknown host aliases are not guessed. Changing or losing an anchor can
+select different memory or refuse: continuity is not guaranteed, and old data is untouched.
 
-For multiple repositories on one database, pass distinct names such as `project: "repo-a"` and
-`project: "repo-b"` on every stateful call, or give each server process its own intentional
-`TITRATION_PROJECT`. A globally configured default **intentionally shares one partition** across
-all callers of that process. Opening another folder does not select a project: there is no cwd or
-repository inference. Carry the same explicit project through picker mint/status, baseline,
-verification, job polling, and every loop call; ticket, baseline and job IDs do not select scope.
+For these 14 automatic tools, caller `project` and nonblank `TITRATION_PROJECT` are **independent matching assertions**, not
+overrides. Both must match the derived scope after trimming; invalid or conflicting values,
+including `default` and `__base__`, refuse. Old instructions that pass arbitrary project names
+cannot redirect automatic calls. Remove obsolete naming arguments/settings, restart after changing
+server configuration, and ensure the client supplies correct roots. Context/lookup/identity errors
+use `REPOSITORY_CONTEXT_*`, `REPOSITORY_LOOKUP_*` or `REPOSITORY_IDENTITY_UNRESOLVED`;
+assertion errors use `REPOSITORY_PROJECT_INVALID` or `REPOSITORY_PROJECT_CONFLICT`.
+Refusals precede request-specific work, not the existing startup job sweep.
 
-To access legacy data, pass `project: "default"` explicitly (or deliberately configure
-`TITRATION_PROJECT=default`). Existing data is not moved or redistributed. Explicit `__base__`
-reads remain available, and the intentional shared base overlay is unchanged; base writes are
-refused, and `__base__` cannot be the configured fallback.
+Keep the same repository context throughout picker mint/status, baseline, verification, job polling
+(including timeout recovery), and every loop call. Ticket, baseline and job IDs do not route to
+another repository. Later calls rediscover context; a roots change invalidates unfinished discovery,
+not an already captured call, job or baseline. The read-only base overlay remains available to
+repository reads; base writes remain refused.
 
-The three advisory exceptions keep optional context: omitting `project` on `classify_failure`
-skips ledger reads (`ledger: false` also skips them); on `propose_cards` it skips neighbor reads
-while retaining supplied `existing_cards`; on `harness_design` it keeps base-only precedent.
-Configured defaults do not activate that omitted context. `harness_validate` is stateless and takes
-no project. Pass an explicit project to advisory tools when you want that project's context.
+**Evidence boundary:** native context observation is limited to Cursor **3.17.19 on Windows**, with
+global configuration supplying raw absolute local roots. SDK **1.30.1** transport checks replay that
+shape and separately simulate local/global connections and lifecycle cases. A shipped-stdio/real
+Postgres check with synthetic Git metadata verified omitted-scope card/run persistence, same-repo
+visibility and unrelated-repo exclusion. These are not native certification of every client or setup.
 
-This rule is MCP-only. The standalone `query/card-search.ts` CLI still uses `TITRATION_TENANT`
-and its legacy `default` fallback, not `TITRATION_PROJECT`.
+### Advisory context and legacy data
+
+The advisory exceptions do **not** discover repository context. Omitting `project` on
+`classify_failure` skips ledger reads (`ledger: false` also skips them); on `propose_cards` it skips
+neighbor reads while retaining supplied `existing_cards`; on `harness_design` it keeps base-only
+precedent. Configuration does not activate omitted context. `harness_validate` is stateless and
+takes no project. An explicit advisory `project` selects that named tenant without checking it
+against the current repository, even in automatic stdio. These three optional reads are **outside
+automatic repository isolation**; their project argument is not a matching assertion. Supply it
+only when that specific tenant's context is intended; do not invent a tenant from a repository's
+basename.
+
+Legacy integrations using `createMcpServer` **without** a repository resolver retain their old
+selection: a valid nonblank explicit `project` wins after trimming; otherwise omitted/null/blank
+input uses nonblank configured `TITRATION_PROJECT`; without either, `PROJECT_REQUIRED` refuses.
+Invalid explicit input never falls back. Invalid configuration is checked only when needed
+(`Invalid TITRATION_PROJECT:`), so a valid explicit project bypasses it in this legacy mode only.
+Names are 1–63 lowercase letters/digits/underscores/hyphens, with a letter/digit first. Legacy
+explicit `default` can access old named data; explicit `__base__` reads are allowed, but base writes
+and configuring it as fallback are refused. The standalone `query/card-search.ts` CLI separately
+retains `TITRATION_TENANT` and its `default` fallback, not `TITRATION_PROJECT`.
+
+These are separate access paths, not a manual-mode flag on standard stdio. Passing `default` to an
+automatic call cannot switch modes. Nothing is migrated, reassigned or redistributed, including
+previously named projects.
 
 ## Contributing
 

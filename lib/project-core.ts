@@ -6,7 +6,8 @@
 // public `project` argument tool schemas expose to the internal tenant slug —
 // nothing downstream needs to know the word "project" exists.
 //
-// Mandatory MCP scope uses selectMcpProject: explicit, configured, or refused.
+// Mandatory MCP scope is repository-bound in automatic factories;
+// legacy factories use selectMcpProject: explicit, configured, or refused.
 // resolveProject retains legacy defaulting for callers such as the search CLI.
 // Reads of an unknown project behave as an empty project
 // (never an "unknown tenant" throw — see lib/store.ts's non-throwing lookup); the
@@ -45,7 +46,8 @@ export class InvalidProjectError extends Error {
 
 /**
  * Legacy normalization into the internal tenant slug (including CLI defaulting).
- * Mandatory MCP calls must use selectMcpProject before downstream normalization.
+ * Mandatory MCP calls bind repository scope, or use selectMcpProject in legacy
+ * factories, before downstream normalization.
  *
  * - `undefined` / `null` / an empty (or whitespace-only) string -> `"default"`.
  * - a non-string value -> `InvalidProjectError` (the schema declares `project` as
