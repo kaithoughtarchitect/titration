@@ -46,10 +46,9 @@ every loop call and memory writes; IDs do not redirect scope. Arbitrary `project
 `TITRATION_PROJECT` are not overrides: each must match the derived scope or the call refuses.
 The example's local `.env` is for `triage.mjs`, not the MCP server.
 
-Advisory omissions still mean no ledger (`classify_failure`, also with `ledger: false`), no neighbor
-reads (`propose_cards`, retaining supplied `existing_cards`), or base-only precedent (`harness_design`).
-They do not discover context; supply an advisory project only if intentionally known, never guessed
-from this folder's name. `harness_validate` is stateless. Base overlays remain read-only.
+The advisory tools (`classify_failure`, `propose_cards`, `harness_design`) use the same repository
+memory automatically, or run without private context if the roots are unavailable. `ledger: false`
+skips the ledger. `harness_validate` is stateless. Base overlays remain read-only.
 
 Old named data stays where it was: legacy factory integrations without a resolver and the standalone
 search CLI (`TITRATION_TENANT`, default `default`) retain their separate access paths. Automatic

@@ -526,7 +526,7 @@ export const TRUSTED_LOCAL_MCP_TOOLS = [
         judges: JUDGES,
         reconsider: { type: "boolean", description: "run the dissent-reconsideration round on a 2-of-3 split — re-prompt the majority judges with the dissenter's reasoning, then re-tally (counters agreeableness bias; default true)" },
         mode: { type: "string", enum: ["panel", "single", "adaptive"], description: "judging mode (margin lever; default 'panel'): 'panel' = full 3-vendor consensus + reconsideration; 'single' = one calibrated judge (cheapest); 'adaptive' = probe one judge, escalate to the panel only on ambiguity or a system-under-test verdict (the only origin that greenlights a prompt edit — never single-judge)" },
-        project: { ...PROJECT_PROP, description: "optional project whose private memory is consulted for ADVISORY domain-calibrated origins. The consensus origin is NOT influenced. Omit to skip the read; configured defaults do not activate it, and no repository discovery occurs. An explicit project selects that named tenant without repository matching, even in automatic stdio. ledger:false also skips it." },
+        project: { ...PROJECT_PROP, description: "optional project whose private memory is consulted for ADVISORY domain-calibrated origins. The consensus origin is NOT influenced. Automatic stdio: omit it; the repository's own memory is used when its context is discoverable, otherwise the call runs without private context. A supplied project must match the repository or the call refuses. Legacy factory: omit to skip the read; configured defaults do not activate it. ledger:false always skips it (no discovery)." },
         ledger: LEDGER_PROP,
       },
       required: ["observation"],
@@ -692,7 +692,7 @@ export const TRUSTED_LOCAL_MCP_TOOLS = [
           type: ["string", "object"],
           description: "strongly recommended: the concrete facts you read from the repo, verbatim — the exact allowed output values (e.g. the category and priority sets), the output schema, a few real sample inputs with their current outputs, the pipeline entry point and the relevant file names. The design uses ONLY these for concrete values and marks anything missing as UNKNOWN instead of guessing. Pass the same facts to harness_validate.",
         },
-        project: { ...PROJECT_PROP, description: "optional project whose private memory and internal platform methodology ground precedent. Omit for base-only precedent; configured defaults do not activate private context, and no repository discovery occurs. An explicit project selects that named tenant without repository matching, even in automatic stdio. Raw platform cards are never returned; the precedent NEVER enters a verdict." },
+        project: { ...PROJECT_PROP, description: "optional project whose private memory and internal platform methodology ground precedent. Automatic stdio: omit it; the repository's own memory is used when its context is discoverable, otherwise the call runs without private context. A supplied project must match the repository or the call refuses. Legacy factory: omit for base-only precedent; configured defaults do not activate private context. Raw platform cards are never returned; the precedent NEVER enters a verdict." },
         design_model: { type: "string", description: "optional OpenRouter model override for the single design call. Omit to resolve via TITRATION_HELPER_MODEL (a judges-roster.json id), else the first available verified door (subscription CLIs first)." },
       },
       required: ["system_description", "change_type"],
@@ -730,7 +730,7 @@ export const TRUSTED_LOCAL_MCP_TOOLS = [
       type: "object",
       properties: {
         run_summary: { type: "string", description: "what the completed run/analysis produced — the server cannot see your work, so supply the evidence the proposals must be grounded in" },
-        project: { ...PROJECT_PROP, description: "optional project for neighbor dedup context. Omit to skip neighbor reads while retaining supplied existing_cards; configured defaults do not activate context, and no repository discovery occurs. An explicit project selects that named tenant without repository matching, even in automatic stdio." },
+        project: { ...PROJECT_PROP, description: "optional project for neighbor dedup context. Automatic stdio: omit it; the repository's own memory is used when its context is discoverable, otherwise the call runs without private context. A supplied project must match the repository or the call refuses. Legacy factory: omit to skip neighbor reads; configured defaults do not activate context. Supplied existing_cards are always retained." },
         run_ref: { type: "string", description: "optional run ref (RUN-...) for suggested observed_in edges" },
         existing_cards: { type: "string", description: "optional extra existing-card context to dedup against (merged with the project pull)" },
         k: { type: "number", description: "how many existing cards to pull for dedup context when a project is given (1-25, default 8)" },
@@ -840,13 +840,16 @@ type _TrustedLocalRegistryMatchesNames = AssertTrue<EqualUnions<
 // v1 extraction ritual: run-completion tools whose result carries the advisory extraction nudge.
 const NUDGE_TOOLS = new Set(["run_capture", "verify", "goal_titrate_step"]);
 
-// Exactly the stateful routes; the three advisory omissions and harness_validate
-// deliberately retain their existing semantics. The registry test pins all 18.
+// Exactly the stateful routes; the three advisory tools and harness_validate
+// are classified separately. The registry test pins all 18.
 const MANDATORY_PROJECT_TOOLS = new Set([
   "card_search", "card_get", "card_create", "card_relate", "run_capture", "card_distill",
   "establish_baseline", "verify", "job_status", "goal_titrate", "goal_titrate_step",
   "edge_propose", "referee_panel_mint", "referee_panel_status",
 ]);
+// Optional private context: automatic factories bind it to the repository when
+// discoverable; legacy factories keep caller-selected context.
+const ADVISORY_PROJECT_TOOLS = new Set(["classify_failure", "propose_cards", "harness_design"]);
 
 export function createMcpServer<TPrepared>(
   options: McpRegistryOptions<TPrepared>,
@@ -862,6 +865,20 @@ export function createMcpServer<TPrepared>(
         : suppliedArguments;
       // Enforce after trusted preparation, inside the request error boundary.
       // A fresh object avoids contaminating a hook's reused/shared arguments.
+      if (ADVISORY_PROJECT_TOOLS.has(toolName) && options.resolveRepositoryProject) {
+        // Automatic advisory context: the repository's memory when discoverable,
+        // otherwise none (fail open). A supplied project never selects another tenant.
+        if (toolName === "classify_failure" && arguments_.ledger === false) return { arguments: arguments_ };
+        let derived: string;
+        try {
+          derived = await options.resolveRepositoryProject();
+        } catch (error) {
+          console.error(`[advisory] ${toolName} runs without repository memory: ${error instanceof Error ? error.message : String(error)}`);
+          const { project: _unverified, ...rest } = arguments_;
+          return { arguments: rest };
+        }
+        return { arguments: { ...arguments_, project: bindRepositoryProject(derived, arguments_.project, options.configuredProject) } };
+      }
       if (!MANDATORY_PROJECT_TOOLS.has(toolName)) return { arguments: arguments_ };
       const project = options.resolveRepositoryProject
         ? bindRepositoryProject(await options.resolveRepositoryProject(), arguments_.project, options.configuredProject)

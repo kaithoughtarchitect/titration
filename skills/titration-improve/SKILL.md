@@ -48,11 +48,9 @@ verified local links or the shared common directory. No basename/history inferen
 anchors need not preserve continuity. Nothing is migrated or reassigned; captured jobs/baselines
 are not retargeted. The shared base overlay stays read-only; base writes are refused.
 
-Advisory context is separate and does not gain discovery: omitted `classify_failure` skips ledger
-reads (`ledger: false` also skips them), omitted `propose_cards` skips neighbor reads but retains
-supplied `existing_cards`, and omitted `harness_design` keeps base-only precedent. Configuration
-does not activate those contexts. Pass an explicit advisory project only when intentionally known,
-never a guessed basename. `harness_validate` is stateless, with no project.
+Advisory tools (`classify_failure`, `propose_cards`, `harness_design`) also use the repository's
+memory automatically; omit `project` there too. If repository context cannot be discovered they still
+run, without private context. `ledger: false` skips the ledger. `harness_validate` is stateless.
 
 Legacy factory integrations without a repository resolver retain explicit/configured/
 `PROJECT_REQUIRED` selection; the standalone search CLI retains `TITRATION_TENANT`/`default`.
@@ -270,9 +268,9 @@ the end. This uses only the tools below and adds a single grading pass.
 7. **Optional — extract reusable learnings.** `capture: true` at step 4 already handled the terminal
    verdict (a FINDING on convergence, a REGRESSION on a stalled-or-exhausted run) automatically — no
    further action needed for that. For anything else worth keeping — a METHOD, a MODEL_PROFILE, a
-   PROMPT_BEHAVIOR, a DATASET_NOTE — call `propose_cards { run_summary, project? }`: a single advisory
-   model call **drafts** candidate cards + suggested edges for you to review; it creates nothing. Pass
-   `project` only when its intended value is already known, to dedup against that project's existing cards (a near-duplicate comes back as
+   PROMPT_BEHAVIOR, a DATASET_NOTE — call `propose_cards { run_summary }`: a single advisory
+   model call **drafts** candidate cards + suggested edges for you to review; it creates nothing. It dedups
+   against this repository's existing cards automatically (a near-duplicate comes back as
    `duplicate_of` so you update instead of creating anew). A METHOD draft or a `contradicts` /
    `supersedes` edge is flagged `requires_confirmation` / `high_stakes` — never create those without
    confirming with the user. Zero proposals is a valid outcome.

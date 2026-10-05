@@ -206,15 +206,14 @@ visibility and unrelated-repo exclusion. These are not native certification of e
 
 ### Advisory context and legacy data
 
-The advisory exceptions do **not** discover repository context. Omitting `project` on
-`classify_failure` skips ledger reads (`ledger: false` also skips them); on `propose_cards` it skips
-neighbor reads while retaining supplied `existing_cards`; on `harness_design` it keeps base-only
-precedent. Configuration does not activate omitted context. `harness_validate` is stateless and
-takes no project. An explicit advisory `project` selects that named tenant without checking it
-against the current repository, even in automatic stdio. These three optional reads are **outside
-automatic repository isolation**; their project argument is not a matching assertion. Supply it
-only when that specific tenant's context is intended; do not invent a tenant from a repository's
-basename.
+In standard stdio the three advisory tools also use the current repository's memory automatically:
+`classify_failure` reads its ledger, `propose_cards` checks neighbor cards for duplicates (supplied
+`existing_cards` are always kept), and `harness_design` draws on its precedent. Omit `project`.
+Unlike the 14 stateful tools, they **fail open**: if repository context cannot be discovered, the call
+still runs, without private context. A supplied `project` or nonblank `TITRATION_PROJECT` is a
+matching assertion here too; a mismatch refuses, and when discovery fails a supplied name is dropped,
+so it never reads another repository's memory. `ledger: false` skips the ledger and discovery.
+`harness_validate` is stateless and takes no project. Advisory context never changes a verdict.
 
 Legacy integrations using `createMcpServer` **without** a repository resolver retain their old
 selection: a valid nonblank explicit `project` wins after trimming; otherwise omitted/null/blank

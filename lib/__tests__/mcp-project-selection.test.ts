@@ -146,10 +146,10 @@ try {
       }
       for (const name of optional) {
         const prop = tools.find((t) => t.name === name)!.inputSchema.properties!.project as { description: string };
-        check(`${name} metadata preserves optional context without discovery`, /omit/i.test(prop.description) && /configured defaults do not/i.test(prop.description) && /no repository discovery/i.test(prop.description));
-        check(`${name} metadata discloses explicit cross-repository advisory selection`,
-          /explicit project selects that named tenant without repository matching/i.test(prop.description)
-          && /even in automatic stdio/i.test(prop.description));
+        check(`${name} metadata describes automatic repository context that fails open`,
+          /automatic stdio: omit it/i.test(prop.description) && /repository's own memory/i.test(prop.description)
+          && /otherwise the call runs without private context/i.test(prop.description) && /must match the repository/i.test(prop.description));
+        check(`${name} metadata preserves legacy optional context`, /legacy factory: omit/i.test(prop.description) && /configured defaults do not/i.test(prop.description));
       }
       check("harness_validate remains stateless metadata", !("project" in tools.find((t) => t.name === "harness_validate")!.inputSchema.properties!));
     });
@@ -310,9 +310,55 @@ try {
       const result = await call(client, "classify_failure", { project: "repo-explicit", ledger: false, observation: "Formatter removed markers." });
       check("ledger:false suppresses explicit project context with successful classification", !result.error && storage === 0 && provider === 3 && subprocess === 0 && jobs === 0, result.text + counts());
       allowedTool = undefined;
-    }, undefined, automatic ? async () => { throw new Error("ADVISORY_RESOLUTION_FORBIDDEN"); } : undefined);
+    }, undefined, automatic ? async () => { throw new Error("REPOSITORY_CONTEXT_REQUIRED"); } : undefined);
   }
   }
+
+  // Automatic advisory context binds the repository when discoverable.
+  const advisoryCalls: [string, Args, number][] = [
+    ["classify_failure", { observation: "Raw output was intact; formatter removed markers.", mode: "panel" }, 0],
+    ["propose_cards", { run_summary: "A reusable method was observed.", existing_cards: "SUPPLIED-CONTEXT T-MET-001", propose_model: "openai/gpt-6-sol" }, 0],
+    ["harness_design", { system_description: "Detect narration leakage", change_type: "prompt-edit", design_model: "openai/gpt-6-sol" }, 1],
+  ];
+  for (const config of [undefined, "", derived]) {
+    await session(config, async (client) => {
+      for (const [name, args, omittedStorage] of advisoryCalls) {
+        for (const project of [...omissions, derived, ` ${derived} `]) {
+          allowedTool = name;
+          const before = resolutions;
+          await call(client, name, { ...args, project });
+          check(`${name} automatic context resolves exactly once`, resolutions === before + 1);
+          check(`${name} automatic context reads repository memory`, storage > omittedStorage && subprocess === 0 && jobs === 0, counts());
+          allowedTool = undefined;
+        }
+        for (const project of [other, "default", "__base__", "Bad Name", 42]) {
+          await refused(client, name, { ...args, project }, /REPOSITORY_PROJECT_(INVALID|CONFLICT)/);
+        }
+      }
+      const before = resolutions;
+      allowedTool = "classify_failure";
+      const result = await call(client, "classify_failure", { project: derived, ledger: false, observation: "Formatter removed markers." });
+      check("ledger:false skips automatic discovery and memory", !result.error && resolutions === before && storage === 0, result.text + counts());
+      allowedTool = "harness_validate";
+      await call(client, "harness_validate", { design_or_manifest: "Proposed five-file harness", codebase_facts: "Isolated tests; no writes.", validate_model: "openai/gpt-6-sol" });
+      check("harness_validate stays stateless without discovery", resolutions === before && storage === 0, counts());
+      allowedTool = undefined;
+    }, undefined, resolve);
+  }
+  for (const config of [other, "INVALID"]) {
+    await session(config, async (client) => {
+      for (const [name, args] of advisoryCalls) await refused(client, name, args, /REPOSITORY_PROJECT_(INVALID|CONFLICT)/);
+    }, undefined, resolve);
+  }
+  // Failed discovery never lets a supplied name select another tenant.
+  await session(undefined, async (client) => {
+    for (const [name, args, omittedStorage] of advisoryCalls) {
+      allowedTool = name;
+      const result = await call(client, name, { ...args, project: other });
+      check(`${name} failed discovery drops supplied project and runs without memory`, !result.error && storage === omittedStorage, result.text + counts());
+      allowedTool = undefined;
+    }
+  }, undefined, async () => { throw new Error("REPOSITORY_LOOKUP_FAILED"); });
   check("no unrecognized provider traffic attempted", unexpectedHttp === 0, String(unexpectedHttp));
 } finally {
   await sql.end();
