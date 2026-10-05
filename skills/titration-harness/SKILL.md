@@ -30,7 +30,7 @@ step for this skill (that's `titration-improve`'s judge picker).
    outputs, the pipeline entry point and the relevant file names, plus what the validator needs (step 2).
    These are your `codebase_facts`, and both calls get the same ones. The server can't see your repo, so
    anything you leave out, the design will mark `UNKNOWN` rather than guess.
-1. **Design — `harness_design`** `{ system_description, change_type, codebase_facts, baseline_facts?, project? }` → a
+1. **Design — `harness_design`** `{ system_description, change_type, codebase_facts, baseline_facts? }` → a
    **PROPOSED** design package: a human-review README, a label schema with authority classes
    (structural / compliance-literal / semantic), quantified ship-gate thresholds + rationale, the
    5-file manifest (capture-corpus / generate-labels / ai-label / analyze-corpus / compare), predicted
@@ -38,10 +38,10 @@ step for this skill (that's `titration-improve`'s judge picker).
    **wait for an explicit "scaffold it"** before writing any file. (This is the most-expensive-failure
    checkpoint: catching a wrong measurement *before* the capture spend.) `baseline_facts` is optional —
    cite real numbers with a source if you have them (never invented); omit it and the design routes
-   baseline capture to its own phase. `project` is optional and only lends the design call whatever
-   precedent lives in that project's own cards — it never returns raw cards to the user and never
+   baseline capture to its own phase. The design automatically draws on precedent in this repository's own
+   cards when the repository can be discovered — it never returns raw cards to the user and never
    enters a verdict.
-2. **Validate — `harness_validate`** `{ design_or_manifest, codebase_facts, mode?, project? }` → a
+2. **Validate — `harness_validate`** `{ design_or_manifest, codebase_facts, mode? }` → a
    scored 9-check report `/100` + a recommendation (Proceed 90+ / Revise 70–89 / Reject <70).
    Pass the design package **unchanged**, with the same facts from step 0. If the design lists
    `UNKNOWN` items, answer them in the facts before validating.
