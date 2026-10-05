@@ -9,9 +9,8 @@ description: >-
   in a local browser picker. Use when the user wants to know whether a change actually helped - "is v2
   better than v1?", "did this prompt change help or is it just noise?", "A/B / verify / titrate these
   two versions", "should I ship this change?" - or right after titration-scout picks a target. NOT for
-  FINDING what to test (titration-scout) or designing a harness (titration-harness). Requires the
-  Titration MCP server connected, and the Player's own model id for `player_model`. Works under any
-  MCP coding agent.
+  FINDING what to test (titration-scout) or designing a harness (titration-harness). Requires a connected
+  Titration MCP client supplying local repository roots and the Player's model id for `player_model`.
 ---
 
 # Titration Improve — titrate a prompt to a goal, with a verdict you can trust
@@ -31,28 +30,35 @@ per-mode regression.
 > is billed per call, by OpenRouter, on the user's own key. Say this before the first `establish_baseline`
 > spend, and again if a later run would add a metered judge that wasn't already in play.
 
-## Choose one project for the whole workflow
+## Keep one repository context for the whole workflow
 
-Confirm a deliberate project name with the user before the first tool call. Carry that same explicit
-`project` through `referee_panel_mint`, `referee_panel_status`, both tuned/holdout
-`establish_baseline` calls, `verify`, `job_status` (including timeout recovery), `goal_titrate`,
-every `goal_titrate_step`, and any memory writes. IDs do not select the project for you.
+For standard stdio, **omit `project` and leave `TITRATION_PROJECT` unset/blank**. The connected
+client must supply the intended local Git repository roots; Git must be available to the server.
+Local file URIs and absolute local paths share normalization and validation. Missing, failed,
+invalid or ambiguous roots refuse; the server never falls back to its installation or launch cwd.
+Do not invent a project name from the folder or follow older instructions to pass arbitrary names.
+Caller `project` and nonblank `TITRATION_PROJECT` are independent matching assertions, not
+routing overrides: invalid/conflicting values (including `default`/`__base__`) refuse.
 
-Stateful MCP calls use a valid nonblank explicit project first (trimmed), then nonblank
-`TITRATION_PROJECT`; absent/blank configuration is unset and yields `PROJECT_REQUIRED` if scope
-is omitted/null/blank. Supply the chosen project to correct that refusal. Invalid explicit input
-never falls back. `Invalid TITRATION_PROJECT:` means the needed fallback is invalid; fix it and
-restart the MCP process, or pass a valid explicit project, which bypasses unused invalid config.
-Names are 1–63 lowercase letters/digits/underscores/hyphens, starting with a letter or digit.
-A global default intentionally shares one partition; opening a repository does not select scope.
-Use `default` explicitly only for intended legacy data. Nothing is redistributed. `__base__` can
-be read explicitly and remains a shared read-only overlay, never a write target or configured default.
+Keep the same repository context through `referee_panel_mint`, `referee_panel_status`, both
+tuned/holdout `establish_baseline` calls, `verify`, `job_status` (including timeout recovery),
+`goal_titrate`, every `goal_titrate_step`, and memory writes. IDs do not select another repository.
+Branches/worktrees/clones share only under equal current Git anchors: origin, otherwise sole remote,
+verified local links or the shared common directory. No basename/history inference; changed/lost
+anchors need not preserve continuity. Nothing is migrated or reassigned; captured jobs/baselines
+are not retargeted. The shared base overlay stays read-only; base writes are refused.
 
-Advisory context is separate: omitted `classify_failure` skips ledger reads (`ledger: false` also
-skips them), omitted `propose_cards` skips neighbor reads but retains supplied `existing_cards`,
-and omitted `harness_design` keeps base-only precedent. Configured defaults do not activate those
-contexts; pass the chosen project when you want them. `harness_validate` is stateless, with no
-project. This MCP rule does not change the standalone search CLI's legacy configuration/default.
+Advisory context is separate and does not gain discovery: omitted `classify_failure` skips ledger
+reads (`ledger: false` also skips them), omitted `propose_cards` skips neighbor reads but retains
+supplied `existing_cards`, and omitted `harness_design` keeps base-only precedent. Configuration
+does not activate those contexts. Pass an explicit advisory project only when intentionally known,
+never a guessed basename. `harness_validate` is stateless, with no project.
+
+Legacy factory integrations without a repository resolver retain explicit/configured/
+`PROJECT_REQUIRED` selection; the standalone search CLI retains `TITRATION_TENANT`/`default`.
+Those separate paths can access old named data, not a `default` argument or new manual-mode flag
+on automatic stdio. See [repository memory and legacy access](../../README.md#automatic-repository-memory)
+for supported remote forms, sanitized refusals and the measured client compatibility boundary.
 
 ## `player_model` — who is doing the work
 
@@ -150,7 +156,7 @@ the end. This uses only the tools below and adds a single grading pass.
   those cases too often), carry on without a holdout; the final report's first line says so, with the
   refusal reason. Do not re-split: that is more judge spend on the same corpus.
 - **Final check, once.** When the loop converges, run the winning prompt on the held-back cases and
-  call `verify { project, baseline_id: <holdout baseline>, candidate_outputs, player_model }`. Keep each case's
+  call `verify { baseline_id: <holdout baseline>, candidate_outputs, player_model }`. Keep each case's
   `id` and `mode` exactly as they were at the split. Only `passed` confirms the win. Anything else
   (`inconclusive` or a regression) means the report leads with "likely overfit, don't ship" (see
   "Output format" below). Do not restart the loop yourself — the user decides what happens next.
@@ -174,7 +180,7 @@ the end. This uses only the tools below and adds a single grading pass.
    - **The local picker (default).** Call `referee_panel_mint` with `player_model` (your own model id;
      add `player_family` if the id is not recognisable), `sut_model` (the model the system under test
      calls, read from its code or config; add `sut_family` if the id is not recognisable; omit it only
-     when you genuinely cannot tell) and the chosen `project`, so the ticket is claimed there →
+     when you genuinely cannot tell) in the same repository context, so the ticket is claimed there →
      `{ ticket_id, picker_url, expires_at }`. Passing `sut_model` greys out that vendor too, because
      a judge may favour its own vendor's outputs. The server opens the page in the user's
      default browser itself. Also show the human `picker_url` **ALONE on its own line**, never inside a
@@ -184,13 +190,13 @@ the end. This uses only the tools below and adds a single grading pass.
      OpenRouter models if a key is set — with its cost class, disables whatever isn't available with
      the reason, and greys out the Player's own vendor family so it can't be picked. The user selects
      **3 judges from 3 distinct vendor families** and confirms. Do not spend while waiting.
-     - Poll `referee_panel_status` `{ project, ticket_id, wait_seconds: 50 }` — the call holds open until the
+     - Poll `referee_panel_status` `{ ticket_id, wait_seconds: 50 }` — the call holds open until the
        ticket leaves `pending`, so the answer lands the moment the human confirms; repeat until
        `confirmed` or `expired`. Start polling the moment the link is shown; never ask the human to
        report back ("say done").
      - On `expired` or a timeout: **HALT**. Do not call `establish_baseline`. A pending ticket is not
        revived — mint a fresh one only if the user retries.
-     - On `confirmed`: call `establish_baseline` with the same `project` and `panel_receipt_id` set to that `ticket_id`.
+     - On `confirmed`: call `establish_baseline` in the same repository context with `panel_receipt_id` set to that `ticket_id`.
      - **With a holdout**, each baseline needs its own ticket, because a ticket is used up by one
        `establish_baseline`. Mint both tickets up front, show both links together, and ask the user to
        pick the same three judges on each. Poll both tickets, then establish each baseline with its
@@ -209,13 +215,13 @@ the end. This uses only the tools below and adds a single grading pass.
    `player_model` against the locked panel's families, so a different Player picking up the same
    baseline is refused if it shares a locked judge's family.
 
-   `establish_baseline { project, goal_brief: { failure, desired_behavior, scope? }, rubric, baseline_outputs,
+   `establish_baseline { goal_brief: { failure, desired_behavior, scope? }, rubric, baseline_outputs,
    system_ref, player_model, panel_receipt_id | (rely on TITRATION_JUDGES), corpus_ref? }` grades the
    baseline via the resolved judges, **confirms it reproduces the failure** (else REFUSES with
    `reproduced=false`), **freezes the rubric** (`rubric_hash`), and returns a **`baseline_id`**.
    With a holdout, call it twice with the same rubric: once with the tuned cases and once with the
    held-back cases. Record both `baseline_id`s in the holdout file.
-4. **Start the loop — `goal_titrate`** `{ project, baseline_id (the tuned one, with a holdout), candidate: { name, version?, summary?,
+4. **Start the loop — `goal_titrate`** `{ baseline_id (the tuned one, with a holdout), candidate: { name, version?, summary?,
    deferred_scope? }, player_model, budget?, target_rate?, ledger: true, capture: true }` →
    `{ job_id }`. Sub-objectives = the baseline's modes, locked at turn 1. `target_rate` default `0`
    (bug eliminated); omitted `budget` defaults to `20` turns. `capture` is locked here and promotes a
@@ -227,7 +233,6 @@ the end. This uses only the tools below and adds a single grading pass.
 
    ```json
    {
-     "project": "<chosen project>",
      "job_id": "<job_id>",
      "player_model": "<your model id>",
      "candidate_outputs": [
@@ -267,7 +272,7 @@ the end. This uses only the tools below and adds a single grading pass.
    further action needed for that. For anything else worth keeping — a METHOD, a MODEL_PROFILE, a
    PROMPT_BEHAVIOR, a DATASET_NOTE — call `propose_cards { run_summary, project? }`: a single advisory
    model call **drafts** candidate cards + suggested edges for you to review; it creates nothing. Pass
-   `project` to dedup against that project's existing cards (a near-duplicate comes back as
+   `project` only when its intended value is already known, to dedup against that project's existing cards (a near-duplicate comes back as
    `duplicate_of` so you update instead of creating anew). A METHOD draft or a `contradicts` /
    `supersedes` edge is flagged `requires_confirmation` / `high_stakes` — never create those without
    confirming with the user. Zero proposals is a valid outcome.
@@ -276,7 +281,7 @@ the end. This uses only the tools below and adds a single grading pass.
 > single candidate set and stops — it does NOT iterate toward the goal, and it persists no run (so
 > nothing to look back on later — the loop does). Use `verify` ONLY for a genuine one-off "did this
 > one change help?" — NEVER as a substitute for titrating to a goal. If the user said "improve / titrate
-> to a goal," it is `goal_titrate`, not `verify`. `verify { project, baseline_id, candidate_outputs, player_model
+> to a goal," it is `goal_titrate`, not `verify`. `verify { baseline_id, candidate_outputs, player_model
 > }` reuses the baseline's locked panel exactly like `goal_titrate` does.
 
 ## What the verdict protects you from
@@ -288,7 +293,7 @@ the end. This uses only the tools below and adds a single grading pass.
   (never a silent single-judge downgrade), and a judge sharing the Player's family is refused before
   any call is made.
 - Large corpora run as a background job inside the same server process (see `async` on `verify` /
-  `establish_baseline`, and the automatic threshold) — poll `job_status { project, job_id }` until
+  `establish_baseline`, and the automatic threshold) — poll `job_status { job_id }` until
   `succeeded` or `failed`.
 
 ## Output format — render the gate and verdicts EXACTLY like this

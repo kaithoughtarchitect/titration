@@ -52,7 +52,7 @@ import {
 } from "./goal-titrate-core";
 
 const DEFAULTS = { budget: 20, stall_threshold: 3, target_rate: 0 };
-const POLL_HINT = "advance with goal_titrate_step { project, job_id, candidate_outputs, evolution, player_model }; poll job_status { project, job_id } until status is 'succeeded' (read result) or 'failed' (read error)";
+const POLL_HINT = "advance with goal_titrate_step { job_id, candidate_outputs, evolution, player_model }; poll job_status { job_id } until status is 'succeeded' (read result) or 'failed' (read error). Automatic stdio: omit project and keep the same repository context. Legacy factory without a repository resolver: include the selected project unless configured.";
 
 // Defensive jsonb read (gotcha #3a): a legacy double-encoded row comes back as a
 // string — parse it so the loop never operates on characters.

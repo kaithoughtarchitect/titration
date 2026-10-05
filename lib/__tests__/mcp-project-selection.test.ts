@@ -87,11 +87,11 @@ type Hook = (name: string, args: Args) => Args | Promise<Args>;
 function reset() { storage = provider = subprocess = jobs = 0; prompts = []; }
 function noWork() { return storage === 0 && provider === 0 && subprocess === 0 && jobs === 0; }
 function counts() { return JSON.stringify({ storage, provider, subprocess, jobs }); }
-async function session(configuredProject: string | undefined, run: (client: Client) => Promise<void>, prepareArguments?: Hook) {
+async function session(configuredProject: string | undefined, run: (client: Client) => Promise<void>, prepareArguments?: Hook, resolveRepositoryProject?: () => Promise<string>, evolution = createLocalEvolutionAdapter()) {
   const server = createMcpServer({
     mode: TRUSTED_LOCAL_MCP_PRESENTATION.mode, tools: TRUSTED_LOCAL_MCP_TOOLS,
-    presentation: TRUSTED_LOCAL_MCP_PRESENTATION, evolution: createLocalEvolutionAdapter(),
-    configuredProject, prepareArguments,
+    presentation: TRUSTED_LOCAL_MCP_PRESENTATION, evolution,
+    configuredProject, prepareArguments, resolveRepositoryProject,
     createJobContext() { jobs++; throw new Error("OFFLINE_JOB_FORBIDDEN"); },
   });
   const client = new Client({ name: "project-selection-test", version: "1" });
@@ -139,12 +139,17 @@ try {
       check("all 18 registered routes have an explicit policy classification", JSON.stringify(tools.map((t) => t.name).sort()) === JSON.stringify([...mandatory, ...optional, "harness_validate"].sort()));
       for (const name of mandatory) {
         const description = String(tools.find((t) => t.name === name)?.inputSchema.properties?.project && (tools.find((t) => t.name === name)!.inputSchema.properties!.project as { description: string }).description);
-        check(`${name} metadata describes explicit/configured/required policy`, /TITRATION_PROJECT/.test(description) && /PROJECT_REQUIRED/.test(description) && /explicit/i.test(description));
+        check(`${name} metadata describes automatic stdio and independent assertions`, /automatic stdio/i.test(description) && /omit project/i.test(description) && /client.*roots/i.test(description) && /independent matching assertions/i.test(description) && /not overrides/i.test(description) && /invalid.*conflicting/i.test(description));
+        check(`${name} metadata preserves legacy factory explicit/configured/required policy`, /without.*resolver/i.test(description) && /explicit project wins/i.test(description) && /TITRATION_PROJECT/.test(description) && /PROJECT_REQUIRED/.test(description) && /checked only when needed/i.test(description));
+        check(`${name} metadata distinguishes legacy default and base from automatic scope`, /legacy.*"default"/i.test(description) && /"__base__".*read-only/i.test(description) && /no.*migration/i.test(description));
         for (const project of omissions) await refused(client, name, { project }, /PROJECT_REQUIRED/);
       }
       for (const name of optional) {
         const prop = tools.find((t) => t.name === name)!.inputSchema.properties!.project as { description: string };
-        check(`${name} metadata preserves optional context`, /omit/i.test(prop.description) && /configured defaults do not/i.test(prop.description));
+        check(`${name} metadata preserves optional context without discovery`, /omit/i.test(prop.description) && /configured defaults do not/i.test(prop.description) && /no repository discovery/i.test(prop.description));
+        check(`${name} metadata discloses explicit cross-repository advisory selection`,
+          /explicit project selects that named tenant without repository matching/i.test(prop.description)
+          && /even in automatic stdio/i.test(prop.description));
       }
       check("harness_validate remains stateless metadata", !("project" in tools.find((t) => t.name === "harness_validate")!.inputSchema.properties!));
     });
@@ -179,6 +184,107 @@ try {
     }, () => shared);
   }
 
+  // Ideal-model resolver doubles exercise the shipped factory, not Git discovery.
+  const derived = `repo-${"a".repeat(58)}`;
+  const other = `repo-${"b".repeat(58)}`;
+  let resolutions = 0;
+  const resolve = async () => { resolutions++; return derived; };
+  for (const name of mandatory) {
+    await session(undefined, async (client) => {
+      await refused(client, name, {}, /REPOSITORY_LOOKUP_TIMEOUT/);
+    }, undefined, async () => { throw new Error("REPOSITORY_LOOKUP_TIMEOUT"); });
+    await session(undefined, async (client) => {
+      const before = resolutions;
+      await refused(client, name, {}, /PREPARATION_REFUSED/);
+      check(`${name} rejected preparation prevents resolution`, resolutions === before);
+    }, async () => { await Promise.resolve(); throw new Error("PREPARATION_REFUSED"); }, resolve);
+    await session(derived, async (client) => {
+      for (const project of [other, "default", "__base__", false, 42, {}, [], "Bad Name", "a".repeat(64)]) {
+        await refused(client, name, { project }, /REPOSITORY_PROJECT_(INVALID|CONFLICT)/);
+      }
+    }, undefined, resolve);
+    for (const config of [other, "default", "__base__", "INVALID", "a".repeat(64)]) {
+      await session(config, async (client) => {
+        await refused(client, name, { project: derived }, /REPOSITORY_PROJECT_(INVALID|CONFLICT)/);
+      }, undefined, resolve);
+    }
+  }
+  // A throwing enumerable getter observes the fresh-copy boundary after binding,
+  // without entering handlers that would otherwise need storage or providers.
+  for (const config of [undefined, "", " \t ", derived, ` ${derived} `]) {
+    await session(config, async (client) => {
+      for (const name of mandatory) {
+        for (const project of [...omissions, derived, ` ${derived} `]) {
+          const before = resolutions;
+          await refused(client, name, { project }, /BOUND_ARGUMENTS_COPIED/);
+          check(`${name} accepted assertions resolve exactly once before copying`, resolutions === before + 1);
+        }
+      }
+    }, (_name, args) => Object.freeze({
+      ...args,
+      get copyBoundary() { throw new Error("BOUND_ARGUMENTS_COPIED"); },
+    }), resolve);
+  }
+  for (const config of [undefined, "", " \t ", derived, ` ${derived} `]) {
+    await session(config, async (client) => {
+      for (const project of [...omissions, derived, ` ${derived} `]) await reachesStorage(client, project);
+    }, undefined, resolve);
+  }
+  let prepared = false;
+  await session(undefined, async (client) => {
+    await reachesStorage(client, other);
+  }, async (_name, args) => {
+    await Promise.resolve();
+    prepared = true;
+    return Object.freeze({ ...args, project: derived });
+  }, async () => {
+    check("automatic resolution follows completed async preparation", prepared);
+    return derived;
+  });
+  await session(undefined, async (client) => {
+    await refused(client, "card_get", { project: derived }, /REPOSITORY_PROJECT_CONFLICT/);
+  }, async (_name, args) => ({ ...args, project: other }), resolve);
+  for (const sharedPrepared of [{ card_ref: "project:T-MET-001" }, Object.freeze({ card_ref: "project:T-MET-001" })]) {
+    await session(undefined, async (client) => {
+      await reachesStorage(client, undefined);
+      await reachesStorage(client, undefined);
+      check("automatic binding does not mutate shared/frozen prepared object", !Object.hasOwn(sharedPrepared, "project"));
+    }, () => sharedPrepared, resolve);
+  }
+  function deferred() {
+    let done!: () => void;
+    const promise = new Promise<void>((resolve) => { done = resolve; });
+    return { promise, done };
+  }
+  const entered = deferred(), release = deferred();
+  const captured: string[] = [];
+  let current = derived;
+  const evolution = createLocalEvolutionAdapter();
+  evolution.prepare = async (input) => {
+    captured.push(input.tenant);
+    if (captured.length === 1) { entered.done(); await release.promise; }
+    check("in-flight handler retains its captured scalar", input.tenant === (input.jobId === "first" ? derived : other));
+    throw new Error("CAPTURE_OBSERVED");
+  };
+  await session(undefined, async (client) => {
+    reset();
+    const args = { player_model: "openai/gpt-6-sol", evolution: { artifact_kind: "code", note: "offline capture" } };
+    const first = client.callTool({ name: "goal_titrate_step", arguments: { ...args, job_id: "first" } });
+    await entered.promise;
+    current = other;
+    const second = await client.callTool({ name: "goal_titrate_step", arguments: { ...args, job_id: "second" } });
+    release.done();
+    const firstResult = await first;
+    check("interleaved calls capture distinct per-call projects", captured.join() === [derived, other].join());
+    check("capture observer stops both calls before storage/provider/jobs", firstResult.isError === true && second.isError === true && noWork(), counts());
+  }, undefined, async () => current, evolution);
+  await session(undefined, async (client) => {
+    const before = resolutions;
+    await refused(client, "unknown_tool", {}, /unknown tool/);
+    check("unknown route does not resolve repository", resolutions === before);
+  }, undefined, resolve);
+
+  for (const automatic of [false, true]) {
   for (const config of [undefined, "repo-default", "INVALID", "__base__"]) {
     await session(config, async (client) => {
       for (const project of omissions) {
@@ -204,7 +310,8 @@ try {
       const result = await call(client, "classify_failure", { project: "repo-explicit", ledger: false, observation: "Formatter removed markers." });
       check("ledger:false suppresses explicit project context with successful classification", !result.error && storage === 0 && provider === 3 && subprocess === 0 && jobs === 0, result.text + counts());
       allowedTool = undefined;
-    });
+    }, undefined, automatic ? async () => { throw new Error("ADVISORY_RESOLUTION_FORBIDDEN"); } : undefined);
+  }
   }
   check("no unrecognized provider traffic attempted", unexpectedHttp === 0, String(unexpectedHttp));
 } finally {

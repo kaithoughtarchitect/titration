@@ -244,6 +244,13 @@ check(
 
 {
   const source = readFileSync("lib/goal-titrate.ts", "utf8");
+  const pollHint = source.match(/const POLL_HINT = "([^"]+)";/)?.[1] ?? "";
+  check("loop hint omits automatic project and preserves legacy guidance",
+    pollHint.includes("goal_titrate_step { job_id,") && pollHint.includes("job_status { job_id }")
+      && pollHint.includes("same repository context") && pollHint.includes("Legacy factory")
+      && pollHint.includes("project") && !pollHint.includes("{ project,"));
+  check("start and continuing step both return the same scoped hint",
+    (source.match(/poll: POLL_HINT/g) ?? []).length === 2);
   check(
     "dependency-bound step calls its injected Verify port",
     /stepGoalTitrateWithDependencies\([\s\S]*?dependencies\.verify\(\s*\{/.test(source),
