@@ -18,15 +18,20 @@
 //
 // Bounded in-process concurrency (default 2, `TITRATION_LOCAL_JOB_CONCURRENCY`):
 // extra jobs wait in an in-memory FIFO queue. That queue is NOT durable — it dies
-// with the process, which is exactly why failStaleRunningJobs() below exists.
+// with the process, which is exactly why failStaleRunningJobs() below exists. Several
+// servers may share one database, so ownership is a heartbeat on `updated_at`, not
+// "whatever is running when I start".
 
 import { sql } from "./store";
-import { createJob, markRunning, completeJob, failJob } from "./jobs";
+import { createJob, markRunning, completeJob, failJob, touchJob, failStaleJob } from "./jobs";
 import { isDurableJobKind, type DurableJobKind, type JobKind, type JobStatus } from "./jobs-core";
 import {
   resolveLocalJobConcurrency,
   describeJobFailure,
+  isStaleLiveJob,
+  LOCAL_JOB_HEARTBEAT_MS,
   LOCAL_JOB_RESTART_REASON,
+  LOCAL_JOB_STALE_SECONDS,
 } from "./local-jobs-core";
 
 // ── scheduler ────────────────────────────────────────────────────────────────
@@ -36,9 +41,10 @@ export interface LocalJobStoreDeps {
   markRunning: typeof markRunning;
   completeJob: typeof completeJob;
   failJob: typeof failJob;
+  touchJob: typeof touchJob;
 }
 
-const defaultStoreDeps: LocalJobStoreDeps = { createJob, markRunning, completeJob, failJob };
+const defaultStoreDeps: LocalJobStoreDeps = { createJob, markRunning, completeJob, failJob, touchJob };
 
 export interface LocalJobRunner {
   startLocalJob(
@@ -53,6 +59,7 @@ export interface CreateLocalJobRunnerOptions {
   concurrency?: number;
   deps?: Partial<LocalJobStoreDeps>;
   env?: Record<string, string | undefined>;
+  heartbeatMs?: number;
 }
 
 /**
@@ -67,6 +74,24 @@ export function createLocalJobRunner(options: CreateLocalJobRunnerOptions = {}):
 
   let inFlight = 0;
   const queue: Array<() => Promise<void>> = [];
+
+  // Every job this process owns (queued in the FIFO or running) is heartbeated so
+  // another server's stale sweep never mistakes it for an orphan.
+  const live = new Set<string>();
+  let heartbeat: ReturnType<typeof setInterval> | undefined;
+  function own(jobId: string): void {
+    live.add(jobId);
+    heartbeat ??= setInterval(() => {
+      for (const id of live) {
+        deps.touchJob(id).catch((e) => console.error(`[local-jobs] heartbeat for job ${id} failed (fail-open):`, e));
+      }
+    }, options.heartbeatMs ?? LOCAL_JOB_HEARTBEAT_MS);
+    heartbeat.unref?.();
+  }
+  function release(jobId: string): void {
+    live.delete(jobId);
+    if (live.size === 0 && heartbeat) { clearInterval(heartbeat); heartbeat = undefined; }
+  }
 
   function runTask(task: () => Promise<void>): void {
     inFlight++;
@@ -102,6 +127,8 @@ export function createLocalJobRunner(options: CreateLocalJobRunnerOptions = {}):
       await deps.failJob(jobId, describeJobFailure(e)).catch((inner) => {
         console.error(`[local-jobs] ${kind} job ${jobId} — could not record the failure:`, inner);
       });
+    } finally {
+      release(jobId);
     }
   }
 
@@ -112,6 +139,7 @@ export function createLocalJobRunner(options: CreateLocalJobRunnerOptions = {}):
     run: () => Promise<unknown>,
   ): Promise<{ job_id: string }> {
     const { job_id } = await deps.createJob(tenant, kind, input);
+    own(job_id);
     schedule(() => execute(job_id, kind, run));
     return { job_id };
   }
@@ -136,27 +164,36 @@ export interface StaleJobRow {
   id: string;
   kind: JobKind;
   status: JobStatus;
+  /** Seconds since the row's last heartbeat, measured by the database clock. */
+  ageSeconds: number;
 }
 
 export interface FailStaleRunningJobsDeps {
   listLiveJobs: () => Promise<StaleJobRow[]>;
-  failJob: (jobId: string, error: string) => Promise<void>;
+  /** Resolves false when the row turned out not to be stale (its owner touched it). */
+  failJob: (jobId: string, error: string) => Promise<boolean | void>;
 }
 
 const defaultSweepDeps: FailStaleRunningJobsDeps = {
   listLiveJobs: async () => {
-    const rows = await sql`select id, kind, status from jobs where status in ('queued', 'running')`;
-    return rows.map((r: any) => ({ id: String(r.id), kind: r.kind as JobKind, status: r.status as JobStatus }));
+    const rows = await sql`
+      select id, kind, status, extract(epoch from (now() - updated_at))::float8 as age_seconds
+      from jobs where status in ('queued', 'running')`;
+    return rows.map((r: any) => ({
+      id: String(r.id), kind: r.kind as JobKind, status: r.status as JobStatus, ageSeconds: Number(r.age_seconds),
+    }));
   },
-  failJob,
+  failJob: (jobId, error) => failStaleJob(jobId, error, LOCAL_JOB_STALE_SECONDS),
 };
 
 /**
- * Boot sweep: every `running` AND `queued` verify/establish_baseline job is a
- * dead man's row — the in-memory scheduler that owned it (and its FIFO queue) died
- * with the previous process, so nothing will ever move it out of a non-terminal
- * state. Fail each one with the typed LOCAL_JOB_RESTART_REASON so a caller polling
- * job_status gets a clear "re-run it" instead of a poll that hangs forever.
+ * Stale sweep (at boot and periodically): a `running`/`queued` verify or
+ * establish_baseline job whose heartbeat stopped is a dead man's row — the in-memory
+ * scheduler that owned it (and its FIFO queue) died with its server, so nothing will
+ * ever move it out of a non-terminal state. Fail each one with the typed
+ * LOCAL_JOB_RESTART_REASON so a caller polling job_status gets a clear "re-run it"
+ * instead of a poll that hangs forever. Jobs with a recent heartbeat belong to
+ * another live server sharing this database and are never touched.
  *
  * goal_titrate is client-driven (the caller itself resends/polls turns) and is
  * deliberately excluded — `isDurableJobKind` is the same verify/establish_baseline
@@ -181,17 +218,18 @@ export async function failStaleRunningJobs(
   const failed: string[] = [];
   for (const row of rows) {
     if (!isDurableJobKind(row.kind)) continue; // goal_titrate is client-driven — never swept
+    if (!isStaleLiveJob(row.ageSeconds)) continue; // a live server still owns it
     try {
-      await deps.failJob(row.id, LOCAL_JOB_RESTART_REASON);
+      if ((await deps.failJob(row.id, LOCAL_JOB_RESTART_REASON)) === false) continue;
       failed.push(row.id);
     } catch (e) {
-      console.error(`[local-jobs] boot sweep: could not fail stale job ${row.id} (fail-open):`, e);
+      console.error(`[local-jobs] stale sweep: could not fail stale job ${row.id} (fail-open):`, e);
     }
   }
 
   if (failed.length > 0) {
     console.error(
-      `[local-jobs] boot sweep at ${now.toISOString()}: failed ${failed.length} stale job(s) left running/queued by the previous process:`,
+      `[local-jobs] stale sweep at ${now.toISOString()}: failed ${failed.length} job(s) whose server stopped before they finished:`,
       failed,
     );
   }

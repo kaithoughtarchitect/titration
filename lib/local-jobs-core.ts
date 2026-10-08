@@ -24,14 +24,28 @@ export function resolveLocalJobConcurrency(env: Record<string, string | undefine
   return n;
 }
 
+/**
+ * Several stdio servers can share one database (one per agent session), so a live
+ * `queued`/`running` row may belong to another server that is still working on it.
+ * The owning server refreshes each live job's `updated_at` every heartbeat; only a
+ * row untouched for the stale window (four missed heartbeats) has no owner left.
+ */
+export const LOCAL_JOB_HEARTBEAT_MS = 30_000;
+export const LOCAL_JOB_STALE_SECONDS = 120;
+
+/** True when a live job's last heartbeat is old enough that its owning server is gone. */
+export function isStaleLiveJob(ageSeconds: number): boolean {
+  return Number.isFinite(ageSeconds) && ageSeconds >= LOCAL_JOB_STALE_SECONDS;
+}
+
 /** Uniform "what do we tell the store" mapping for a background job's thrown error. */
 export function describeJobFailure(e: unknown): string {
   return e instanceof Error ? e.message : String(e);
 }
 
 /**
- * The typed reason a `running`/`queued` verify or establish_baseline job is failed
- * with on boot: the in-memory scheduler that owned it died with the previous process,
+ * The typed reason a stale `running`/`queued` verify or establish_baseline job is
+ * failed with: the in-memory scheduler that owned it died with its server process,
  * so nothing will ever move it out of a non-terminal state — it must be failed, not
  * left to look "in progress" forever. goal_titrate is client-driven (the caller polls
  * and resends turns) and is never touched by this reason.

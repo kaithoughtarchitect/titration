@@ -18,6 +18,9 @@ import {
   describeJobFailure,
   LOCAL_JOB_RESTART_REASON,
   DEFAULT_LOCAL_JOB_CONCURRENCY,
+  LOCAL_JOB_HEARTBEAT_MS,
+  LOCAL_JOB_STALE_SECONDS,
+  isStaleLiveJob,
 } from "../local-jobs-core";
 import { isDurableJobKind, type JobKind } from "../jobs-core";
 
@@ -89,7 +92,12 @@ function makeFakeStore() {
     failed.push({ jobId, error });
   };
 
-  return { created, markRunningCalls, completed, failed, deps: { createJob, markRunning, completeJob, failJob } };
+  const touched: string[] = [];
+  const touchJob = async (jobId: string): Promise<void> => {
+    touched.push(jobId);
+  };
+
+  return { created, markRunningCalls, completed, failed, touched, deps: { createJob, markRunning, completeJob, failJob, touchJob } };
 }
 
 // 1) completes → succeeded with result; returns { job_id } immediately (before run() settles).
@@ -204,10 +212,10 @@ function makeFakeStore() {
 // 5) boot sweep only touches verify/establish rows — goal_titrate is client-driven.
 {
   const rows = [
-    { id: "r1", kind: "verify" as JobKind, status: "running" as const },
-    { id: "r2", kind: "establish_baseline" as JobKind, status: "queued" as const },
-    { id: "r3", kind: "goal_titrate" as JobKind, status: "running" as const },
-    { id: "r4", kind: "goal_titrate" as JobKind, status: "queued" as const },
+    { id: "r1", kind: "verify" as JobKind, status: "running" as const, ageSeconds: 600 },
+    { id: "r2", kind: "establish_baseline" as JobKind, status: "queued" as const, ageSeconds: 600 },
+    { id: "r3", kind: "goal_titrate" as JobKind, status: "running" as const, ageSeconds: 600 },
+    { id: "r4", kind: "goal_titrate" as JobKind, status: "queued" as const, ageSeconds: 600 },
   ];
   const failedCalls: Array<{ jobId: string; error: string }> = [];
   const { failed } = await failStaleRunningJobs(new Date("2026-09-26T00:00:00Z"), {
@@ -242,9 +250,9 @@ function makeFakeStore() {
 // 7) boot sweep keeps going if one row's failJob throws.
 {
   const rows = [
-    { id: "ok-1", kind: "verify" as JobKind, status: "running" as const },
-    { id: "bad-1", kind: "establish_baseline" as JobKind, status: "queued" as const },
-    { id: "ok-2", kind: "verify" as JobKind, status: "queued" as const },
+    { id: "ok-1", kind: "verify" as JobKind, status: "running" as const, ageSeconds: 600 },
+    { id: "bad-1", kind: "establish_baseline" as JobKind, status: "queued" as const, ageSeconds: 600 },
+    { id: "ok-2", kind: "verify" as JobKind, status: "queued" as const, ageSeconds: 600 },
   ];
   const { failed } = await failStaleRunningJobs(new Date(), {
     listLiveJobs: async () => rows,
@@ -253,6 +261,58 @@ function makeFakeStore() {
   check("a single row's failJob throwing does not stop the rest of the sweep", failed.includes("ok-1") && failed.includes("ok-2"));
   check("the row whose failJob threw is not reported as successfully failed", !failed.includes("bad-1"));
 }
+
+// 8) another live server's jobs are spared: only rows without a recent heartbeat are failed.
+{
+  const rows = [
+    { id: "live-running", kind: "verify" as JobKind, status: "running" as const, ageSeconds: 5 },
+    { id: "live-queued", kind: "establish_baseline" as JobKind, status: "queued" as const, ageSeconds: LOCAL_JOB_STALE_SECONDS - 1 },
+    { id: "dead", kind: "verify" as JobKind, status: "running" as const, ageSeconds: LOCAL_JOB_STALE_SECONDS },
+    { id: "unknown-age", kind: "verify" as JobKind, status: "running" as const, ageSeconds: Number.NaN },
+  ];
+  const failedCalls: string[] = [];
+  const { failed } = await failStaleRunningJobs(new Date(), {
+    listLiveJobs: async () => rows,
+    failJob: async (jobId) => { failedCalls.push(jobId); },
+  });
+  check("a job with a recent heartbeat (another live server) is never failed", !failedCalls.includes("live-running") && !failedCalls.includes("live-queued"));
+  check("a job whose heartbeat stopped for the stale window is failed", failed.length === 1 && failed[0] === "dead");
+  check("an unreadable age is treated as live, not stale (fail-safe toward the owner)", !failedCalls.includes("unknown-age"));
+}
+
+// 9) a row its owner touched between listing and failing survives, and is not reported.
+{
+  const rows = [{ id: "raced", kind: "verify" as JobKind, status: "running" as const, ageSeconds: 600 }];
+  const { failed } = await failStaleRunningJobs(new Date(), {
+    listLiveJobs: async () => rows,
+    failJob: async () => false,
+  });
+  check("a guarded fail that matched no stale row is not reported as failed", failed.length === 0);
+}
+
+// 10) the owning runner heartbeats its queued and running jobs, and stops when idle.
+{
+  const store = makeFakeStore();
+  const runner = createLocalJobRunner({ concurrency: 1, deps: store.deps, heartbeatMs: 5 });
+  let release1!: () => void;
+  const gate1 = new Promise<void>((res) => { release1 = res; });
+  const { job_id: running } = await runner.startLocalJob("t", "verify", {}, async () => { await gate1; return "r"; });
+  const { job_id: queued } = await runner.startLocalJob("t", "verify", {}, async () => "q");
+  await new Promise((r) => setTimeout(r, 30));
+  check("a running job is heartbeated by its owner", store.touched.includes(running));
+  check("a job still waiting in the FIFO is heartbeated too", store.touched.includes(queued));
+  release1();
+  await flush(5);
+  const afterDone = store.touched.length;
+  await new Promise((r) => setTimeout(r, 30));
+  check("both jobs finished", store.completed.length === 2);
+  check("no heartbeats once the runner owns no live jobs", store.touched.length === afterDone);
+}
+
+check("isStaleLiveJob: below the window is live", isStaleLiveJob(LOCAL_JOB_STALE_SECONDS - 1) === false);
+check("isStaleLiveJob: at the window is stale", isStaleLiveJob(LOCAL_JOB_STALE_SECONDS) === true);
+check("isStaleLiveJob: NaN is not stale", isStaleLiveJob(Number.NaN) === false);
+check("stale window spans several heartbeats", LOCAL_JOB_STALE_SECONDS * 1000 >= 3 * LOCAL_JOB_HEARTBEAT_MS);
 
 await flush(5);
 check("no unhandled rejection occurred anywhere in this suite (the process never crashes)", unhandled.length === 0, JSON.stringify(unhandled));
