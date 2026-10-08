@@ -309,6 +309,28 @@ function makeFakeStore() {
   check("no heartbeats once the runner owns no live jobs", store.touched.length === afterDone);
 }
 
+// 11) a slow heartbeat never overlaps itself: ticks are skipped until the pass finishes.
+{
+  const store = makeFakeStore();
+  let touches = 0;
+  let finishTouch!: () => void;
+  const stuck = new Promise<void>((res) => { finishTouch = res; });
+  const runner = createLocalJobRunner({
+    concurrency: 1, heartbeatMs: 5,
+    deps: { ...store.deps, touchJob: async () => { touches++; await stuck; } },
+  });
+  let release!: () => void;
+  const gate = new Promise<void>((res) => { release = res; });
+  await runner.startLocalJob("t", "verify", {}, async () => { await gate; return "r"; });
+  await new Promise((r) => setTimeout(r, 40));
+  check("a stuck heartbeat query is not re-issued on later ticks", touches === 1, String(touches));
+  finishTouch();
+  await new Promise((r) => setTimeout(r, 40));
+  check("heartbeats resume once the slow pass finishes", touches > 1, String(touches));
+  release();
+  await flush(5);
+}
+
 check("isStaleLiveJob: below the window is live", isStaleLiveJob(LOCAL_JOB_STALE_SECONDS - 1) === false);
 check("isStaleLiveJob: at the window is stale", isStaleLiveJob(LOCAL_JOB_STALE_SECONDS) === true);
 check("isStaleLiveJob: NaN is not stale", isStaleLiveJob(Number.NaN) === false);

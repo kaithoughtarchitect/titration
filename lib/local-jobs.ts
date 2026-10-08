@@ -79,12 +79,15 @@ export function createLocalJobRunner(options: CreateLocalJobRunnerOptions = {}):
   // another server's stale sweep never mistakes it for an orphan.
   const live = new Set<string>();
   let heartbeat: ReturnType<typeof setInterval> | undefined;
+  let beating = false; // skip a tick while the previous pass is unfinished (slow DB)
   function own(jobId: string): void {
     live.add(jobId);
     heartbeat ??= setInterval(() => {
-      for (const id of live) {
-        deps.touchJob(id).catch((e) => console.error(`[local-jobs] heartbeat for job ${id} failed (fail-open):`, e));
-      }
+      if (beating) return;
+      beating = true;
+      void Promise.allSettled([...live].map((id) =>
+        deps.touchJob(id).catch((e) => console.error(`[local-jobs] heartbeat for job ${id} failed (fail-open):`, e)),
+      )).finally(() => { beating = false; });
     }, options.heartbeatMs ?? LOCAL_JOB_HEARTBEAT_MS);
     heartbeat.unref?.();
   }

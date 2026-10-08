@@ -31,7 +31,12 @@ function createStdioJobContext(tenant: string): JobExecutionContext {
 // goal_titrate is client-driven and never touched. Fail-open by construction
 // (failStaleRunningJobs never throws) — a DB hiccup must not block startup.
 await failStaleRunningJobs(new Date());
-setInterval(() => { void failStaleRunningJobs(new Date()); }, 60_000).unref();
+let sweeping = false; // skip a pass while the previous one is unfinished (slow DB)
+setInterval(() => {
+  if (sweeping) return;
+  sweeping = true;
+  void failStaleRunningJobs(new Date()).finally(() => { sweeping = false; });
+}, 60_000).unref();
 
 let resolveRepositoryProject: () => Promise<string>;
 const server = createMcpServer({
