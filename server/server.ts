@@ -22,15 +22,21 @@ function createStdioJobContext(tenant: string): JobExecutionContext {
   return createTrustedLocalJobContext(tenant);
 }
 
-// Boot sweep: a verify/establish_baseline job left `running` or `queued` by a
-// previous process is a dead man's row — the in-memory scheduler (and its FIFO
-// queue) that owned it died with that process, so nothing will ever move it out
-// of a non-terminal state. Fail those rows BEFORE accepting any tool call, so a
-// caller that polls job_status for a pre-restart job_id gets a typed "re-run it"
-// instead of a poll that hangs forever. goal_titrate is client-driven and is
-// never touched here. Fail-open by construction (failStaleRunningJobs never
-// throws) — a boot-time DB hiccup must not block server startup.
+// Stale sweep: a verify/establish_baseline job whose server died is a dead man's row —
+// the in-memory scheduler (and its FIFO queue) that owned it is gone, so nothing will
+// ever move it out of a non-terminal state. Fail those rows at boot and then every
+// minute, so a caller polling job_status gets a typed "re-run it" instead of a poll
+// that hangs forever. Other servers sharing this database (one per agent session)
+// heartbeat their live jobs, and the sweep spares anything with a recent heartbeat.
+// goal_titrate is client-driven and never touched. Fail-open by construction
+// (failStaleRunningJobs never throws) — a DB hiccup must not block startup.
 await failStaleRunningJobs(new Date());
+let sweeping = false; // skip a pass while the previous one is unfinished (slow DB)
+setInterval(() => {
+  if (sweeping) return;
+  sweeping = true;
+  void failStaleRunningJobs(new Date()).finally(() => { sweeping = false; });
+}, 60_000).unref();
 
 let resolveRepositoryProject: () => Promise<string>;
 const server = createMcpServer({

@@ -139,15 +139,25 @@ async function main(): Promise<void> {
     // (queued -> running) is still in flight and would otherwise race this UPDATE.
     let forcedRunning = false;
     for (let attempt = 0; attempt < 10 && !forcedRunning; attempt++) {
-      await verify`update jobs set status = 'running', updated_at = now() where id = ${staleJobId}`;
+      // Backdate the heartbeat past the stale window: a dead owner stops touching its rows.
+      await verify`update jobs set status = 'running', updated_at = now() - interval '1 hour' where id = ${staleJobId}`;
       const [row] = await verify`select status from jobs where id = ${staleJobId}`;
       forcedRunning = row?.status === "running";
       if (!forcedRunning) await new Promise((r) => setTimeout(r, 20));
     }
     check("(c) the fixture job was forced into 'running' before the sweep", forcedRunning);
 
+    // A job another live server still owns: running, with a fresh heartbeat.
+    const { job_id: liveJobId } = await startLocalJob(SMOKE_PROJECT, "verify", { note: "smoke-jobs live-owner fixture" },
+      async () => { await new Promise(() => {}); return null; });
+    createdJobIds.push(liveJobId);
+    await verify`update jobs set status = 'running', updated_at = now() where id = ${liveJobId}`;
+
     const { failed: sweptIds } = await failStaleRunningJobs(new Date());
     check("(c) the boot sweep reports the fixture job as failed", sweptIds.includes(staleJobId), JSON.stringify(sweptIds));
+    check("(c) a job with a fresh heartbeat (another live server) is spared", !sweptIds.includes(liveJobId), JSON.stringify(sweptIds));
+    const liveRow = await getJob(SMOKE_PROJECT, liveJobId);
+    check("(c) the live job is still running after the sweep", liveRow.status === "running", JSON.stringify(liveRow));
 
     const staleRow = await getJob(SMOKE_PROJECT, staleJobId);
     check("(c) job_status now reports 'failed' for the swept job", staleRow.status === "failed", JSON.stringify(staleRow));

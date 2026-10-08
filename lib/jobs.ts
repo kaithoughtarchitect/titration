@@ -111,6 +111,26 @@ export async function failJob(jobId: string, error: string): Promise<void> {
     where id = ${jobId} and status in ('queued', 'running')`;
 }
 
+// Heartbeat: the owning server refreshes a live job so other servers' sweeps spare it.
+export async function touchJob(jobId: string): Promise<void> {
+  await sql`
+    update jobs set updated_at = now()
+    where id = ${jobId} and status in ('queued', 'running')`;
+}
+
+// queued|running → failed ONLY if no heartbeat for `staleSeconds`; the condition is
+// rechecked in the update so a job its owner touched after the listing survives.
+export async function failStaleJob(jobId: string, error: string, staleSeconds: number): Promise<boolean> {
+  const rows = await sql`
+    update jobs
+    set status = 'failed', error = ${String(error).slice(0, ERR_MAX)},
+        updated_at = now(), terminal_at = now()
+    where id = ${jobId} and status in ('queued', 'running')
+      and updated_at < now() - make_interval(secs => ${staleSeconds})
+    returning id`;
+  return rows.length > 0;
+}
+
 // Poll a job by id, scoped to its tenant (isolation — a tenant can't read another's
 // job). Throws if it does not exist in that tenant (the caller surfaces it cleanly).
 export async function getJob(tenant: string, jobId: string): Promise<JobRow> {
