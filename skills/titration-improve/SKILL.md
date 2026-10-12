@@ -162,6 +162,27 @@ the end. This uses only the tools below and adds a single grading pass.
   (`inconclusive` or a regression) means the report leads with "likely overfit, don't ship" (see
   "Output format" below). Do not restart the loop yourself — the user decides what happens next.
 
+## Baseline log — keep the history of each system's baselines
+
+Titration has no tool that lists baselines, and a new baseline carries no link to the one before it.
+Keep that history yourself, in one local file per system: `.titration/baselines/<system_ref>.json`.
+
+- **Add an entry after every baseline that is established**, tuned or holdout. Create the file if it
+  is missing. Append; never edit or delete earlier entries. Each entry:
+
+  ```json
+  { "baseline_id": "<id>", "kind": "tuned | holdout", "corpus_ref": "<as passed, or null>", "cases": <number of baseline_outputs>, "created_at": "<today, ISO date>" }
+  ```
+
+  A run without a holdout writes one `tuned` entry; a run with one writes both. A refused baseline
+  writes nothing.
+- **Before reusing an existing baseline** (a one-off `verify`, or a new `goal_titrate` on an old
+  `baseline_id`), read its entry and tell the user its date and corpus. If the cases the system sees
+  today differ from that corpus, or the user says the inputs have changed, establish a new baseline
+  instead: the old one measures yesterday's inputs.
+- **If the file is missing or lost,** nothing breaks: the baselines are still in the database. Only the
+  list of ids is gone, so ask the user for the `baseline_id` instead of guessing one.
+
 ## The loop
 
 1. **Sharpen + confirm the goal + rubric — and STOP.** Name the independently improvable capability
@@ -221,7 +242,8 @@ the end. This uses only the tools below and adds a single grading pass.
    baseline via the resolved judges, **confirms it reproduces the failure** (else REFUSES with
    `reproduced=false`), **freezes the rubric** (`rubric_hash`), and returns a **`baseline_id`**.
    With a holdout, call it twice with the same rubric: once with the tuned cases and once with the
-   held-back cases. Record both `baseline_id`s in the holdout file.
+   held-back cases. Record both `baseline_id`s in the holdout file. Either way, add each new
+   baseline to the baseline log (see "Baseline log" above).
 4. **Start the loop — `goal_titrate`** `{ baseline_id (the tuned one, with a holdout), candidate: { name, version?, summary?,
    deferred_scope? }, player_model, budget?, target_rate?, ledger: true, capture: true }` →
    `{ job_id }`. Sub-objectives = the baseline's modes, locked at turn 1. `target_rate` default `0`
