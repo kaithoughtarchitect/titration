@@ -142,6 +142,8 @@ the end. This uses only the tools below and adds a single grading pass.
   least 20 — `verify` needs 20 scorable cases on each side, or it returns `inconclusive`). Pick them at
   random within each `mode`, so every mode is on both sides. Write the held-back case ids to
   `.titration/holdout/<system_ref>.json` before any spend. The rest are the **tuned** cases.
+- **Split fresh every run.** If a holdout file from an earlier run already exists, overwrite it with
+  a new split of today's corpus; never reuse an old split. A holdout is for one run's final check.
 - **Under 40 cases, run without a holdout.** Do not invent inputs to reach 40. The final report's
   first line then says there was no holdout, and why (see "Output format" below).
 - **Two baselines, one rubric.** Establish a **tuned baseline** on the tuned cases and a **holdout
