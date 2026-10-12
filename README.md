@@ -65,6 +65,24 @@ family never judges its own work).
   (`npm i -g @anthropic-ai/claude-code`), `codex` (`npm i -g @openai/codex`), and `grok`.
   With them, a panel is typically two CLIs plus one OpenRouter model.
 
+### Fastest: let your agent install it
+
+Start Docker, then paste this into Claude Code, Codex or Cursor:
+
+```text
+Install Titration from https://github.com/kaithoughtarchitect/titration by following the
+Quickstart in its README, including "Notes for an installing agent". Register it as an MCP
+server for yourself, then tell me to restart you.
+```
+
+You approve its commands as it goes, give it your OpenRouter key if you have one, and restart
+your agent at the end. MCP servers load when a session starts, so the agent cannot use
+Titration in the session that installed it.
+
+### By hand
+
+Clone it into its own folder, not inside a project you want to measure:
+
 ```bash
 git clone https://github.com/kaithoughtarchitect/titration.git
 cd titration
@@ -77,6 +95,20 @@ npm run setup                 # applies the schema, loads the base starter pack
 `npm run setup` is safe to re-run. Without an OpenRouter key it still loads the starter pack,
 but card search (vector search) stays off until you add a key and run `npm run embed`.
 
+#### Notes for an installing agent
+
+- Check first: `node --version` is 22.11 or later, `git --version` works, and `docker info`
+  succeeds. If Docker is not running, stop and ask the user to start it; do not try to install it.
+- Clone into its own folder (for example `~/titration`), never inside the user's current project.
+- If port 5432 is already in use, change the host side of `ports` in `docker-compose.yml` (for
+  example `"55432:5432"`) and use the same port in `TITRATION_DATABASE_URL` in `.env`.
+- Ask the user for an OpenRouter key and write it to `.env`. Without one, leave it blank; setup
+  still succeeds.
+- Setup has worked when it ends with `[setup] done` or the line saying the base is loaded but
+  unembedded. Anything else is a failure: show the user the error.
+- Register the server with the clone's absolute path, as shown under "Connect your agent" below,
+  then tell the user to restart you.
+
 ### Connect your agent
 
 The server speaks MCP over stdio. Point your client at `server/server.ts` in your clone
@@ -87,8 +119,11 @@ global configuration works when that connection supplies the correct local repos
 **Claude Code**
 
 ```bash
-claude mcp add titration -- npx tsx /absolute/path/to/titration/server/server.ts
+claude mcp add --scope user titration -- npx tsx /absolute/path/to/titration/server/server.ts
 ```
+
+`--scope user` makes it available in every project. Without it, Claude Code registers the
+server only for the folder you ran the command in.
 
 **Codex** (`~/.codex/config.toml`)
 
