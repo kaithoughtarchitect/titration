@@ -163,6 +163,16 @@ model your app calls, when the agent passes it as `sut_model` (a judge may favou
 baseline, so every later comparison uses the same judges. (Diagnosing a failure with
 `classify_failure` is not grading, so that panel may include your agent's own vendor.)
 
+**Pick once for several baselines.** A harness with several labels needs one baseline per label.
+Tick **Keep this panel for my next N baselines** under the Confirm button (default 10 baselines
+for 8 hours, at most 20 and 24 hours) and the agent reuses that panel in this project without
+opening the picker again (`establish_baseline` with `use_standing_panel: true`). Only your
+Confirm with the box ticked creates a standing panel. Every reuse still refuses a judge from
+your agent's vendor or the tested model's vendor, each frozen baseline records the picker
+receipt and the standing panel it came from, and `referee_panel_revoke` ends it at once.
+When it expires or runs out, the agent opens the picker again. Applying this needs
+`npm run migrate` (it adds `db/002_referee_standing_panel.sql`).
+
 | Door | Cost | Notes |
 | --- | --- | --- |
 | `claude` CLI | your Claude subscription | verified |
@@ -186,12 +196,12 @@ and billed per token on OpenRouter models.
 | --- | --- |
 | Memory | `card_search`, `card_get`, `card_create`, `card_relate`, `card_distill`, `run_capture`, `propose_cards`, `edge_propose` |
 | Measurement design | `harness_design`, `harness_validate` |
-| Grading | `referee_panel_mint`, `referee_panel_status`, `establish_baseline`, `verify`, `classify_failure`, `job_status` |
+| Grading | `referee_panel_mint`, `referee_panel_status`, `referee_panel_revoke`, `establish_baseline`, `verify`, `classify_failure`, `job_status` |
 | Improvement loop | `goal_titrate`, `goal_titrate_step` |
 
 ### Automatic repository memory
 
-For the 14 stateful tools above (all except `classify_failure`, `harness_design`,
+For the 15 stateful tools above (all except `classify_failure`, `harness_design`,
 `propose_cards`, and `harness_validate`), standard stdio automatically selects repository memory.
 **Omit `project` and leave `TITRATION_PROJECT` unset or blank.** No tenant name needs to be computed.
 
