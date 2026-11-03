@@ -80,7 +80,7 @@ const { createMcpServer, TRUSTED_LOCAL_MCP_TOOLS, TRUSTED_LOCAL_MCP_PRESENTATION
 const { createLocalEvolutionAdapter } = await import("../../server/evolution-local");
 const { sql, withGuardedSql } = await import("../store");
 const { CLASSIFY_SYSTEM } = await import("../classify");
-const mandatory = ["card_search", "card_get", "card_create", "card_relate", "run_capture", "card_distill", "establish_baseline", "verify", "job_status", "goal_titrate", "goal_titrate_step", "edge_propose", "referee_panel_mint", "referee_panel_status"];
+const mandatory = ["card_search", "card_get", "card_create", "card_relate", "run_capture", "card_distill", "establish_baseline", "verify", "job_status", "goal_titrate", "goal_titrate_step", "edge_propose", "referee_panel_mint", "referee_panel_status", "referee_panel_revoke"];
 const optional = ["classify_failure", "harness_design", "propose_cards"];
 type Args = Record<string, unknown>;
 type Hook = (name: string, args: Args) => Args | Promise<Args>;
@@ -136,7 +136,7 @@ try {
   for (const config of [undefined, "", " \t "]) {
     await session(config, async (client) => {
       const { tools } = await client.listTools();
-      check("all 18 registered routes have an explicit policy classification", JSON.stringify(tools.map((t) => t.name).sort()) === JSON.stringify([...mandatory, ...optional, "harness_validate"].sort()));
+      check("all 19 registered routes have an explicit policy classification", JSON.stringify(tools.map((t) => t.name).sort()) === JSON.stringify([...mandatory, ...optional, "harness_validate"].sort()));
       for (const name of mandatory) {
         const description = String(tools.find((t) => t.name === name)?.inputSchema.properties?.project && (tools.find((t) => t.name === name)!.inputSchema.properties!.project as { description: string }).description);
         check(`${name} metadata describes automatic stdio and independent assertions`, /automatic stdio/i.test(description) && /omit project/i.test(description) && /client.*roots/i.test(description) && /independent matching assertions/i.test(description) && /not overrides/i.test(description) && /invalid.*conflicting/i.test(description));

@@ -219,6 +219,9 @@ function establishDeps(runPanel: EstablishDependencies["runPanel"], inserted: Ne
     // same mixedPanel here (as `activePanel` already does above) keeps every
     // check() in this file byte-identical while satisfying the new required port.
     resolveEnvJudgePanel: async () => mixedPanel,
+    claimStandingPanel: async () => {
+      throw new Error("claimStandingPanel should not run without use_standing_panel");
+    },
   };
 }
 

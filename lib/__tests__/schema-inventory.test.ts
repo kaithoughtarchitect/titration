@@ -98,7 +98,17 @@ function columnsOf(body: string): Set<string> {
   return columns;
 }
 
-const schemaSql = readFileSync(resolve(root, "db", "001_schema.sql"), "utf8").toLowerCase();
+// The schema is 001 plus every forward migration after it (db/NNN_*.sql, the same
+// filename shape scripts/migrate.ts applies), so a table added by a later
+// migration resolves here exactly as it does in a migrated database.
+const migrationFiles = readdirSync(resolve(root, "db"))
+  .filter((name) => /^\d{3}_[a-z0-9][a-z0-9_-]*\.sql$/.test(name))
+  .sort();
+check("db/001_schema.sql is the first migration", migrationFiles[0] === "001_schema.sql", migrationFiles.join(","));
+const schemaSql = migrationFiles
+  .map((name) => readFileSync(resolve(root, "db", name), "utf8"))
+  .join("\n")
+  .toLowerCase();
 const tableBlocks = findTableBlocks(schemaSql);
 const schemaTables = new Map<string, Set<string>>(tableBlocks.map((b) => [b.name, columnsOf(b.body)]));
 

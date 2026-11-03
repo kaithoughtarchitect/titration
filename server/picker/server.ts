@@ -28,6 +28,7 @@ import {
 import type { CliAvailability, CuratedFamily, Roster } from "../../lib/judges-roster-core";
 import { confirm as confirmTicketIO, type RefereePanelTicketRow } from "../../lib/referee-panel-ticket";
 import type { ConfirmedPanelSnapshot } from "../../lib/referee-panel-ticket-core";
+import type { StandingPanelRequest } from "../../lib/referee-standing-panel-core";
 
 const PORT_RANGE_START = 51773;
 const PORT_RANGE_TRIES = 25;
@@ -64,6 +65,8 @@ export type ConfirmTicketPort = (input: {
   id: string;
   snapshot: ConfirmedPanelSnapshot;
   now: string;
+  /** Only when the human ticked "keep this panel"; written in the confirm transaction. */
+  standing?: { request: StandingPanelRequest; sutFamily: string | null } | null;
 }) => Promise<RefereePanelTicketRow>;
 
 export interface MintPickerInput {
@@ -85,6 +88,8 @@ export interface MintPickerInput {
   readonly roster: Roster;
   readonly available: CliAvailability;
   readonly hasOpenRouterKey: boolean;
+  /** Agent's suggestion to pre-tick "keep this panel" with this many baselines; the human decides. */
+  readonly standingSuggestedUses?: number | null;
 }
 
 export interface MintPickerPorts {
@@ -278,6 +283,7 @@ async function handleConfirm(current: ActivePickerServer, req: IncomingMessage, 
       id: session.ticketId,
       snapshot,
       now: nowIso,
+      standing: outcome.standing ? { request: outcome.standing, sutFamily: session.sutFamily } : null,
     });
   } catch (err) {
     session.inFlight = false;
@@ -375,6 +381,7 @@ export async function mintPicker(input: MintPickerInput, ports: MintPickerPorts 
     roster: input.roster,
     available: input.available,
     hasOpenRouterKey: input.hasOpenRouterKey,
+    standingSuggestedUses: input.standingSuggestedUses ?? null,
   });
   const session: PickerSession = {
     token,

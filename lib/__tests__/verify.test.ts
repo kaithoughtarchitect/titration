@@ -492,6 +492,7 @@ function establishDeps(opts: {
   activePanel?: () => JudgeSpec[];
   loadConfirmedReceipt?: EstablishDependencies["loadConfirmedReceipt"];
   resolveEnvJudgePanel?: EstablishDependencies["resolveEnvJudgePanel"];
+  claimStandingPanel?: EstablishDependencies["claimStandingPanel"];
   runPanel: EstablishDependencies["runPanel"];
   inserted: NewBaseline[];
   stamps: { id: string; baselineId: string }[];
@@ -521,6 +522,9 @@ function establishDeps(opts: {
         "no judge panel is available: TITRATION_JUDGES is unset and no panel_receipt_id was supplied " +
         "(mint one with referee_panel_mint)",
       );
+    }),
+    claimStandingPanel: opts.claimStandingPanel ?? (async () => {
+      throw new Error("claimStandingPanel should not run without use_standing_panel");
     }),
   };
 }
@@ -586,6 +590,150 @@ function establishDeps(opts: {
     "sync path stamps used_for_baseline_id after freeze",
     stamps.length === 1 && stamps[0]?.id === "receipt-1" && stamps[0]?.baselineId === "baseline-frozen-1",
     JSON.stringify(stamps),
+  );
+}
+
+// Standing panel: use_standing_panel spends one use of the project's
+// human-confirmed standing panel (claimStandingPanel, before any judge spend),
+// grades with exactly its 3 referees, and freezes a lock whose selection names
+// the ORIGINAL picker receipt plus the standing panel id. It never touches the
+// one-use ticket claim or the ticket's used_for_baseline_id stamp.
+{
+  const inserted: NewBaseline[] = [];
+  const stamps: { id: string; baselineId: string }[] = [];
+  const seen: string[][] = [];
+  const claims: { tenantSlug: string; playerFamily: string | null; sutFamily: string | null }[] = [];
+  const result = await establishWithDependencies(
+    establishDeps({
+      activePanel: () => DEFAULT_PANEL,
+      inserted,
+      stamps,
+      loadConfirmedReceipt: async () => {
+        throw new Error("loadConfirmedReceipt must not run on the standing path");
+      },
+      claimStandingPanel: async (input) => {
+        claims.push({ tenantSlug: input.tenantSlug, playerFamily: input.playerFamily, sutFamily: input.sutFamily });
+        return { id: "standing-1", source_ticket_id: "receipt-1", confirmation_snapshot: CONFIRMED_SNAPSHOT };
+      },
+      runPanel: async (_system, _user, resolvedPanel) => {
+        seen.push((resolvedPanel ?? []).map((judge) => judge.id));
+        return {
+          ok: (resolvedPanel ?? []).map((judge) => ({
+            id: judge.id,
+            family: judge.family,
+            model: judge.model,
+            json: { reasoning: "bug present", verdict: "fail", confidence: "high" },
+          })),
+          failed: [],
+        };
+      },
+    }),
+    {
+      tenant: "demo",
+      goal: "remove the synthetic failure",
+      rubric: "Fail only when the output contains BUG.",
+      baseline_outputs: failRows,
+      use_standing_panel: true,
+      sut_family: "deepseek",
+      thresholds: { min_n: 2, min_abs: 1, min_rate: 0.1 },
+    },
+  );
+  check(
+    "standing establish claims one use with the call's SUT family, before grading",
+    claims.length === 1 && claims[0]?.tenantSlug === "demo" && claims[0]?.sutFamily === "deepseek",
+    JSON.stringify(claims),
+  );
+  check(
+    "standing establish grades with exactly the standing panel's referees",
+    seen.length === 3 && seen.every((ids) => ids.join(",") === LOCK_IDS),
+    JSON.stringify(seen),
+  );
+  const stored = inserted[0]?.judge_panel;
+  check(
+    "standing freeze records receipt_id (the human's confirm) + standing_panel_id",
+    result.reproduced === true
+      && stored?.source === "selected-panel-lock"
+      && stored.selection?.receipt_id === "receipt-1"
+      && stored.selection?.standing_panel_id === "standing-1"
+      && stored.selection?.confirmed_at === CONFIRMED_SNAPSHOT.selection.confirmed_at
+      && stored.resolved.map((snap) => snap.id).join(",") === LOCK_IDS,
+    JSON.stringify(stored),
+  );
+  check("standing establish never stamps the one-use ticket", stamps.length === 0, JSON.stringify(stamps));
+}
+
+{
+  // A standing-panel refusal (exhausted / expired / revoked / family clash)
+  // propagates typed, before any judge spend or insert.
+  const inserted: NewBaseline[] = [];
+  let panelCalls = 0;
+  let threw: unknown = null;
+  try {
+    await establishWithDependencies(
+      establishDeps({
+        inserted,
+        stamps: [],
+        claimStandingPanel: async () => {
+          throw new Error("standing_exhausted: the standing panel has used all 10 of its baselines");
+        },
+        runPanel: async () => {
+          panelCalls++;
+          return { ok: [], failed: [] };
+        },
+      }),
+      {
+        tenant: "demo",
+        goal: "g",
+        rubric: "Fail only when the output contains BUG.",
+        baseline_outputs: failRows,
+        use_standing_panel: true,
+      },
+    );
+  } catch (error) {
+    threw = error;
+  }
+  check(
+    "standing refusal propagates before any judge spend or insert",
+    threw instanceof Error && /standing_exhausted/.test(threw.message) && panelCalls === 0 && inserted.length === 0,
+    String(threw),
+  );
+}
+
+{
+  // panel_receipt_id and use_standing_panel together are refused before either is claimed.
+  let claimed = 0;
+  let threw: unknown = null;
+  try {
+    await establishWithDependencies(
+      establishDeps({
+        inserted: [],
+        stamps: [],
+        loadConfirmedReceipt: async () => {
+          claimed++;
+          return { id: "receipt-1", confirmation_snapshot: CONFIRMED_SNAPSHOT };
+        },
+        claimStandingPanel: async () => {
+          claimed++;
+          return { id: "standing-1", source_ticket_id: "receipt-1", confirmation_snapshot: CONFIRMED_SNAPSHOT };
+        },
+        runPanel: async () => ({ ok: [], failed: [] }),
+      }),
+      {
+        tenant: "demo",
+        goal: "g",
+        rubric: "Fail only when the output contains BUG.",
+        baseline_outputs: failRows,
+        panel_receipt_id: "receipt-1",
+        use_standing_panel: true,
+      },
+    );
+  } catch (error) {
+    threw = error;
+  }
+  check(
+    "panel_receipt_id + use_standing_panel refuses before claiming either",
+    threw instanceof Error && /not both/.test(threw.message) && claimed === 0,
+    String(threw),
   );
 }
 
