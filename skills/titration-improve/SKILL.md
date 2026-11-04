@@ -199,6 +199,12 @@ Keep that history yourself, in one local file per system: `.titration/baselines/
 3. **Get a judge panel, then `establish_baseline`.** A baseline needs at least 2 distinct-vendor judges,
    and never one that shares the Player's family. Two ways to get there — pick one:
 
+   - **Ask once: check for a standing panel first.** Call `referee_panel_status` with no `ticket_id`.
+     If `standing_panel.state` is `active` and `uses_left` covers what you need, skip the picker:
+     call `establish_baseline` with `use_standing_panel: true` (plus `player_model` and `sut_model`)
+     and no `panel_receipt_id`. Each call spends one use and re-checks your family and the tested
+     model's family against the panel. A refusal (`no_standing_panel`, `standing_revoked`,
+     `standing_exhausted`, `standing_expired`, `standing_family_conflict`) means fall back to the picker below.
    - **The local picker (default).** Call `referee_panel_mint` with `player_model` (your own model id;
      add `player_family` if the id is not recognisable), `sut_model` (the model the system under test
      calls, read from its code or config; add `sut_family` if the id is not recognisable; omit it only
@@ -219,10 +225,13 @@ Keep that history yourself, in one local file per system: `.titration/baselines/
      - On `expired` or a timeout: **HALT**. Do not call `establish_baseline`. A pending ticket is not
        revived — mint a fresh one only if the user retries.
      - On `confirmed`: call `establish_baseline` in the same repository context with `panel_receipt_id` set to that `ticket_id`.
-     - **With a holdout**, each baseline needs its own ticket, because a ticket is used up by one
-       `establish_baseline`. Mint both tickets up front, show both links together, and ask the user to
-       pick the same three judges on each. Poll both tickets, then establish each baseline with its
-       own `ticket_id`.
+     - **More than one baseline** (a holdout, or one baseline per label): mint ONE ticket with
+       `standing_uses` set to the number of baselines you will establish. The picker pre-ticks
+       "Keep this panel for my next N baselines"; tell the human that ticking it means they will not
+       be asked again for this run. If `referee_panel_status` then reports an active `standing_panel`,
+       establish every baseline with `use_standing_panel: true` (the ticket's own `panel_receipt_id`
+       is not needed). If the human unticked it, each baseline needs its own ticket, because a
+       ticket is used up by one `establish_baseline`.
    - **`TITRATION_JUDGES` (unattended / CI).** If the user's `.env` sets `TITRATION_JUDGES` to a
      comma-separated list of roster ids, or to `auto`, the picker is skipped entirely and
      `establish_baseline` resolves the panel from that setting instead — do not mint a ticket, and do
@@ -230,7 +239,7 @@ Keep that history yourself, in one local file per system: `.titration/baselines/
      judges only if `OPENROUTER_API_KEY` is set, always excludes the Player's own family, and needs 3
      distinct families or it refuses outright rather than seat a same-family judge.
 
-   Either way, omitting **both** `panel_receipt_id` and a `TITRATION_JUDGES` setting is refused — there
+   Either way, omitting `panel_receipt_id`, `use_standing_panel` and a `TITRATION_JUDGES` setting is refused — there
    is no silent default panel. The picker (or the `TITRATION_JUDGES` resolution) runs **once per new
    baseline**: later `verify` / `goal_titrate` / `goal_titrate_step` calls reuse the panel locked onto
    that baseline — do not mint again — but every one of those calls still re-checks the *current*

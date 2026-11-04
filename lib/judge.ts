@@ -75,6 +75,11 @@ export interface SelectedPanelSelection {
   // the exclusion check re-runs fresh on every verify / goal_titrate call regardless.
   player_family: string | null;
   display: SelectedPanelDisplay[];
+  // Set only when the panel came from a standing panel (the human ticked "keep
+  // this panel" in the picker): receipt_id is then the picker ticket the human
+  // confirmed, and this names the standing panel the use was drawn from.
+  // Provenance only — it never changes who grades or how.
+  standing_panel_id?: string;
 }
 
 export interface SelectedPanelLock {
@@ -218,11 +223,15 @@ function parseSelectedPanelSelection(value: unknown): SelectedPanelSelection {
   if (families.size !== REFEREE_PANEL_SIZE) {
     throw new Error("selected-panel-lock requires 3 distinct catalog families");
   }
+  if (value.standing_panel_id !== undefined && (typeof value.standing_panel_id !== "string" || value.standing_panel_id.length === 0)) {
+    throw new Error("selected-panel-lock selection.standing_panel_id must be a non-empty string when present");
+  }
   return {
     receipt_id: value.receipt_id,
     confirmed_at: value.confirmed_at,
     player_family,
     display,
+    ...(typeof value.standing_panel_id === "string" ? { standing_panel_id: value.standing_panel_id } : {}),
   };
 }
 

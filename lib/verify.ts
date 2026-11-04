@@ -47,6 +47,7 @@ import { computeVoteCoverage, panelFloorTripped, describeVoteCoverage, type Vote
 import { computeCaptureVariance, checkCaptureLabeling, type CaptureVariance } from "./capture-variance-core";
 import { claimForEstablish, stampUsedForBaseline, RefereePanelTicketError } from "./referee-panel-ticket";
 import type { ConfirmedPanelSnapshot } from "./referee-panel-ticket-core";
+import { claimStandingPanelUse } from "./referee-standing-panel";
 import { resolvePlayerFamilyOrThrow, assertFamilyNotOnPanel } from "./judges-roster-core";
 import { resolveEnvJudgePanel as resolveEnvJudgePanelIO } from "./judges-roster";
 
@@ -510,6 +511,21 @@ export interface EstablishArgs {
    * first panel. A receipt beats TITRATION_JUDGES when both are present.
    */
   panel_receipt_id?: string;
+  /**
+   * Reuse the project's STANDING panel (one the human confirmed in the picker
+   * with "keep this panel" ticked) instead of a one-use receipt. Spends one of
+   * its bounded uses before any judge spend, and refuses — typed, before spend —
+   * when there is none, it is revoked / exhausted / expired, or the Player's or
+   * the system-under-test's family sits on it. Exclusive with panel_receipt_id;
+   * beats TITRATION_JUDGES.
+   */
+  use_standing_panel?: boolean;
+  /**
+   * The system-under-test's resolved vendor family for THIS call (the MCP layer
+   * resolves sut_model). Checked against a standing panel on every use, on top
+   * of the SUT family stored when the human confirmed it.
+   */
+  sut_family?: string;
 }
 
 export interface EstablishResult {
@@ -580,6 +596,15 @@ export type LoadConfirmedReceiptPort = (input: {
   id: string;
 }) => Promise<ConfirmedPanelReceipt>;
 
+// Spends one use of the project's standing panel (lib/referee-standing-panel.ts's
+// claimStandingPanelUse in production). Refuses, typed, before any judge spend.
+export type ClaimStandingPanelPort = (input: {
+  tenantSlug: string;
+  now: string;
+  playerFamily: string | null;
+  sutFamily: string | null;
+}) => Promise<{ id: string; source_ticket_id: string; confirmation_snapshot: ConfirmedPanelSnapshot }>;
+
 export type StampUsedForBaselinePort = (input: {
   tenantSlug: string;
   id: string;
@@ -606,6 +631,7 @@ export interface EstablishDependencies {
   readonly loadConfirmedReceipt: LoadConfirmedReceiptPort;
   readonly stampUsedForBaseline: StampUsedForBaselinePort;
   readonly resolveEnvJudgePanel: ResolveEnvJudgePanelPort;
+  readonly claimStandingPanel: ClaimStandingPanelPort;
 }
 
 // CLAIMS the ticket (one-use — establish_claimed_at
@@ -638,6 +664,7 @@ const defaultEstablishDependencies: EstablishDependencies = {
   loadConfirmedReceipt: defaultLoadConfirmedReceipt,
   stampUsedForBaseline,
   resolveEnvJudgePanel: resolveEnvJudgePanelIO,
+  claimStandingPanel: claimStandingPanelUse,
 };
 
 // The ticket's confirmed snapshot IS the lock
@@ -651,7 +678,11 @@ const defaultEstablishDependencies: EstablishDependencies = {
 // every resolved judge, so no separate display metadata needs to be stored on
 // the ticket at all (display is read from the roster at RENDER time, not
 // stored).
-function lockFromConfirmedReceipt(receipt: ConfirmedPanelReceipt, playerFamily: string | null): SelectedPanelLock {
+function lockFromConfirmedReceipt(
+  receipt: ConfirmedPanelReceipt,
+  playerFamily: string | null,
+  standingPanelId?: string,
+): SelectedPanelLock {
   const resolved = receipt.confirmation_snapshot.resolved;
   return parseSelectedPanelLock({
     source: "selected-panel-lock",
@@ -667,6 +698,7 @@ function lockFromConfirmedReceipt(receipt: ConfirmedPanelReceipt, playerFamily: 
         family: judge.family,
         effort: judge.effort,
       })),
+      ...(standingPanelId ? { standing_panel_id: standingPanelId } : {}),
     },
   });
 }
@@ -768,10 +800,31 @@ export async function establishWithDependencies(
   // lib/jobs.ts). Called directly, this grades any size synchronously, bounded by
   // the mapLimit concurrency cap.
   const receiptId = typeof args.panel_receipt_id === "string" ? args.panel_receipt_id.trim() : "";
+  const useStanding = args.use_standing_panel === true;
+  if (receiptId && useStanding) {
+    throw new Error("pass either panel_receipt_id or use_standing_panel, not both");
+  }
   let selectedLock: SelectedPanelLock | undefined;
   let panel: JudgeSpec[];
   let envConfirmedAt: string | null = null;
-  if (receiptId) {
+  if (useStanding) {
+    // The human confirmed this panel once, in the picker, with "keep this panel"
+    // ticked. The claim re-checks the Player and SUT families against it and
+    // spends one bounded use under a row lock, before any judge spend; the
+    // frozen lock records the original receipt plus the standing panel id.
+    const standing = await dependencies.claimStandingPanel({
+      tenantSlug: args.tenant,
+      now: new Date().toISOString(),
+      playerFamily: resolvedPlayerFamily,
+      sutFamily: typeof args.sut_family === "string" && args.sut_family.trim() ? args.sut_family.trim() : null,
+    });
+    selectedLock = lockFromConfirmedReceipt(
+      { id: standing.source_ticket_id, confirmation_snapshot: standing.confirmation_snapshot },
+      resolvedPlayerFamily,
+      standing.id,
+    );
+    panel = resolvePanel(args.judges, dependencies.activePanel, selectedLock);
+  } else if (receiptId) {
     const receipt = await dependencies.loadConfirmedReceipt({
       tenantSlug: args.tenant,
       id: receiptId,

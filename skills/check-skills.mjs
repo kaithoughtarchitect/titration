@@ -4,7 +4,7 @@
 //   (a) hosted-product mechanics that don't exist in this self-hosted build
 //       leaking back into the docs — see FORBIDDEN_PATTERN below for the exact
 //       list; and
-//   (b) a tool name that doesn't exist on the local 18-tool MCP surface being
+//   (b) a tool name that doesn't exist on the local 19-tool MCP surface being
 //       mentioned as if it were callable.
 //
 // This file necessarily contains the strings in FORBIDDEN_PATTERN as literal
@@ -51,9 +51,9 @@ const FORBIDDEN_PATTERN = new RegExp(
 );
 
 // ---------------------------------------------------------------------------
-// (b) Every tool name the skills may call — the local server's exact 18-tool
-// surface (server/mcp-server.ts TRUSTED_LOCAL_TOOL_NAMES + the two picker
-// tools it adds: referee_panel_mint, referee_panel_status).
+// (b) Every tool name the skills may call — the local server's exact 19-tool
+// surface (server/mcp-server.ts TRUSTED_LOCAL_TOOL_NAMES + the three picker
+// tools it adds: referee_panel_mint, referee_panel_status, referee_panel_revoke).
 // ---------------------------------------------------------------------------
 const KNOWN_TOOLS = new Set([
   "card_search",
@@ -74,6 +74,7 @@ const KNOWN_TOOLS = new Set([
   "edge_propose",
   "referee_panel_mint",
   "referee_panel_status",
+  "referee_panel_revoke",
 ]);
 
 // A backticked identifier is checked against KNOWN_TOOLS only when it starts
@@ -93,7 +94,7 @@ const TOOL_PREFIXES = [
   "referee_panel_",
 ];
 
-// Real INPUT FIELD names on the 18 tools' own schemas that happen to share a
+// Real INPUT FIELD names on the 19 tools' own schemas that happen to share a
 // tool prefix (e.g. card_get's `card_ref` argument starts with "card_", same
 // as the tool card_search). These are not tool calls and are allowed.
 const ALLOWED_NON_TOOL_IDENTIFIERS = new Set([
@@ -152,7 +153,7 @@ function main() {
         );
       }
 
-      // (b) backticked, tool-prefixed identifiers not in the 18-tool list.
+      // (b) backticked, tool-prefixed identifiers not in the 19-tool list.
       const backtickRe = /`([A-Za-z][A-Za-z0-9_]*)`/g;
       let m;
       while ((m = backtickRe.exec(line)) !== null) {
@@ -161,7 +162,7 @@ function main() {
         if (KNOWN_TOOLS.has(identifier)) continue;
         if (ALLOWED_NON_TOOL_IDENTIFIERS.has(identifier)) continue;
         violations.push(
-          `${relPath}:${lineNo}: '${identifier}' looks like a tool call but is not one of the 18 local tools -- ${line.trim()}`,
+          `${relPath}:${lineNo}: '${identifier}' looks like a tool call but is not one of the 19 local tools -- ${line.trim()}`,
         );
       }
     });
@@ -191,7 +192,7 @@ function main() {
   }
 
   console.log(
-    `skills/check-skills.mjs: clean -- ${files.length} file(s) scanned, no forbidden patterns, every tool-prefixed identifier is one of the 18 local tools.`,
+    `skills/check-skills.mjs: clean -- ${files.length} file(s) scanned, no forbidden patterns, every tool-prefixed identifier is one of the 19 local tools.`,
   );
 }
 

@@ -245,6 +245,9 @@ async function main(): Promise<void> {
       stampUsedForBaseline: async (input) => {
         stamps.push({ id: input.id, baselineId: input.baselineId });
       },
+      claimStandingPanel: async () => {
+        throw new Error("claimStandingPanel should not run when panel_receipt_id is supplied");
+      },
       resolveEnvJudgePanel: async () => {
         throw new Error("resolveEnvJudgePanel should not run when panel_receipt_id is supplied");
       },

@@ -5,7 +5,7 @@ Flat, numbered, forward-only SQL files: `db/NNN_description.sql`. The runner
 a `schema_migrations` ledger table (filename + sha256 checksum), keyed by an
 advisory lock so two concurrent applies never race.
 
-## The one migration
+## The baseline migration
 
 `001_schema.sql` is the entire engine schema for this self-hosted build: tenants,
 the card knowledge graph (`cards` / `card_relationships` / `runs`), the verdict
@@ -33,7 +33,15 @@ file must be referenced by some engine source file — with one named exception,
 `goal_titrate_change_note`, documented in that test as schema laid down ahead of
 its write path.
 
-## Adding migration `002` and beyond
+## `002_referee_standing_panel.sql`
+
+Adds `referee_standing_panel`: a picker confirmation the human chose to keep for
+the next N baselines (1..20) until a bounded time (<= 24 h), revocable. Additive
+only (a new table, no change to existing ones), so a server built before it keeps
+working on a database that has it; the server that uses it needs it applied
+(`npm run migrate`). `referee_panel_status` reads it fail-open.
+
+## Adding migration `003` and beyond
 
 - Filename: `NNN_description.sql`, one greater than the highest existing number.
   No gaps — `scripts/migrate-core.ts` refuses an undeclared gap in the numbering.

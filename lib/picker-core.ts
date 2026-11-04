@@ -31,6 +31,14 @@ import {
   type RosterJudgeRow,
 } from "./judges-roster-core";
 import type { ConfirmedPanelJudge } from "./referee-panel-ticket-core";
+import {
+  STANDING_PANEL_DEFAULT_HOURS,
+  STANDING_PANEL_DEFAULT_USES,
+  STANDING_PANEL_MAX_HOURS,
+  STANDING_PANEL_MAX_USES,
+  parseStandingPanelRequest,
+  type StandingPanelRequest,
+} from "./referee-standing-panel-core";
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === "object" && !Array.isArray(value);
@@ -98,6 +106,19 @@ export interface PickerPageModel {
   readonly rows: readonly PickerRowView[];
   readonly recommended_ids: readonly string[];
   readonly recommendation_refusal: string | null;
+  /**
+   * The "keep this panel" opt-in. `suggested_uses` is the agent's suggestion
+   * (referee_panel_mint's standing_uses): when set the box starts ticked with
+   * that count; when null it starts unticked. Either way only the human's
+   * Confirm click, with the box ticked, ever creates a standing panel.
+   */
+  readonly standing: {
+    readonly suggested_uses: number | null;
+    readonly default_uses: number;
+    readonly max_uses: number;
+    readonly default_hours: number;
+    readonly max_hours: number;
+  };
 }
 
 export interface BuildPickerPageModelInput {
@@ -111,6 +132,7 @@ export interface BuildPickerPageModelInput {
   readonly roster: Roster;
   readonly available: CliAvailability;
   readonly hasOpenRouterKey: boolean;
+  readonly standingSuggestedUses?: number | null;
 }
 
 // Shown on a disabled row and returned on a refused confirm.
@@ -194,6 +216,13 @@ export function buildPickerPageModel(input: BuildPickerPageModelInput): PickerPa
     rows,
     recommended_ids: auto.ok ? auto.panel.map((judge) => judge.id) : [],
     recommendation_refusal: auto.ok ? null : auto.reason,
+    standing: {
+      suggested_uses: input.standingSuggestedUses ?? null,
+      default_uses: STANDING_PANEL_DEFAULT_USES,
+      max_uses: STANDING_PANEL_MAX_USES,
+      default_hours: STANDING_PANEL_DEFAULT_HOURS,
+      max_hours: STANDING_PANEL_MAX_HOURS,
+    },
   };
 }
 
@@ -205,14 +234,14 @@ export interface ConfirmRequestPick {
 }
 
 export type ParseConfirmBodyResult =
-  | { ok: true; token: string; picks: readonly ConfirmRequestPick[] }
+  | { ok: true; token: string; picks: readonly ConfirmRequestPick[]; standing: StandingPanelRequest | null }
   | { ok: false; message: string };
 
 export function parseConfirmRequestBody(raw: unknown): ParseConfirmBodyResult {
   if (!isPlainObject(raw)) {
     return { ok: false, message: "confirm body must be a JSON object" };
   }
-  const { token, judges } = raw;
+  const { token, judges, standing } = raw;
   if (typeof token !== "string" || token.length === 0) {
     return { ok: false, message: "confirm body.token must be a non-empty string" };
   }
@@ -233,7 +262,11 @@ export function parseConfirmRequestBody(raw: unknown): ParseConfirmBodyResult {
       effort: typeof rawEffort === "string" ? rawEffort.trim() : null,
     });
   }
-  return { ok: true, token, picks };
+  const standingParsed = parseStandingPanelRequest(standing);
+  if (!standingParsed.ok) {
+    return { ok: false, message: standingParsed.message };
+  }
+  return { ok: true, token, picks, standing: standingParsed.standing };
 }
 
 // ── pick -> ConfirmedPanelJudge[] (server-side re-validation) ─────────────
@@ -294,7 +327,12 @@ export function resolveConfirmedJudges(
 // ── the full server-side confirm decision (exact refusal order) ──────────
 
 export type ConfirmOutcome =
-  | { readonly status: 200; readonly judges: readonly [ConfirmedPanelJudge, ConfirmedPanelJudge, ConfirmedPanelJudge] }
+  | {
+    readonly status: 200;
+    readonly judges: readonly [ConfirmedPanelJudge, ConfirmedPanelJudge, ConfirmedPanelJudge];
+    /** Non-null only when the human ticked "keep this panel" (see referee-standing-panel-core.ts). */
+    readonly standing: StandingPanelRequest | null;
+  }
   | { readonly status: 400; readonly message: string }
   | { readonly status: 403; readonly message: string }
   | { readonly status: 409; readonly message: string }
@@ -353,7 +391,7 @@ export function evaluateConfirmRequest(input: EvaluateConfirmInput): ConfirmOutc
   if (!resolved.ok) {
     return { status: 400, message: resolved.message };
   }
-  return { status: 200, judges: resolved.judges };
+  return { status: 200, judges: resolved.judges, standing: parsed.standing };
 }
 
 // ── GET / (serve the page, or a terse expired/not-found response) ────────────
@@ -418,7 +456,7 @@ font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:upper
 .clock b{color:var(--pink);font-weight:500;}
 .clock.low b{animation:pulse 1s ease-in-out infinite;}
 @keyframes pulse{50%{opacity:.35;}}
-.wrap{max-width:1180px;margin:0 auto;padding:26px 32px 150px;}
+.wrap{max-width:1180px;margin:0 auto;padding:26px 32px 200px;}
 .kicker{display:flex;align-items:center;gap:12px;font-family:var(--mono);font-size:12px;letter-spacing:.18em;
 text-transform:uppercase;color:var(--pink);margin:0 0 12px;}
 .kicker::before{content:"";width:24px;height:1px;background:var(--pink);}
@@ -513,7 +551,17 @@ box-shadow:0 0 60px var(--pink-glow);}
 .done .slots{justify-content:center;}
 .done .slot{width:120px;height:96px;}
 .done .slot .m{font-family:var(--mono);font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.keep{max-width:1180px;margin:0 auto;padding:0 32px 12px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;
+font-size:13.5px;color:var(--muted);}
+.keep label{display:flex;align-items:center;gap:8px;cursor:pointer;color:var(--text);}
+.keep input[type=checkbox]{width:16px;height:16px;accent-color:var(--pink);}
+.keep input[type=number],.keep select{font-family:var(--mono);font-size:12px;background:var(--panel-2);color:var(--text);
+border:1px solid var(--line-2);border-radius:4px;padding:3px 4px;}
+.keep input[type=number]{width:56px;}
+.keep .fine{color:var(--dim);font-size:12px;}
+.done .kept{color:var(--text);font-size:14px;margin:-8px 0 18px;}
 @media (max-width:760px){
+.keep{padding:0 16px 10px;}
 .top,.wrap{padding-left:16px;padding-right:16px;}
 .period{grid-template-columns:1fr;}
 .fam{min-height:0;flex-direction:row;align-items:center;gap:12px;flex-wrap:wrap;}
@@ -630,12 +678,20 @@ ${bootScript(model)}
       <button type="button" class="go" id="confirmBtn" data-testid="btn-confirm" disabled>Confirm panel</button>
     </div>
   </div>
+  <div class="keep" data-testid="standing-row">
+    <label><input type="checkbox" id="keepChk" data-testid="standing-check">Keep this panel for my next</label>
+    <input type="number" id="keepUses" data-testid="standing-uses" min="1" step="1" aria-label="number of baselines">
+    <span>baselines in this project, for</span>
+    <select id="keepHours" data-testid="standing-hours" aria-label="hours"></select>
+    <span class="fine">No new picker until then. Your agent's vendor and the tested model's vendor are still refused on every use; you can revoke it any time.</span>
+  </div>
 </div>
 <div id="sentOverlay" data-testid="sent-overlay">
   <div class="done">
     <div class="flask"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
     <h2>Panel <em>locked.</em></h2>
     <p>Your agent already has it and is starting to grade. You can close this tab.</p>
+    <p class="kept" id="keptNote" data-testid="standing-note" hidden></p>
     <div class="slots" id="doneSlots"></div>
   </div>
 </div>
@@ -675,6 +731,28 @@ function displayName(row) {
 }
 var selected = recommendedPicks();
 var expired = false;
+
+var ST = MODEL.standing;
+var keepChk = document.getElementById("keepChk");
+var keepUses = document.getElementById("keepUses");
+var keepHours = document.getElementById("keepHours");
+keepUses.max = String(ST.max_uses);
+keepUses.value = String(ST.suggested_uses || ST.default_uses);
+keepChk.checked = ST.suggested_uses != null;
+[1, 2, 4, 8, 12, 24].filter(function (h) { return h <= ST.max_hours; }).forEach(function (h) {
+  var o = document.createElement("option");
+  o.value = String(h);
+  o.textContent = h + (h === 1 ? " hour" : " hours");
+  if (h === ST.default_hours) o.selected = true;
+  keepHours.appendChild(o);
+});
+function standingChoice() {
+  if (!keepChk.checked) return null;
+  var uses = Math.round(Number(keepUses.value));
+  if (!(uses >= 1)) uses = 1;
+  if (uses > ST.max_uses) uses = ST.max_uses;
+  return { uses: uses, hours: Number(keepHours.value) };
+}
 
 document.querySelectorAll("[data-fam]").forEach(function (el) {
   var f = fam(el.getAttribute("data-fam"));
@@ -812,7 +890,7 @@ document.getElementById("confirmBtn").addEventListener("click", async function (
     res = await fetch("/confirm", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ token: MODEL.token, judges: selected })
+      body: JSON.stringify({ token: MODEL.token, judges: selected, standing: standingChoice() })
     });
     text = await res.text();
   } catch (err) {
@@ -830,6 +908,13 @@ document.getElementById("confirmBtn").addEventListener("click", async function (
     return;
   }
   renderSlots("doneSlots", true);
+  var kept = standingChoice();
+  if (kept) {
+    var note = document.getElementById("keptNote");
+    note.textContent = "Kept for your next " + kept.uses + " baseline" + (kept.uses === 1 ? "" : "s") +
+      " in this project, for " + kept.hours + " hour" + (kept.hours === 1 ? "" : "s") + ". No new picker until then.";
+    note.hidden = false;
+  }
   document.body.classList.add("sent");
 });
 

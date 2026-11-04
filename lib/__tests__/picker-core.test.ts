@@ -452,5 +452,31 @@ check(
   check("the expired page names referee_panel_mint", expiredHtml.includes("referee_panel_mint"));
 }
 
+// ── standing panel opt-in ("keep this panel") ────────────────────────────────
+{
+  const judges = [{ id: "x-ai/grok-4.7" }, { id: "openai/gpt-6-sol" }, { id: "google/gemini-3.8-flash" }];
+  const none = evaluateConfirmRequest(baseConfirmInput());
+  check("a confirm without standing carries standing: null (one-use, today's flow)", none.status === 200 && none.standing === null, JSON.stringify(none));
+  const kept = evaluateConfirmRequest(baseConfirmInput({ rawBody: { token: TOKEN, judges, standing: { uses: 7, hours: 8 } } }));
+  check("a ticked box carries the human's {uses, hours} through to the 200", kept.status === 200 && kept.standing?.uses === 7 && kept.standing?.hours === 8, JSON.stringify(kept));
+  const tooMany = evaluateConfirmRequest(baseConfirmInput({ rawBody: { token: TOKEN, judges, standing: { uses: 99, hours: 8 } } }));
+  check("an out-of-bounds standing request is a 400, never clamped", tooMany.status === 400, JSON.stringify(tooMany));
+  const badToken = evaluateConfirmRequest(baseConfirmInput({ rawBody: { token: "b".repeat(32), judges, standing: { uses: 7, hours: 8 } } }));
+  check("a standing request still needs the token (403)", badToken.status === 403);
+  const unticked = buildPickerPageModel({
+    ticketId: "t", token: TOKEN, expiresAt: EXPIRES_AT, playerModel: "claude-opus-5-5", playerFamily: "anthropic",
+    roster, available: AVAILABLE_NONE, hasOpenRouterKey: true,
+  });
+  check("page model leaves the box unticked without an agent suggestion", unticked.standing.suggested_uses === null && unticked.standing.default_uses === 10 && unticked.standing.default_hours === 8);
+  const suggested = buildPickerPageModel({
+    ticketId: "t", token: TOKEN, expiresAt: EXPIRES_AT, playerModel: "claude-opus-5-5", playerFamily: "anthropic",
+    roster, available: AVAILABLE_NONE, hasOpenRouterKey: true, standingSuggestedUses: 7,
+  });
+  check("page model carries the agent's pre-tick suggestion", suggested.standing.suggested_uses === 7);
+  const html = renderPickerHtml(suggested);
+  check("picker HTML renders the keep-this-panel checkbox and sends standing on confirm",
+    html.includes('data-testid="standing-check"') && html.includes("standing: standingChoice()"));
+}
+
 console.log(`${failures === 0 ? "PASS" : "FAIL"} ${total - failures}/${total}`);
 process.exit(failures === 0 ? 0 : 1);

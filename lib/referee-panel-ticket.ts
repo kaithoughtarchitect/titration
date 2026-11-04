@@ -18,6 +18,8 @@ import {
   type RefereePanelTicketRecord,
 } from "./referee-panel-ticket-core";
 import { isRefereeRunBudget } from "./referee-run-budget-core";
+import { insertStandingPanelInTx } from "./referee-standing-panel";
+import type { StandingPanelRequest } from "./referee-standing-panel-core";
 
 const DIGEST_HEX = /^[0-9a-f]{64}$/;
 
@@ -133,6 +135,12 @@ export async function confirm(input: {
   id: string;
   snapshot: ConfirmedPanelSnapshot;
   now: string;
+  /**
+   * Present only when the human ticked "keep this panel" in the picker. The
+   * standing panel is inserted in THIS transaction, so it exists if and only if
+   * the confirmation itself was recorded. An idempotent re-confirm never adds one.
+   */
+  standing?: { request: StandingPanelRequest; sutFamily: string | null } | null;
 }): Promise<RefereePanelTicketRow> {
   assertWritable(input.tenantSlug);
   const tid = await tenantId(input.tenantSlug);
@@ -163,6 +171,16 @@ export async function confirm(input: {
       returning ${TICKET_COLUMNS}`;
     if (!updated) {
       throw new RefereePanelTicketError("not_found");
+    }
+    if (input.standing) {
+      await insertStandingPanelInTx(tx, {
+        tid,
+        sourceTicketId: input.id,
+        snapshot,
+        sutFamily: input.standing.sutFamily,
+        standing: input.standing.request,
+        now: plan.ticket.consumed_at,
+      });
     }
     return mapRow(updated);
   });

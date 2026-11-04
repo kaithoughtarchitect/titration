@@ -46,6 +46,14 @@ import {
 import { redactToolErrorText } from "../lib/tool-error-redaction-core";
 import { randomBytes } from "node:crypto";
 import { mintPending, loadById } from "../lib/referee-panel-ticket";
+import { loadLatestStandingPanel, revokeStandingPanels } from "../lib/referee-standing-panel";
+import {
+  parseStandingUsesSuggestion,
+  standingPanelView,
+  STANDING_PANEL_DEFAULT_HOURS,
+  STANDING_PANEL_DEFAULT_USES,
+  STANDING_PANEL_MAX_USES,
+} from "../lib/referee-standing-panel-core";
 import {
   statusAt,
   refereeStatusWaitMs,
@@ -343,7 +351,26 @@ const PLAYER_FAMILY_PROP = {
 const PANEL_RECEIPT_ID_PROP = {
   type: "string",
   description:
-    "the ticket_id of a CONFIRMED referee_panel_mint ticket (poll referee_panel_status until status is 'confirmed'). Claimed one-use by this call, before any judge spend. Takes precedence over TITRATION_JUDGES. Omit to resolve the panel from TITRATION_JUDGES instead.",
+    "the ticket_id of a CONFIRMED referee_panel_mint ticket (poll referee_panel_status until status is 'confirmed'). Claimed one-use by this call, before any judge spend. Takes precedence over TITRATION_JUDGES. Omit to resolve the panel from TITRATION_JUDGES instead. Exclusive with use_standing_panel.",
+};
+// A standing panel: the human confirmed it once in the picker with "keep this
+// panel" ticked. Each establish_baseline that sets this spends one of its
+// bounded uses (before any judge spend) and re-checks the Player's and the
+// SUT's families against it. No standing panel (or revoked / exhausted /
+// expired) -> a typed refusal; fall back to referee_panel_mint.
+const USE_STANDING_PANEL_PROP = {
+  type: "boolean",
+  description:
+    "true = grade with this project's STANDING judge panel (one the human confirmed in the picker with 'keep this panel' ticked) instead of a one-use panel_receipt_id, so no new picker pop-up is needed. Spends one of its bounded uses before any judge spend; refuses (typed: no_standing_panel / standing_revoked / standing_exhausted / standing_expired / standing_family_conflict) when it cannot be used, and then you fall back to referee_panel_mint. Your own vendor family and the tested model's family (pass sut_model) are re-checked against the panel on every use. Check referee_panel_status (no ticket_id) for an active one first. Exclusive with panel_receipt_id.",
+};
+const ESTABLISH_SUT_MODEL_PROP = {
+  type: "string",
+  description:
+    "optional but recommended with use_standing_panel: the model the system under test calls. Its vendor family is refused on the standing panel for this baseline, on top of the one the human confirmed against. Ignored without use_standing_panel (the picker already applied it). An unresolvable id refuses unless sut_family names the family.",
+};
+const ESTABLISH_SUT_FAMILY_PROP = {
+  type: "string",
+  description: "override when sut_model does not resolve to a known vendor family (one of the curated families in judges-roster.json).",
 };
 const OUTPUT_ROW = {
   type: "object",
@@ -559,6 +586,9 @@ export const TRUSTED_LOCAL_MCP_TOOLS = [
         player_model: PLAYER_MODEL_PROP,
         player_family: PLAYER_FAMILY_PROP,
         panel_receipt_id: PANEL_RECEIPT_ID_PROP,
+        use_standing_panel: USE_STANDING_PANEL_PROP,
+        sut_model: ESTABLISH_SUT_MODEL_PROP,
+        sut_family: ESTABLISH_SUT_FAMILY_PROP,
         thresholds: THRESHOLDS,
         retain_rows: {
           type: "boolean",
@@ -761,7 +791,7 @@ export const TRUSTED_LOCAL_MCP_TOOLS = [
     // boundary, with no session or account needed.
     name: "referee_panel_mint",
     description:
-      "Mint a one-use, 12-minute LOCAL referee-panel picker ticket for a NEW selected-panel baseline, and open it in the default browser. Returns { ticket_id, picker_url, expires_at }. Show picker_url to the human ALONE on its own line, never inside a sentence (terminals wrap long lines, and a click on a wrapped link opens a truncated URL) and NEVER write it to a log — it is a loopback URL (http://127.0.0.1:<port>/...) that only this machine can reach, and the URL itself is both the page's address and the confirm authorization. The page lists every judges-roster.json door with its cost class, disables whatever is unavailable on this machine (CLI not installed, OPENROUTER_API_KEY unset), is your own vendor family, shares a vendor with sut_model (the model being tested, when you pass it), or is unverified — each with the reason — and pre-fills the recommended panel when one resolves. The human picks 3 judges from 3 distinct vendor families and confirms; poll referee_panel_status next, then call establish_baseline with panel_receipt_id set to that ticket_id.",
+      `Mint a one-use, 12-minute LOCAL referee-panel picker ticket for a NEW selected-panel baseline, and open it in the default browser. Returns { ticket_id, picker_url, expires_at }. Show picker_url to the human ALONE on its own line, never inside a sentence (terminals wrap long lines, and a click on a wrapped link opens a truncated URL) and NEVER write it to a log — it is a loopback URL (http://127.0.0.1:<port>/...) that only this machine can reach, and the URL itself is both the page's address and the confirm authorization. The page lists every judges-roster.json door with its cost class, disables whatever is unavailable on this machine (CLI not installed, OPENROUTER_API_KEY unset), is your own vendor family, shares a vendor with sut_model (the model being tested, when you pass it), or is unverified — each with the reason — and pre-fills the recommended panel when one resolves. The human picks 3 judges from 3 distinct vendor families and confirms; poll referee_panel_status next, then call establish_baseline with panel_receipt_id set to that ticket_id. ASK ONCE: before minting, call referee_panel_status with no ticket_id; if it reports an active standing_panel, call establish_baseline with use_standing_panel: true and do not mint. When you will establish more than one baseline in this project (e.g. one per label), pass standing_uses with that count: the picker then pre-ticks 'keep this panel for my next N baselines' (default ${STANDING_PANEL_DEFAULT_USES}, at most ${STANDING_PANEL_MAX_USES}, for ${STANDING_PANEL_DEFAULT_HOURS} hours unless the human changes it). Only the human's Confirm with that box ticked creates a standing panel; tell the human you are asking them to keep the panel so they are not asked again.`,
     inputSchema: {
       type: "object",
       properties: {
@@ -777,6 +807,13 @@ export const TRUSTED_LOCAL_MCP_TOOLS = [
           type: "string",
           description: "override when sut_model does not resolve to a known vendor family (one of the curated families in judges-roster.json).",
         },
+        standing_uses: {
+          type: "integer",
+          minimum: 1,
+          maximum: STANDING_PANEL_MAX_USES,
+          description:
+            `optional: how many baselines you plan to establish in this project with this panel. Pre-ticks the picker's 'keep this panel' box with that count; the human can untick or change it. Omit to leave the box unticked (one-use ticket, today's flow). 1 to ${STANDING_PANEL_MAX_USES}.`,
+        },
       },
       required: ["player_model"],
     },
@@ -784,12 +821,12 @@ export const TRUSTED_LOCAL_MCP_TOOLS = [
   {
     name: "referee_panel_status",
     description:
-      "Poll a referee-panel ticket minted by referee_panel_mint. Returns { status: 'pending'|'confirmed'|'expired'|'used', panel?, panel_receipt_id? } — never a secret. Pass wait_seconds: 50 and the call holds open (long-poll, ~1s laps) until the ticket leaves 'pending', so the answer lands the moment the human clicks Confirm; repeat until 'confirmed' or 'expired', and never ask the human to report back. On 'confirmed' (and on 'used' — a receipt already spent by establish_baseline), panel lists the 3 chosen judges ({id, family, door, model, effort}) and panel_receipt_id is the ticket_id to pass to establish_baseline. On 'expired': mint a fresh ticket; a pending ticket never revives.",
+      "Poll a referee-panel ticket minted by referee_panel_mint, and/or read the project's standing panel. Every answer carries standing_panel: null or { standing_panel_id, state: 'active'|'expired'|'exhausted'|'revoked', uses_left, max_uses, expires_at, confirmed_at, sut_family, panel }; when state is 'active', call establish_baseline with use_standing_panel: true instead of minting (no pop-up). Omit ticket_id to read only the standing panel (instant, read-only). With ticket_id it returns { status: 'pending'|'confirmed'|'expired'|'used', panel?, panel_receipt_id?, standing_panel } — never a secret. Pass wait_seconds: 50 and the call holds open (long-poll, ~1s laps) until the ticket leaves 'pending', so the answer lands the moment the human clicks Confirm; repeat until 'confirmed' or 'expired', and never ask the human to report back. On 'confirmed' (and on 'used' — a receipt already spent by establish_baseline), panel lists the 3 chosen judges ({id, family, door, model, effort}) and panel_receipt_id is the ticket_id to pass to establish_baseline. On 'expired': mint a fresh ticket; a pending ticket never revives.",
     inputSchema: {
       type: "object",
       properties: {
         project: PROJECT_PROP,
-        ticket_id: { type: "string", description: "the ticket_id returned by referee_panel_mint" },
+        ticket_id: { type: "string", description: "the ticket_id returned by referee_panel_mint. Omit to read only the project's standing panel." },
         wait_seconds: {
           type: "number",
           minimum: 0,
@@ -797,7 +834,17 @@ export const TRUSTED_LOCAL_MCP_TOOLS = [
           description: `hold the call open up to this many seconds until the ticket leaves pending. Omit for an instant answer. Ceiling ${REFEREE_STATUS_WAIT_MAX_SECONDS}.`,
         },
       },
-      required: ["ticket_id"],
+    },
+  },
+  {
+    name: "referee_panel_revoke",
+    description:
+      "Revoke this project's standing judge panel now (the human asked, or the panel should no longer be reused). Only ever removes reuse: later establish_baseline calls with use_standing_panel refuse and you fall back to referee_panel_mint. Baselines already frozen keep their locked panel. Returns { revoked } (how many open standing panels were closed, 0 or 1).",
+    inputSchema: {
+      type: "object",
+      properties: {
+        project: PROJECT_PROP,
+      },
     },
   },
 ] as const satisfies readonly Tool[];
@@ -821,6 +868,7 @@ export const TRUSTED_LOCAL_TOOL_NAMES = [
   "edge_propose",
   "referee_panel_mint",
   "referee_panel_status",
+  "referee_panel_revoke",
 ] as const;
 
 type EqualUnions<Left, Right> =
@@ -841,15 +889,42 @@ type _TrustedLocalRegistryMatchesNames = AssertTrue<EqualUnions<
 const NUDGE_TOOLS = new Set(["run_capture", "verify", "goal_titrate_step"]);
 
 // Exactly the stateful routes; the three advisory tools and harness_validate
-// are classified separately. The registry test pins all 18.
+// are classified separately. The registry test pins all 19.
 const MANDATORY_PROJECT_TOOLS = new Set([
   "card_search", "card_get", "card_create", "card_relate", "run_capture", "card_distill",
   "establish_baseline", "verify", "job_status", "goal_titrate", "goal_titrate_step",
-  "edge_propose", "referee_panel_mint", "referee_panel_status",
+  "edge_propose", "referee_panel_mint", "referee_panel_status", "referee_panel_revoke",
 ]);
 // Optional private context: automatic factories bind it to the repository when
 // discoverable; legacy factories keep caller-selected context.
 const ADVISORY_PROJECT_TOOLS = new Set(["classify_failure", "propose_cards", "harness_design"]);
+
+// Optional: the model the system under test calls. Its vendor is kept off the
+// panel (a judge may favour its own vendor's outputs). Resolved like the
+// Player: an unresolvable sut_model without sut_family is a typed refusal,
+// never a silent "no exclusion". Both absent -> no SUT exclusion.
+function resolveOptionalSut(
+  toolName: string,
+  a: Record<string, unknown>,
+): { sutModel: string | null; sutFamily: ReturnType<typeof resolvePlayerFamily> } {
+  if (a.sut_model === undefined && a.sut_family === undefined) return { sutModel: null, sutFamily: null };
+  if (a.sut_model !== undefined && (typeof a.sut_model !== "string" || !a.sut_model.trim())) {
+    throw new McpProductError("bad_request", `${toolName}.sut_model must be a non-empty string when present`);
+  }
+  if (a.sut_family !== undefined && (typeof a.sut_family !== "string" || !a.sut_family.trim())) {
+    throw new McpProductError("bad_request", `${toolName}.sut_family must be a non-empty string when present`);
+  }
+  const sutModel = typeof a.sut_model === "string" ? a.sut_model.trim() : null;
+  const sutFamily = resolvePlayerFamily(sutModel ?? "", typeof a.sut_family === "string" ? a.sut_family : null);
+  if (!sutFamily) {
+    throw new McpProductError(
+      "bad_request",
+      `sut_model '${sutModel ?? ""}'${a.sut_family ? ` (sut_family '${a.sut_family}')` : ""} does not resolve to a known vendor family. ` +
+      `Pass sut_family naming one of the curated families, or omit both if its vendor has no judge in the roster.`,
+    );
+  }
+  return { sutModel, sutFamily };
+}
 
 export function createMcpServer<TPrepared>(
   options: McpRegistryOptions<TPrepared>,
@@ -991,6 +1066,23 @@ protocol.setRequestHandler(CallToolRequestSchema, async (req, extra) => {
       if (a.panel_receipt_id !== undefined && (typeof a.panel_receipt_id !== "string" || !a.panel_receipt_id.trim())) {
         throw new Error("establish_baseline.panel_receipt_id must be a non-empty string when present");
       }
+      // use_standing_panel: reuse the project's human-confirmed standing panel
+      // (lib/referee-standing-panel.ts) instead of a one-use receipt. Exclusive
+      // with panel_receipt_id. sut_model/sut_family are resolved here and checked
+      // against the standing panel on this use (ignored on the other paths, where
+      // the picker already refused the SUT family at confirm time).
+      if (a.use_standing_panel !== undefined && typeof a.use_standing_panel !== "boolean") {
+        throw new McpProductError("bad_request", "establish_baseline.use_standing_panel must be a boolean");
+      }
+      if (a.use_standing_panel === true && a.panel_receipt_id !== undefined) {
+        throw new McpProductError("bad_request", "establish_baseline: pass either panel_receipt_id or use_standing_panel, not both");
+      }
+      const standingArgs = a.use_standing_panel === true
+        ? (() => {
+            const { sutFamily } = resolveOptionalSut("establish_baseline", a);
+            return { use_standing_panel: true as const, ...(sutFamily ? { sut_family: sutFamily } : {}) };
+          })()
+        : {};
       // Reject rather than coerce, matching boolFlag on the durable replay path. The MCP door does
       // no JSON-schema validation, so `retain_rows: "true"` would otherwise be silently dropped
       // AFTER the caller paid for a full grade.
@@ -1001,7 +1093,7 @@ protocol.setRequestHandler(CallToolRequestSchema, async (req, extra) => {
       const panelReceiptId = typeof a.panel_receipt_id === "string" && a.panel_receipt_id.trim()
         ? { panel_receipt_id: a.panel_receipt_id.trim() }
         : {};
-      const replayInput = { goal: a.goal, goal_brief: a.goal_brief, rubric: a.rubric, baseline_outputs: a.baseline_outputs, system_ref: a.system_ref, corpus_ref: a.corpus_ref, judges: a.judges, ...player, ...panelReceiptId, thresholds: a.thresholds, ...(a.retain_rows === true ? { retain_rows: true } : {}) };
+      const replayInput = { goal: a.goal, goal_brief: a.goal_brief, rubric: a.rubric, baseline_outputs: a.baseline_outputs, system_ref: a.system_ref, corpus_ref: a.corpus_ref, judges: a.judges, ...player, ...panelReceiptId, ...standingArgs, thresholds: a.thresholds, ...(a.retain_rows === true ? { retain_rows: true } : {}) };
       const callArgs = { tenant: project, ...replayInput };
       const corpusLen = Array.isArray(a.baseline_outputs) ? a.baseline_outputs.length : 0;
       if (runSync(a.async, corpusLen, a.thresholds?.max_corpus)) result = await withGradingKeepalive(keepalive, () => establishBaseline(callArgs, keepalive ? { beforeProviderCall: keepalive } : {}));
@@ -1188,28 +1280,16 @@ protocol.setRequestHandler(CallToolRequestSchema, async (req, extra) => {
       const project = resolveProject(a.project);
       const player = requirePlayerModel("referee_panel_mint", a);
       const playerFamily = resolvePlayerFamilyOrThrow(player.player_model, player.player_family);
-      // Optional: the model the system under test calls. Its vendor is kept off the
-      // panel too (a judge may favour its own vendor's outputs). Resolved like the
-      // Player: an unresolvable sut_model without sut_family is a typed refusal,
-      // never a silent "no exclusion".
-      let sutModel: string | null = null;
-      let sutFamily: ReturnType<typeof resolvePlayerFamily> = null;
-      if (a.sut_model !== undefined || a.sut_family !== undefined) {
-        if (a.sut_model !== undefined && (typeof a.sut_model !== "string" || !a.sut_model.trim())) {
-          throw new McpProductError("bad_request", "referee_panel_mint.sut_model must be a non-empty string when present");
-        }
-        if (a.sut_family !== undefined && (typeof a.sut_family !== "string" || !a.sut_family.trim())) {
-          throw new McpProductError("bad_request", "referee_panel_mint.sut_family must be a non-empty string when present");
-        }
-        sutModel = typeof a.sut_model === "string" ? a.sut_model.trim() : null;
-        sutFamily = resolvePlayerFamily(sutModel ?? "", typeof a.sut_family === "string" ? a.sut_family : null);
-        if (!sutFamily) {
-          throw new McpProductError(
-            "bad_request",
-            `sut_model '${sutModel ?? ""}'${a.sut_family ? ` (sut_family '${a.sut_family}')` : ""} does not resolve to a known vendor family. ` +
-            `Pass sut_family naming one of the curated families, or omit both if its vendor has no judge in the roster.`,
-          );
-        }
+      // Optional: the model the system under test calls (see resolveOptionalSut).
+      const { sutModel, sutFamily } = resolveOptionalSut("referee_panel_mint", a);
+      // Optional: the agent's suggestion to pre-tick "keep this panel" in the
+      // picker. Only the human's Confirm with the box ticked creates one.
+      const standingUses = parseStandingUsesSuggestion(a.standing_uses);
+      if (standingUses === "invalid") {
+        throw new McpProductError(
+          "bad_request",
+          `referee_panel_mint.standing_uses must be a whole number from 1 to ${STANDING_PANEL_MAX_USES} when present`,
+        );
       }
       const secret = randomBytes(16).toString("hex");
       const ticket = await mintPending({ tenantSlug: project, secret, now: new Date().toISOString() });
@@ -1230,63 +1310,88 @@ protocol.setRequestHandler(CallToolRequestSchema, async (req, extra) => {
         roster,
         available,
         hasOpenRouterKey: keyed,
+        standingSuggestedUses: standingUses,
       });
       result = { ticket_id: ticket.id, picker_url: url, expires_at: ticket.expires_at };
     }
     else if (req.params.name === "referee_panel_status") {
       const project = resolveProject(a.project);
-      if (typeof a.ticket_id !== "string" || !a.ticket_id.trim()) {
-        throw new McpProductError("bad_request", "referee_panel_status.ticket_id is required");
+      if (a.ticket_id !== undefined && (typeof a.ticket_id !== "string" || !a.ticket_id.trim())) {
+        throw new McpProductError("bad_request", "referee_panel_status.ticket_id must be a non-empty string when present");
       }
-      const waitMs = refereeStatusWaitMs(a.wait_seconds);
-      if (waitMs === null) {
-        throw new McpProductError(
-          "bad_request",
-          `referee_panel_status.wait_seconds must be a number of seconds, 0 to ${REFEREE_STATUS_WAIT_MAX_SECONDS}`,
-        );
-      }
-      const ticketId = a.ticket_id.trim();
-      // Long-poll: hold the call open until the ticket leaves pending or the
-      // budget runs out, so a single call returns the moment the human clicks
-      // Confirm. The row is re-read each ~1s lap; statusAt turns expiry into a
-      // stop on its own (no extra bookkeeping needed here).
-      const deadline = Date.now() + waitMs;
-      for (;;) {
-        const ticket = await loadById({ tenantSlug: project, id: ticketId });
-        if (!ticket) {
-          throw new McpProductError("not_found", "referee panel ticket was not found");
+      // The project's standing panel (read-only), reported on every answer so an
+      // agent learns it can skip the picker. Fail-open: a database without
+      // db/002 applied (or any read error) reports null rather than failing the
+      // ticket poll — the one-use flow still works.
+      const readStanding = async () => {
+        try {
+          const record = await loadLatestStandingPanel({ tenantSlug: project });
+          return record ? standingPanelView(record, new Date().toISOString()) : null;
+        } catch (error) {
+          console.error("[referee-panel] standing panel read failed (fail-open):", error instanceof Error ? error.message : String(error));
+          return null;
         }
-        const rawStatus = statusAt(ticket, new Date().toISOString());
-        const remainingMs = deadline - Date.now();
-        if (rawStatus !== "pending" || remainingMs <= 0) {
-          // "used" is derived, not stored: a claimed ticket is still
-          // status='confirmed' at the row level — surface that
-          // establish_baseline already claimed (or claimed AND froze) this
-          // receipt rather than reporting a plain 'confirmed' a caller might
-          // try to spend again. establish_claimed_at alone already means the
-          // one-use gate (claimForEstablish) will refuse a second claim, even
-          // mid-grade before a baseline is frozen — so this checks that, not
-          // only used_for_baseline_id (set later, on freeze).
-          const status = rawStatus === "confirmed" && ticket.establish_claimed_at != null ? "used" : rawStatus;
-          result = {
-            status,
-            ...(rawStatus === "confirmed" && ticket.confirmation_snapshot
-              ? {
-                  panel: ticket.confirmation_snapshot.resolved.map((judge) => ({
-                    id: judge.id,
-                    family: judge.family,
-                    door: judge.door,
-                    model: judge.model,
-                    effort: judge.effort,
-                  })),
-                  panel_receipt_id: ticket.id,
-                }
-              : {}),
-          };
-          break;
+      };
+      if (a.ticket_id === undefined) {
+        result = { standing_panel: await readStanding() };
+      } else {
+        const waitMs = refereeStatusWaitMs(a.wait_seconds);
+        if (waitMs === null) {
+          throw new McpProductError(
+            "bad_request",
+            `referee_panel_status.wait_seconds must be a number of seconds, 0 to ${REFEREE_STATUS_WAIT_MAX_SECONDS}`,
+          );
         }
-        await new Promise<void>((resolve) => { setTimeout(resolve, Math.min(1000, remainingMs)); });
+        const ticketId = a.ticket_id.trim();
+        // Long-poll: hold the call open until the ticket leaves pending or the
+        // budget runs out, so a single call returns the moment the human clicks
+        // Confirm. The row is re-read each ~1s lap; statusAt turns expiry into a
+        // stop on its own (no extra bookkeeping needed here).
+        const deadline = Date.now() + waitMs;
+        for (;;) {
+          const ticket = await loadById({ tenantSlug: project, id: ticketId });
+          if (!ticket) {
+            throw new McpProductError("not_found", "referee panel ticket was not found");
+          }
+          const rawStatus = statusAt(ticket, new Date().toISOString());
+          const remainingMs = deadline - Date.now();
+          if (rawStatus !== "pending" || remainingMs <= 0) {
+            // "used" is derived, not stored: a claimed ticket is still
+            // status='confirmed' at the row level — surface that
+            // establish_baseline already claimed (or claimed AND froze) this
+            // receipt rather than reporting a plain 'confirmed' a caller might
+            // try to spend again. establish_claimed_at alone already means the
+            // one-use gate (claimForEstablish) will refuse a second claim, even
+            // mid-grade before a baseline is frozen — so this checks that, not
+            // only used_for_baseline_id (set later, on freeze).
+            const status = rawStatus === "confirmed" && ticket.establish_claimed_at != null ? "used" : rawStatus;
+            result = {
+              status,
+              ...(rawStatus === "confirmed" && ticket.confirmation_snapshot
+                ? {
+                    panel: ticket.confirmation_snapshot.resolved.map((judge) => ({
+                      id: judge.id,
+                      family: judge.family,
+                      door: judge.door,
+                      model: judge.model,
+                      effort: judge.effort,
+                    })),
+                    panel_receipt_id: ticket.id,
+                  }
+                : {}),
+              standing_panel: await readStanding(),
+            };
+            break;
+          }
+          await new Promise<void>((resolve) => { setTimeout(resolve, Math.min(1000, remainingMs)); });
+        }
       }
+    }
+    else if (req.params.name === "referee_panel_revoke") {
+      // Safe direction only: closes reuse, never opens it. Frozen baselines keep
+      // their locked panel; the next baseline falls back to referee_panel_mint.
+      const project = resolveProject(a.project);
+      result = await revokeStandingPanels({ tenantSlug: project, now: new Date().toISOString() });
     }
     else throw new Error(`unknown tool '${req.params.name}'`);
     // Attach the advisory extraction nudge at run-completion moments (additive field, fail-open).
