@@ -191,7 +191,12 @@ loop, and it needs nothing installed.
   the corpus measures whether it can read.
 - **The human still confirms.** A spec is the starting point, not the frozen rubric. The step-1 gate
   applies unchanged: show the rubric, wait for `go`.
+- **Situations become modes.** If the behaviour may differ by situation, such as a big bank, a credit
+  union or a scanned statement, give each situation its own `mode`. The verdict then reports each one, and
+  a regression in one situation cannot hide in the average. Use the same labels on every turn.
 - **A spec edit means a new baseline.** The rubric is frozen, so changing what it asks for starts over.
+  Record which revision of the spec each baseline came from (see "Baseline log" below), and never compare
+  results across revisions.
 - **Other tools' verdicts stay out.** Another evaluator or monitor reading the same spec can suggest
   which runs to look at. Its verdicts never go in `record`, `input` or the rubric. If it disagrees with
   the panel, the panel's verdict stands for this baseline, and the disagreement is worth reading.
@@ -216,6 +221,11 @@ the end. This uses only the tools below and adds a single grading pass.
   a new split of today's corpus; never reuse an old split. A holdout is for one run's final check.
 - **Under 40 cases, run without a holdout.** Do not invent inputs to reach 40. The final report's
   first line then says there was no holdout, and why (see "Output format" below).
+- **At any size, test the fix on inputs you did not use to write it.** Cases picked because they failed
+  can pass on a retest with no fix at all, so capture the baseline fresh instead of reusing the runs that
+  drew your attention. Under 40 cases, choose about a fifth of the cases at random before you start, and do
+  not read their outputs or grades while you work out the change. They stay in the corpus and count in the
+  verdict. Say in the report how many cases you kept unread.
 - **Two baselines, one rubric.** Establish a **tuned baseline** on the tuned cases and a **holdout
   baseline** on the held-back cases, with the exact same rubric text, both at step 3. Only the tuned
   baseline goes to `goal_titrate`.
@@ -241,15 +251,16 @@ Keep that history yourself, in one local file per system: `.titration/baselines/
   is missing. Append; never edit or delete earlier entries. Each entry:
 
   ```json
-  { "baseline_id": "<id>", "kind": "tuned | holdout", "corpus_ref": "<as passed, or null>", "cases": <number of baseline_outputs>, "created_at": "<today, ISO date>" }
+  { "baseline_id": "<id>", "kind": "tuned | holdout", "corpus_ref": "<as passed, or null>", "cases": <number of baseline_outputs>, "spec": "<path>@<commit, or null>", "created_at": "<today, ISO date>" }
   ```
 
-  A run without a holdout writes one `tuned` entry; a run with one writes both. A refused baseline
-  writes nothing.
+  `spec` names the `BEHAVIOR.md` the rubric came from, at the commit you read it. If the file has
+  uncommitted edits, use `<path>@sha256:<digest of the file>`. Without a spec, `spec` is null. A run without
+  a holdout writes one `tuned` entry; a run with one writes both. A refused baseline writes nothing.
 - **Before reusing an existing baseline** (a one-off `verify`, or a new `goal_titrate` on an old
-  `baseline_id`), read its entry and tell the user its date and corpus. If the cases the system sees
-  today differ from that corpus, or the user says the inputs have changed, establish a new baseline
-  instead: the old one measures yesterday's inputs.
+  `baseline_id`), read its entry and tell the user its date, corpus and spec. If the cases the system sees
+  today differ from that corpus, or the user says the inputs have changed, or the spec has changed since
+  that revision, establish a new baseline instead: the old one measures yesterday's inputs or standard.
 - **If the file is missing or lost,** nothing breaks: the baselines are still in the database. Only the
   list of ids is gone, so ask the user for the `baseline_id` instead of guessing one.
 

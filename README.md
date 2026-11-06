@@ -10,6 +10,12 @@ the problem.
 **Real run:** billing tickets wrongly marked urgent went from **90% → 0%** in one measured change
 ([worked example](examples/ticket-triage)).
 
+**It can grade how an agent behaves, too.** Write the behaviour you expect in a
+[`BEHAVIOR.md`](https://github.com/braintrustdata/agentbehavior), and get an independent
+before-and-after verdict on it, using the agent's tool log as well as its final answer. This is new:
+so far it has been tested on one simulated agent, so treat it as early
+([how it works](skills/titration-improve/SKILL.md#starting-from-a-behaviour-spec)).
+
 ![The nine failure origins: only system-under-test means you should edit the prompt; the other eight are measurement, data, or pipeline problems](docs/images/nine-origins.png)
 
 An open-source **MCP server** with 18 tools. Self-hosted. Configuration examples for Claude Code, Codex and Cursor.
