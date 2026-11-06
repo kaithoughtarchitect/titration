@@ -5,13 +5,28 @@
 // separated out (classify.ts), so this is fully deterministic.
 // Run: npx tsx lib/__tests__/adaptive.test.ts
 
-import { decideEscalation, pickProbe } from "../classify";
+import { CLASSIFY_SYSTEM, decideEscalation, pickProbe } from "../classify";
 import type { JudgeSpec } from "../judge";
 
 let failures = 0;
 function check(name: string, cond: boolean, detail = "") {
   console.log(`${cond ? "PASS" : "FAIL"}  ${name}${cond ? "" : `  — ${detail}`}`);
   if (!cond) failures++;
+}
+
+// ── The boundary between the system and the instrument ──────────────────────
+// A tool the agent acts through is part of the system. Without this line, judges
+// given rerun evidence that the tool was the fix split between labels.
+{
+  const flat = CLASSIFY_SYSTEM.replace(/\s+/g, " ");
+  check(
+    "system-under-test covers skills and tools",
+    flat.includes("system prompt, skills, tool descriptions and tool behaviour"),
+  );
+  check(
+    "a tool the agent calls is not the instrument",
+    flat.includes("A tool the agent sees or calls during the run is part of the system, not the instrument"),
+  );
 }
 
 // ── decideEscalation ──────────────────────────────────────────────────────────
