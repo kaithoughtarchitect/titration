@@ -13,6 +13,7 @@ membership, halted.
 (scripts/record-openrouter-fixtures.ts); OpenRouter has not published an Agentic Index for them yet.
 The self-hosted picker never displays the index, so it is not an admission gate here. The models
 they replace are halted with a "superseded by" reason, never removed (stored panel locks still load).
+2026-11-06: GPT-6.1 Terra admitted with recorded U1 receipts, on the same terms.
 
 Offline `npm test` must not call OpenRouter or any real database.
 Any future live probe is disposable-only and is recorded here before
@@ -45,6 +46,7 @@ Identity is the OpenRouter slug. Order is the admission ledger order:
 21. `openai/gpt-6-luna`
 22. `deepseek/deepseek-v4.1-flash`
 23. `x-ai/grok-4.7`
+24. `openai/gpt-6.1-terra`
 
 ## Files
 

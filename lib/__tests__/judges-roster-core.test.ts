@@ -49,10 +49,10 @@ const rosterRaw = JSON.parse(readFileSync(rosterPath, "utf8"));
 // ── validateRoster: the real committed judges-roster.json ────────────────────
 const roster: Roster = validateRoster(rosterRaw);
 check("real judges-roster.json validates", roster.judges.length > 0);
-check("real roster has 15 rows (3 CLI + 12 OpenRouter)", roster.judges.length === 15, String(roster.judges.length));
+check("real roster has 16 rows (3 CLI + 13 OpenRouter)", roster.judges.length === 16, String(roster.judges.length));
 check(
-  "real roster door counts: openrouter=12, claude=1, codex=1, grok=1",
-  roster.judges.filter((r) => r.door === "openrouter").length === 12
+  "real roster door counts: openrouter=13, claude=1, codex=1, grok=1",
+  roster.judges.filter((r) => r.door === "openrouter").length === 13
     && roster.judges.filter((r) => r.door === "claude").length === 1
     && roster.judges.filter((r) => r.door === "codex").length === 1
     && roster.judges.filter((r) => r.door === "grok").length === 1,
@@ -249,8 +249,8 @@ check(
 );
 
 // ── resolveAutoPanel (TITRATION_JUDGES=auto) ───────────────────────────────
-// Against the REAL committed roster (15 rows): claude verified subscription
-// anthropic; codex verified subscription openai; grok verified:false; 12 verified metered OpenRouter rows
+// Against the REAL committed roster (16 rows): claude verified subscription
+// anthropic; codex verified subscription openai; grok verified:false; 13 verified metered OpenRouter rows
 // spanning 8 further distinct families (openai/moonshotai/google/deepseek/z-ai/
 // x-ai/minimax/meta/qwen — openai/google/deepseek/z-ai repeat).
 {
@@ -320,7 +320,7 @@ check(
     "auto, no CLI installed, key set, no Player -> 3 distinct metered OpenRouter families in roster file order",
     autoNoCliWithKey.ok === true
       && autoNoCliWithKey.ok
-      && autoNoCliWithKey.panel.map((j) => j.id).join(",") === "openai/gpt-6-sol,moonshotai/kimi-k3,deepseek/deepseek-v4-pro-0813",
+      && autoNoCliWithKey.panel.map((j) => j.id).join(",") === "openai/gpt-6.1-terra,moonshotai/kimi-k3,deepseek/deepseek-v4-pro-0813",
     JSON.stringify(autoNoCliWithKey),
   );
 }
@@ -376,7 +376,7 @@ check(
   const noneWithKey = resolveHelperRow(roster, { available: noneInstalled, hasOpenRouterKey: true });
   check(
     "helper: nothing installed, key set -> first verified metered row in file order",
-    noneWithKey.ok === true && noneWithKey.ok && noneWithKey.row.id === "openai/gpt-6-sol",
+    noneWithKey.ok === true && noneWithKey.ok && noneWithKey.row.id === "openai/gpt-6.1-terra",
     JSON.stringify(noneWithKey),
   );
 }

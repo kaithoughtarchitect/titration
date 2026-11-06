@@ -60,6 +60,7 @@ export const REFEREE_CATALOG_CANDIDATE_IDS = [
   "openai/gpt-6-luna",
   "deepseek/deepseek-v4.1-flash",
   "x-ai/grok-4.7",
+  "openai/gpt-6.1-terra",
 ] as const;
 export type RefereeCatalogCandidateId = (typeof REFEREE_CATALOG_CANDIDATE_IDS)[number];
 
@@ -91,6 +92,7 @@ export const REFEREE_CATALOG_FAMILY_BY_ID: {
   "openai/gpt-6-luna": "openai",
   "deepseek/deepseek-v4.1-flash": "deepseek",
   "x-ai/grok-4.7": "x-ai",
+  "openai/gpt-6.1-terra": "openai",
 };
 
 const CANDIDATE_ID_SET: ReadonlySet<string> = new Set(REFEREE_CATALOG_CANDIDATE_IDS);

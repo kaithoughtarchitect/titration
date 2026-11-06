@@ -54,7 +54,7 @@ function parseAnswer(text: string): any {
 
 // ── codex: recorded success ─────────────────────────────────────────────────
 {
-  const f = load("codex/gpt-6-astra.json");
+  const f = load("codex/gpt-6.1-terra.json");
   check("codex success fixture is a real recording", /real transport/.test(f.recorded));
   const rebuilt = buildDoorInvocation("codex", { model: f.model, effort: f.effort ?? undefined, promptFile: "<TEMP_FILE>" });
   check("codex argv today equals the recorded success argv", JSON.stringify(rebuilt.args) === JSON.stringify(f.args), JSON.stringify(rebuilt.args));

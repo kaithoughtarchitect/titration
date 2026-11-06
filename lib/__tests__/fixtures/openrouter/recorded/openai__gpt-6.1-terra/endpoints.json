@@ -1,0 +1,664 @@
+{
+  "data": {
+    "id": "openai/gpt-6.1-terra",
+    "name": "OpenAI: GPT-6.1 Terra",
+    "created": 1793038409,
+    "description": "GPT-6.1 Terra is the mid-tier model in OpenAI's GPT-6.1 series, priced below GPT-6.1 Sol. It is suited for everyday agentic, coding, and writing work, is particularly strong at understanding screenshots...",
+    "architecture": {
+      "tokenizer": "GPT",
+      "instruct_type": null,
+      "modality": "text+image+file->text",
+      "input_modalities": [
+        "file",
+        "image",
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ]
+    },
+    "endpoints": [
+      {
+        "name": "OpenAI | openai/gpt-6.1-terra-20261026",
+        "model_id": "openai/gpt-6.1-terra",
+        "model_name": "OpenAI: GPT-6.1 Terra",
+        "context_length": 1050000,
+        "pricing": {
+          "prompt": "0.0000005",
+          "completion": "0.0000025",
+          "web_search": "0.01",
+          "input_cache_read": "0.000000025",
+          "input_cache_write": "0.000000625",
+          "discount": 0,
+          "overrides": [
+            {
+              "min_prompt_tokens": 272000,
+              "prompt": "0.000001",
+              "completion": "0.00000375",
+              "input_cache_read": "0.00000005",
+              "input_cache_write": "0.00000125"
+            }
+          ]
+        },
+        "provider_name": "OpenAI",
+        "tag": "openai/flex",
+        "service_tier": "flex",
+        "quantization": "unknown",
+        "max_completion_tokens": 128000,
+        "max_prompt_tokens": 922000,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "seed",
+          "max_tokens",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "verbosity",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 96.66666666666667,
+        "uptime_last_5m": 100,
+        "uptime_last_1d": 98.67780097425192,
+        "supports_implicit_caching": false,
+        "native_tools": {
+          "openrouter:web_search": {
+            "type": "web_search"
+          },
+          "openrouter:apply_patch": {
+            "type": "apply_patch"
+          }
+        },
+        "supports_voice_cloning": false,
+        "supports_multiple_audio_references": false,
+        "supports_image_reference": false,
+        "supports_diarization": false,
+        "latency_last_30m": {
+          "p50": 3745,
+          "p75": 8378.5,
+          "p90": 12403.400000000003,
+          "p99": 20483.13000000001
+        },
+        "throughput_last_30m": {
+          "p50": 54,
+          "p75": 29,
+          "p90": 16,
+          "p99": 5
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 3745,
+              "p75": 8378.5,
+              "p90": 12403.400000000003,
+              "p99": 20483.13000000001
+            },
+            "throughput": {
+              "p50": 54,
+              "p75": 29,
+              "p90": 16,
+              "p99": 5
+            },
+            "request_count": 9334
+          }
+        }
+      },
+      {
+        "name": "Azure | openai/gpt-6.1-terra-20261026",
+        "model_id": "openai/gpt-6.1-terra",
+        "model_name": "OpenAI: GPT-6.1 Terra",
+        "context_length": 1050000,
+        "pricing": {
+          "prompt": "0.000001",
+          "completion": "0.000005",
+          "web_search": "0.01",
+          "input_cache_read": "0.00000005",
+          "input_cache_write": "0.00000125",
+          "discount": 0,
+          "overrides": [
+            {
+              "min_prompt_tokens": 272000,
+              "prompt": "0.000002",
+              "completion": "0.0000075",
+              "input_cache_read": "0.0000001",
+              "input_cache_write": "0.0000025"
+            }
+          ]
+        },
+        "provider_name": "Azure",
+        "tag": "azure",
+        "service_tier": null,
+        "quantization": "unknown",
+        "max_completion_tokens": 128000,
+        "max_prompt_tokens": 922000,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_completion_tokens",
+          "tools",
+          "tool_choice",
+          "verbosity",
+          "response_format",
+          "seed",
+          "structured_outputs",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 100,
+        "uptime_last_5m": 100,
+        "uptime_last_1d": 100,
+        "supports_implicit_caching": false,
+        "native_tools": {
+          "openrouter:web_search": {
+            "type": "web_search"
+          },
+          "openrouter:apply_patch": {
+            "type": "apply_patch"
+          }
+        },
+        "supports_voice_cloning": false,
+        "supports_multiple_audio_references": false,
+        "supports_image_reference": false,
+        "supports_diarization": false,
+        "latency_last_30m": {
+          "p50": 1897.5,
+          "p75": 3057.25,
+          "p90": 5357.100000000005,
+          "p99": 15049.890000000003
+        },
+        "throughput_last_30m": {
+          "p50": 62,
+          "p75": 41,
+          "p90": 28,
+          "p99": 12.909999999999997
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 1897.5,
+              "p75": 3057.25,
+              "p90": 5357.100000000005,
+              "p99": 15049.890000000003
+            },
+            "throughput": {
+              "p50": 62,
+              "p75": 41,
+              "p90": 28,
+              "p99": 12.909999999999997
+            },
+            "request_count": 17259
+          }
+        }
+      },
+      {
+        "name": "OpenAI | openai/gpt-6.1-terra-20261026",
+        "model_id": "openai/gpt-6.1-terra",
+        "model_name": "OpenAI: GPT-6.1 Terra",
+        "context_length": 1050000,
+        "pricing": {
+          "prompt": "0.000001",
+          "completion": "0.000005",
+          "web_search": "0.01",
+          "input_cache_read": "0.00000005",
+          "input_cache_write": "0.00000125",
+          "discount": 0,
+          "overrides": [
+            {
+              "min_prompt_tokens": 272000,
+              "prompt": "0.000002",
+              "completion": "0.0000075",
+              "input_cache_read": "0.0000001",
+              "input_cache_write": "0.0000025"
+            }
+          ]
+        },
+        "provider_name": "OpenAI",
+        "tag": "openai",
+        "service_tier": null,
+        "quantization": "unknown",
+        "max_completion_tokens": 128000,
+        "max_prompt_tokens": 922000,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "seed",
+          "max_tokens",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "verbosity",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 100,
+        "uptime_last_5m": 100,
+        "uptime_last_1d": 100,
+        "supports_implicit_caching": false,
+        "native_tools": {
+          "openrouter:web_search": {
+            "type": "web_search"
+          },
+          "openrouter:apply_patch": {
+            "type": "apply_patch"
+          }
+        },
+        "supports_voice_cloning": false,
+        "supports_multiple_audio_references": false,
+        "supports_image_reference": false,
+        "supports_diarization": false,
+        "latency_last_30m": {
+          "p50": 2689.5,
+          "p75": 4338.25,
+          "p90": 6952.700000000002,
+          "p99": 20363.36
+        },
+        "throughput_last_30m": {
+          "p50": 47,
+          "p75": 32,
+          "p90": 23,
+          "p99": 13
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 2689.5,
+              "p75": 4338.25,
+              "p90": 6952.700000000002,
+              "p99": 20363.36
+            },
+            "throughput": {
+              "p50": 47,
+              "p75": 32,
+              "p90": 23,
+              "p99": 13
+            },
+            "request_count": 62044
+          }
+        }
+      },
+      {
+        "name": "Azure | openai/gpt-6.1-terra-20261026",
+        "model_id": "openai/gpt-6.1-terra",
+        "model_name": "OpenAI: GPT-6.1 Terra",
+        "context_length": 1050000,
+        "pricing": {
+          "prompt": "0.0000011",
+          "completion": "0.0000055",
+          "web_search": "0.01",
+          "input_cache_read": "0.000000055",
+          "input_cache_write": "0.000001375",
+          "discount": 0,
+          "overrides": [
+            {
+              "min_prompt_tokens": 272000,
+              "prompt": "0.0000022",
+              "completion": "0.00000825",
+              "input_cache_read": "0.00000011",
+              "input_cache_write": "0.00000275"
+            }
+          ]
+        },
+        "provider_name": "Azure",
+        "tag": "azure/us",
+        "service_tier": null,
+        "quantization": "unknown",
+        "max_completion_tokens": 128000,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_completion_tokens",
+          "tools",
+          "tool_choice",
+          "verbosity",
+          "response_format",
+          "seed",
+          "structured_outputs",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 100,
+        "uptime_last_5m": 100,
+        "uptime_last_1d": 100,
+        "supports_implicit_caching": false,
+        "native_tools": {
+          "openrouter:web_search": {
+            "type": "web_search"
+          },
+          "openrouter:apply_patch": {
+            "type": "apply_patch"
+          }
+        },
+        "supports_voice_cloning": false,
+        "supports_multiple_audio_references": false,
+        "supports_image_reference": false,
+        "supports_diarization": false,
+        "latency_last_30m": {
+          "p50": 4463,
+          "p75": 11301,
+          "p90": 13662.2,
+          "p99": 19613.96
+        },
+        "throughput_last_30m": {
+          "p50": 50,
+          "p75": 25,
+          "p90": 7.800000000000001,
+          "p99": 4
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 4463,
+              "p75": 11301,
+              "p90": 13662.2,
+              "p99": 19613.96
+            },
+            "throughput": {
+              "p50": 50,
+              "p75": 25,
+              "p90": 7.800000000000001,
+              "p99": 4
+            },
+            "request_count": 229
+          }
+        }
+      },
+      {
+        "name": "Amazon Bedrock | openai/gpt-6.1-terra-20261026",
+        "model_id": "openai/gpt-6.1-terra",
+        "model_name": "OpenAI: GPT-6.1 Terra",
+        "context_length": 1050000,
+        "pricing": {
+          "prompt": "0.0000011",
+          "completion": "0.0000055",
+          "web_search": "0.01",
+          "input_cache_read": "0.000000055",
+          "input_cache_write": "0.000001375",
+          "discount": 0,
+          "overrides": [
+            {
+              "min_prompt_tokens": 272000,
+              "prompt": "0.0000022",
+              "completion": "0.00000825",
+              "input_cache_read": "0.00000011",
+              "input_cache_write": "0.00000275"
+            }
+          ]
+        },
+        "provider_name": "Amazon Bedrock",
+        "tag": "amazon-bedrock/us-east-1",
+        "service_tier": null,
+        "quantization": "unknown",
+        "max_completion_tokens": 128000,
+        "max_prompt_tokens": 922000,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_tokens",
+          "tools",
+          "tool_choice",
+          "verbosity",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 100,
+        "uptime_last_5m": 100,
+        "uptime_last_1d": 100,
+        "supports_implicit_caching": false,
+        "native_tools": {},
+        "supports_voice_cloning": false,
+        "supports_multiple_audio_references": false,
+        "supports_image_reference": false,
+        "supports_diarization": false,
+        "latency_last_30m": {
+          "p50": 1318,
+          "p75": 1965,
+          "p90": 3144.8,
+          "p99": 6285.519999999993
+        },
+        "throughput_last_30m": {
+          "p50": 69,
+          "p75": 52,
+          "p90": 38,
+          "p99": 20
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 1318,
+              "p75": 1965,
+              "p90": 3144.8,
+              "p99": 6285.519999999993
+            },
+            "throughput": {
+              "p50": 69,
+              "p75": 52,
+              "p90": 38,
+              "p99": 20
+            },
+            "request_count": 1613
+          }
+        }
+      },
+      {
+        "name": "Azure | openai/gpt-6.1-terra-20261026",
+        "model_id": "openai/gpt-6.1-terra",
+        "model_name": "OpenAI: GPT-6.1 Terra",
+        "context_length": 1050000,
+        "pricing": {
+          "prompt": "0.0000012",
+          "completion": "0.000006",
+          "web_search": "0.01",
+          "input_cache_read": "0.00000006",
+          "input_cache_write": "0.0000015",
+          "discount": 0,
+          "overrides": [
+            {
+              "min_prompt_tokens": 272000,
+              "prompt": "0.0000024",
+              "completion": "0.000009",
+              "input_cache_read": "0.00000012",
+              "input_cache_write": "0.000003"
+            }
+          ]
+        },
+        "provider_name": "Azure",
+        "tag": "azure/eu",
+        "service_tier": null,
+        "quantization": "unknown",
+        "max_completion_tokens": 128000,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "max_completion_tokens",
+          "tools",
+          "tool_choice",
+          "verbosity",
+          "response_format",
+          "seed",
+          "structured_outputs",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 100,
+        "uptime_last_5m": 100,
+        "uptime_last_1d": 99.9250936329588,
+        "supports_implicit_caching": false,
+        "native_tools": {
+          "openrouter:web_search": {
+            "type": "web_search"
+          },
+          "openrouter:apply_patch": {
+            "type": "apply_patch"
+          }
+        },
+        "supports_voice_cloning": false,
+        "supports_multiple_audio_references": false,
+        "supports_image_reference": false,
+        "supports_diarization": false,
+        "latency_last_30m": {
+          "p50": 1128.5,
+          "p75": 2508.75,
+          "p90": 3730.1000000000004,
+          "p99": 8612.350000000024
+        },
+        "throughput_last_30m": {
+          "p50": 70,
+          "p75": 49,
+          "p90": 37,
+          "p99": 23
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 1128.5,
+              "p75": 2508.75,
+              "p90": 3730.1000000000004,
+              "p99": 8612.350000000024
+            },
+            "throughput": {
+              "p50": 70,
+              "p75": 49,
+              "p90": 37,
+              "p99": 23
+            },
+            "request_count": 930
+          }
+        }
+      },
+      {
+        "name": "OpenAI | openai/gpt-6.1-terra-20261026",
+        "model_id": "openai/gpt-6.1-terra",
+        "model_name": "OpenAI: GPT-6.1 Terra",
+        "context_length": 1050000,
+        "pricing": {
+          "prompt": "0.000002",
+          "completion": "0.00001",
+          "web_search": "0.01",
+          "input_cache_read": "0.0000001",
+          "input_cache_write": "0.0000025",
+          "discount": 0,
+          "overrides": [
+            {
+              "min_prompt_tokens": 272000,
+              "prompt": "0.000004",
+              "completion": "0.000015",
+              "input_cache_read": "0.0000002",
+              "input_cache_write": "0.000005"
+            }
+          ]
+        },
+        "provider_name": "OpenAI",
+        "tag": "openai/fast",
+        "service_tier": "priority",
+        "quantization": "unknown",
+        "max_completion_tokens": 128000,
+        "max_prompt_tokens": 922000,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "seed",
+          "max_tokens",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "verbosity",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": null,
+        "uptime_last_5m": null,
+        "uptime_last_1d": 100,
+        "supports_implicit_caching": false,
+        "native_tools": {
+          "openrouter:web_search": {
+            "type": "web_search"
+          },
+          "openrouter:apply_patch": {
+            "type": "apply_patch"
+          }
+        },
+        "supports_voice_cloning": false,
+        "supports_multiple_audio_references": false,
+        "supports_image_reference": false,
+        "supports_diarization": false,
+        "latency_last_30m": {
+          "p50": 1699.5,
+          "p75": 2601.75,
+          "p90": 4045.7000000000053,
+          "p99": 7157.509999999999
+        },
+        "throughput_last_30m": {
+          "p50": 53,
+          "p75": 37,
+          "p90": 29,
+          "p99": 22.36
+        },
+        "perf_last_30m_by_workload": {
+          "text_generation": {
+            "latency": {
+              "p50": 1699.5,
+              "p75": 2601.75,
+              "p90": 4045.7000000000053,
+              "p99": 7157.509999999999
+            },
+            "throughput": {
+              "p50": 53,
+              "p75": 37,
+              "p90": 29,
+              "p99": 22.36
+            },
+            "request_count": 68
+          }
+        }
+      }
+    ]
+  }
+}
