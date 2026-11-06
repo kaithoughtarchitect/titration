@@ -33,6 +33,7 @@ const COMMISSIONED_IDS = [
   "openai/gpt-6-luna",
   "deepseek/deepseek-v4.1-flash",
   "x-ai/grok-4.7",
+  "openai/gpt-6.1-terra",
 ] as const;
 
 const EFFORT_FILES = ["effort-low.json", "effort-medium.json", "effort-high.json"] as const;
@@ -164,7 +165,7 @@ const recordedProofFiles = listRecordedProofFiles(recordedDir);
 
 check(
   "commissioned set matches admission rows",
-  COMMISSIONED_IDS.length === rows.length && COMMISSIONED_IDS.length === 23,
+  COMMISSIONED_IDS.length === rows.length && COMMISSIONED_IDS.length === 24,
   `commissioned=${COMMISSIONED_IDS.length} rows=${rows.length}`,
 );
 check(

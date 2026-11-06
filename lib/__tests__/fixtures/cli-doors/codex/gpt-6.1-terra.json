@@ -1,0 +1,26 @@
+{
+  "recorded": "real transport — one live call through the user's subscription CLI",
+  "door": "codex",
+  "model": "gpt-6.1-terra",
+  "effort": null,
+  "cli_version": "codex-cli 0.160.0",
+  "owner": "npm-verified",
+  "args": [
+    "exec",
+    "-m",
+    "gpt-6.1-terra",
+    "--sandbox",
+    "read-only",
+    "--skip-git-repo-check",
+    "-o",
+    "<TEMP_FILE>",
+    "-"
+  ],
+  "stdin": true,
+  "exit_code": 0,
+  "duration_ms": 13164,
+  "stdout": "{\"label\":\"PASS\",\"reason\":\"The output correctly identifies Paris as the capital of France.\"}\n",
+  "output_file_text": "{\"label\":\"PASS\",\"reason\":\"The output correctly identifies Paris as the capital of France.\"}",
+  "stderr": "OpenAI Codex v0.160.0 -------- [REDACTED] model: gpt-6.1-terra provider: openai approval: on-request sandbox: read-only reasoning effort: low reasoning summaries: none [REDACTED] -------- user You are a strict grader. Read the rubric and the output, then answer with JSON only: {\"label\": \"PASS\" | \"FAIL\", \"reason\": \"<one short sentence>\"}. No prose outside the JSON. ============================================================ INPUT TO EVALUATE: ============================================================ RUBRIC: PASS if the output states the capital of France correctly, otherwise FAIL. OUTPUT: The capital of France is Paris. hook: SessionStart hook: SessionStart hook: SessionStart Completed hook: SessionStart Completed hook: UserPromptSubmit hook: UserPromptSubmit Completed codex {\"label\":\"PASS\",\"reason\":\"The output correctly identifies Paris as the capital of France.\"} hook: Stop hook: Stop Completed [REDACTED] 5,238",
+  "failure": null
+}
