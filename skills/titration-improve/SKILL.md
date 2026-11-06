@@ -145,7 +145,21 @@ output alone cannot settle it. Ship the run's evidence in `record`.
   false`, meaning whether the log holds every event. Never ship a row with `complete: false`: judges
   split on them. Rerun the case, or leave it out and say so in the report. A run that used up its turn
   limit with every event logged is different: that is the agent's behaviour, so ship it, with a line such
-  as `run_end: turn limit reached, no final output`. Dropping those rows would hide the failure.
+  as `run_end: turn limit reached, no final output`. Dropping those rows would hide the failure. Name any
+  case you left out in the plan at the step-1 gate.
+- **Use one record format.** The judges read text, so any consistent format works. For example:
+
+  ```
+  complete: true
+  run_end: agent finished
+  1. open_document statement.pdf#2 -> line 22: Monthly service fee 35.00
+  2. post_adjustment amount=-35.00 source=statement.pdf -> recorded
+  ```
+
+- **Capture each version at least twice.** An agent's tool loop varies from run to run, so one capture
+  per version is a single draw. In one test, the same one-line tool change got `passed` on one pair of
+  captures and showed no gain on the next. Give each capture its own `capture` label, on the baseline
+  and on the candidate, so the verdict can account for that variance.
 - **Send the log whole.** Do not trim or summarise it first. Trimming is a choice about what the judge
   gets to see.
 - **Say how the rubric treats it.** Add this line: "Where a RECORD is supplied, it is the account of
@@ -162,7 +176,10 @@ loop, and it needs nothing installed.
 
 - **Map the spec to the rubric.** What the agent must do (its evidence, decision, execution and
   recovery) becomes the pass criteria. The listed failure modes become the fail criteria. Correct work
-  that looks like a violation, such as a sourced adjustment, gets its own explicit pass line.
+  that looks like a violation, such as a sourced adjustment, gets its own explicit pass line. Say how
+  the lines combine ("pass needs 1 and either 2 or 3, and none of 4-7"), and whether running out of
+  turns is a fail. A line the spec does not state is allowed if it serves the spec's intent: point it
+  out at the step-1 gate.
 - **Pass or fail only.** Judges built for that format may allow a third answer, "not applicable". Here
   a vote other than pass or fail is not counted, so the rubric cannot lean on one: choose only cases
   where the spec's trigger fires. A case outside the spec's scope stays out of the corpus. On a case that belongs
@@ -182,7 +199,8 @@ loop, and it needs nothing installed.
 The fix may not be in the prompt. `classify_failure` counts the agent's prompt, skills, tool
 descriptions and tool behaviour as the system, so change whichever part the evidence points at, one
 change per turn. Declare it in `evolution.artifact_kind` (`prompt`, `code`, `configuration`, `mixed` or
-`other`).
+`other`). If the user asks about one specific change they already have in mind, that is a one-off
+`verify`, not the loop.
 
 ## Held-out cases — check the winner on cases the loop never saw
 
