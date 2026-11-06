@@ -100,7 +100,7 @@ need any Titration-specific tooling to install; only the destination path differ
 `skills/check-skills.mjs` greps this directory for mechanics that don't exist in this
 self-hosted build (a web dashboard, a sync/push step, cloud accounts, multi-user setups, a
 stored client config, tools this build never shipped, etc.) and checks that every tool name mentioned actually
-exists in the local server's 18-tool
+exists in the local server's 19-tool
 surface. Run it after editing any `SKILL.md`:
 
 ```bash

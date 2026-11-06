@@ -18,7 +18,7 @@ so far it has been tested on one simulated agent, so treat it as early
 
 ![The nine failure origins: only system-under-test means you should edit the prompt; the other eight are measurement, data, or pipeline problems](docs/images/nine-origins.png)
 
-An open-source **MCP server** with 18 tools. Self-hosted. Configuration examples for Claude Code, Codex and Cursor.
+An open-source **MCP server** with 19 tools. Self-hosted. Configuration examples for Claude Code, Codex and Cursor.
 [Five-slide overview (PDF)](docs/deck/titration-deck.pdf)
 
 ## Why you can trust the loop
