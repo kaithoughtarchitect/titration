@@ -1,0 +1,91 @@
+{
+  "id": "openai/gpt-6.1-terra",
+  "canonical_slug": "openai/gpt-6.1-terra-20261026",
+  "hugging_face_id": null,
+  "name": "OpenAI: GPT-6.1 Terra",
+  "created": 1793038409,
+  "description": "GPT-6.1 Terra is the mid-tier model in OpenAI's GPT-6.1 series, priced below GPT-6.1 Sol. It is suited for everyday agentic, coding, and writing work, is particularly strong at understanding screenshots...",
+  "context_length": 1050000,
+  "architecture": {
+    "modality": "text+image+file->text",
+    "input_modalities": [
+      "file",
+      "image",
+      "text"
+    ],
+    "output_modalities": [
+      "text"
+    ],
+    "tokenizer": "GPT",
+    "instruct_type": null
+  },
+  "pricing": {
+    "prompt": "0.000001",
+    "completion": "0.000005",
+    "web_search": "0.01",
+    "input_cache_read": "0.00000005",
+    "input_cache_write": "0.00000125",
+    "overrides": [
+      {
+        "min_prompt_tokens": 272000,
+        "prompt": "0.000002",
+        "completion": "0.0000075",
+        "input_cache_read": "0.0000001",
+        "input_cache_write": "0.0000025"
+      }
+    ]
+  },
+  "top_provider": {
+    "context_length": 1050000,
+    "max_completion_tokens": 128000,
+    "is_moderated": true
+  },
+  "per_request_limits": null,
+  "supported_parameters": [
+    "include_reasoning",
+    "max_completion_tokens",
+    "max_tokens",
+    "reasoning",
+    "reasoning_effort",
+    "response_format",
+    "seed",
+    "structured_outputs",
+    "tool_choice",
+    "tools",
+    "verbosity"
+  ],
+  "default_parameters": {},
+  "supported_voices": null,
+  "knowledge_cutoff": null,
+  "expiration_date": null,
+  "links": {
+    "details": "/api/v1/models/openai/gpt-6.1-terra-20261026/endpoints"
+  },
+  "endpoints": [
+    "/api/v1/chat/completions",
+    "/api/v1/completions",
+    "/api/v1/messages",
+    "/api/v1/responses"
+  ],
+  "benchmarks": {
+    "design_arena": [],
+    "artificial_analysis": {
+      "intelligence_index": 51.3,
+      "coding_index": null,
+      "agentic_index": null
+    }
+  },
+  "reasoning": {
+    "mandatory": false,
+    "default_enabled": true,
+    "supported_efforts": [
+      "max",
+      "xhigh",
+      "high",
+      "medium",
+      "low",
+      "none"
+    ],
+    "default_effort": "medium"
+  }
+}

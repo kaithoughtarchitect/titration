@@ -41,7 +41,7 @@ const {
 // ── loadRoster: default path resolves the real committed judges-roster.json ───
 {
   const roster = await loadRoster();
-  check("loadRoster() (default path) resolves the real committed judges-roster.json", roster.judges.length === 15, String(roster.judges.length));
+  check("loadRoster() (default path) resolves the real committed judges-roster.json", roster.judges.length === 16, String(roster.judges.length));
 }
 
 // ── loadRoster: TITRATION_JUDGES_ROSTER override ──────────────────────────────
