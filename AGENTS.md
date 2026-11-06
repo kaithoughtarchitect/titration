@@ -56,6 +56,7 @@ npx tsx scripts/smoke-schema.ts            # and smoke-projects, smoke-evolution
 node scripts/scrub-check.mjs
 node skills/check-skills.mjs               # when touching skills/
 npm run retrieval:eval                     # when touching search, cards, or embeddings (needs an OpenRouter key)
+npx tsx scripts/classify-boundary-eval.ts  # when changing CLASSIFY_SYSTEM (live judges; put the results in the PR)
 ```
 
 The retrieval gate's query set may never shrink. Re-freeze its baseline only for an intentional

@@ -2,15 +2,16 @@
 //
 // Given one observed failure, classify WHERE it
 // originates — one of nine origins — and answer the
-// question a prompt-iterator must ask before touching anything: "is this a
-// `system-under-test` problem worth a prompt edit, or one of the other eight
-// origins (don't touch the prompt — route elsewhere)?" One sync cross-vendor
-// consensus call. The cheapest, most-adoptable tool in this server.
+// question an iterator must ask before touching anything: "is this a
+// `system-under-test` problem worth changing the system (its prompt, skills or
+// tools), or one of the other eight origins (leave the system alone — route
+// elsewhere)?" One sync cross-vendor consensus call. The cheapest,
+// most-adoptable tool in this server.
 //
 // Semantic question → LLM judge consensus, never strict-match (CLAUDE.md
 // ALWAYS-list; verdict trust is the whole product). Only `system-under-test`
-// reads as a valid edit target — over-claiming it sends an iterator to edit a
-// prompt that isn't broken, "optimizing for a broken eval" (the most silent
+// reads as a valid edit target — over-claiming it sends an iterator to change a
+// system that isn't broken, "optimizing for a broken eval" (the most silent
 // failure mode the methodology defends against).
 
 import { runPanel, callJudge, snapshotPanel, type JudgeSpec, type JudgeRaw, type JudgeFail, type JudgePanelTrace } from "./judge";
@@ -35,7 +36,7 @@ export type Origin = (typeof ORIGINS)[number];
 export const CLASSIFY_SYSTEM = `You are a strict, role-disciplined FAILURE-ORIGIN CLASSIFIER for the Titration
 verdict engine. Your single job: given one observed failure, decide WHERE the
 failure originates — exactly one of nine origins — so an iterator knows whether
-editing the prompt is even a valid response.
+changing the system is even a valid response.
 
 ===================================================================
 ROLE SEPARATION (non-negotiable):
@@ -49,8 +50,11 @@ You DIAGNOSE. You do NOT prescribe.
 ===================================================================
 THE NINE FAILURE ORIGINS (classify into EXACTLY ONE):
 ===================================================================
-1. system-under-test — the model genuinely produced wrong output for the task.
-   THE ONLY origin for which editing the prompt/model is a valid fix.
+1. system-under-test — the system being tested genuinely behaved wrongly for the
+   task. The system is the model plus everything the agent is given or acts through
+   during the run: system prompt, skills, tool descriptions and tool behaviour.
+   THE ONLY origin for which changing any of these is a valid fix. Evidence that one
+   part drives the failure (a tool rather than the prompt, say) keeps it here.
 2. corpus-gap — the probe/test input does not exercise the case well; the bug is
    not really being tested. Fix the corpus (harvest real traces), not the prompt.
 3. rubric-ambiguity — the grading rubric is vague enough that a judge cannot
@@ -61,8 +65,10 @@ THE NINE FAILURE ORIGINS (classify into EXACTLY ONE):
 5. formatter — a deterministic post-processing layer DOWNSTREAM of the model
    (templating engine, backend formatter, output transformer) corrupted or
    reshaped output the model produced correctly. Fix the formatter, not the prompt.
-6. instrument-failure — a telemetry bug, parser issue, or harness drift; the
-   measurement is wrong, not the system. Fix the harness.
+6. instrument-failure — a telemetry bug, parser issue, or harness drift in the
+   evaluation apparatus; the measurement is wrong, not the system. Fix the harness.
+   A tool the agent sees or calls during the run is part of the system, not the
+   instrument, even when that tool checks the agent's work.
 7. pre-existing-pattern — the failure was present in the baseline too; the change
    being tested is not its cause.
 8. state-artifact — multi-turn corruption from earlier in the conversation; the
@@ -70,9 +76,9 @@ THE NINE FAILURE ORIGINS (classify into EXACTLY ONE):
 9. cost-exhausted — (autonomous-loop runtime only) the loop ran out of
    budget/turns before converging; not a defect in the system or the test.
 
-THE LOAD-BEARING RULE: only \`system-under-test\` is a valid target for a prompt
-edit. Misclassifying a formatter / corpus / rubric / judge / instrument / state /
-pre-existing failure as \`system-under-test\` sends an iterator to edit a prompt
+THE LOAD-BEARING RULE: only \`system-under-test\` is a valid target for changing the
+system. Misclassifying a formatter / corpus / rubric / judge / instrument / state /
+pre-existing failure as \`system-under-test\` sends an iterator to change a system
 that is not broken — optimizing for a broken eval. When the evidence is genuinely
 split between system-under-test and another origin, DO NOT default to
 system-under-test: say so in your reasoning and pick the better-supported origin.
@@ -200,11 +206,11 @@ export function applyReconsideration(
 // "A single calibrated judge handles clear cases; escalate to the full panel +
 // reconsideration only on ambiguity or high false-positive cost" — the COGS lever.
 // For classify_failure the high-stakes verdict is
-// `system-under-test`: it is the ONLY origin that greenlights a prompt edit, so a
-// FALSE system-under-test sends an iterator to edit a prompt that isn't broken —
+// `system-under-test`: it is the ONLY origin that greenlights changing the system, so a
+// FALSE system-under-test sends an iterator to change a system that isn't broken —
 // "optimizing for a broken eval," the load-bearing failure the methodology defends
 // against. A single judge may CHEAPLY route a clearly-non-SUT failure elsewhere
-// ("formatter / corpus-gap — don't touch the prompt"), but it must NEVER greenlight
+// ("formatter / corpus-gap — leave the system alone"), but it must NEVER greenlight
 // an edit alone. The escalation decision is PURE + offline-tested (mirrors
 // applyReconsideration); the judge I/O stays in classifyFailure.
 
@@ -231,10 +237,10 @@ export interface EscalationDecision {
 
 // Pure escalation gate. Accept the cheap single-judge verdict ONLY when it is a
 // high-confidence, canonical, NON-system-under-test call (a confident "route
-// elsewhere — don't touch the prompt"). Escalate to the full panel + reconsideration
+// elsewhere — leave the system alone"). Escalate to the full panel + reconsideration
 // when ANY of: (1) the origin is non-canonical/empty (can't trust a malformed label);
 // (2) confidence is below `high` (ambiguity — the panel is what buys confidence);
-// (3) the origin is `system-under-test` (high false-positive cost — a prompt-edit
+// (3) the origin is `system-under-test` (high false-positive cost — an edit
 // greenlight must never rest on one judge). Conservative by construction: every
 // non-clear-cut case widens to the panel.
 export function decideEscalation(probe: { failure_origin: string; confidence?: string }): EscalationDecision {
@@ -247,7 +253,7 @@ export function decideEscalation(probe: { failure_origin: string; confidence?: s
     return { escalate: true, reason: `probe confidence '${confidence ?? "(none)"}' is below 'high' (ambiguous) — escalating to the panel for cross-vendor corroboration` };
   }
   if (origin === "system-under-test") {
-    return { escalate: true, reason: "probe says system-under-test — the only origin that greenlights a prompt edit (high false-positive cost); a prompt-edit greenlight must be panel-confirmed, never single-judge" };
+    return { escalate: true, reason: "probe says system-under-test — the only origin that greenlights changing the system (high false-positive cost); an edit greenlight must be panel-confirmed, never single-judge" };
   }
   return { escalate: false, reason: `probe is high-confidence on '${origin}' (a route-elsewhere, non-system-under-test verdict) — a single calibrated judge is sufficient; panel not needed` };
 }
