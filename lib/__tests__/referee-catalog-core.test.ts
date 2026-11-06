@@ -69,6 +69,7 @@ const COMMISSION_ORDER = [
   "openai/gpt-6-luna",
   "deepseek/deepseek-v4.1-flash",
   "x-ai/grok-4.7",
+  "openai/gpt-6.1-terra",
 ] as const;
 
 function throws(fn: () => unknown): string | null {
@@ -126,7 +127,7 @@ check(
 check(
   "candidate ids match commissioned order",
   REFEREE_CATALOG_CANDIDATE_IDS.length === COMMISSION_ORDER.length
-    && REFEREE_CATALOG_CANDIDATE_IDS.length === 23
+    && REFEREE_CATALOG_CANDIDATE_IDS.length === 24
     && REFEREE_CATALOG_CANDIDATE_IDS.every((id, i) => id === COMMISSION_ORDER[i]),
   REFEREE_CATALOG_CANDIDATE_IDS.join(","),
 );
@@ -174,6 +175,7 @@ const FAMILY_EXPECT: Record<(typeof COMMISSION_ORDER)[number], (typeof REFEREE_C
   "openai/gpt-6-luna": "openai",
   "deepseek/deepseek-v4.1-flash": "deepseek",
   "x-ai/grok-4.7": "x-ai",
+  "openai/gpt-6.1-terra": "openai",
 };
 for (const id of REFEREE_CATALOG_CANDIDATE_IDS) {
   check(
@@ -204,6 +206,7 @@ const LIVE_ADMITTED_IDS = [
   "openai/gpt-6-luna",
   "deepseek/deepseek-v4.1-flash",
   "x-ai/grok-4.7",
+  "openai/gpt-6.1-terra",
 ] as const;
 check(
   "live admission is the U1/U2-proven ids",

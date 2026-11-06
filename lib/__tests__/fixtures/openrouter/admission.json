@@ -102,6 +102,10 @@
     {
       "id": "x-ai/grok-4.7",
       "status": "admitted"
+    },
+    {
+      "id": "openai/gpt-6.1-terra",
+      "status": "admitted"
     }
   ]
 }

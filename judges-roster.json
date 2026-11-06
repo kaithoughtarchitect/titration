@@ -26,13 +26,24 @@
     },
     {
       "id": "codex",
-      "name": "Codex (codex CLI, gpt-6-astra)",
+      "name": "Codex (codex CLI, gpt-6.1-terra)",
       "family": "openai",
       "door": "codex",
-      "model": "gpt-6-astra",
+      "model": "gpt-6.1-terra",
       "efforts": ["low", "medium", "high"],
       "cost_class": "subscription",
       "recommended": true,
+      "verified": true
+    },
+    {
+      "id": "openai/gpt-6.1-terra",
+      "name": "OpenAI: GPT-6.1 Terra (OpenRouter)",
+      "family": "openai",
+      "door": "openrouter",
+      "model": "openai/gpt-6.1-terra",
+      "efforts": ["low", "medium", "high"],
+      "cost_class": "metered",
+      "recommended": false,
       "verified": true
     },
     {
