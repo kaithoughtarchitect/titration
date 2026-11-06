@@ -43,6 +43,10 @@ or **inspected**, never as exhaustively read: a scan cannot know it saw everythi
    builder/template, the instruction block. These — not the SDK call — are the thing you'd A/B.
 3. **List each candidate surface** with: what it does · where its output goes (user-facing? feeds
    another step?) · is the output **open-ended prose** or a **closed-set label / structured value**.
+4. **Note existing behaviour specs and flags.** Check for `.agents/behaviors/*/BEHAVIOR.md`: a spec
+   already states what good looks like, so it can seed the provisional rubric. If the user names logs or
+   a monitor's flagged runs, read them as **unverified clues** about where a failure might be. A flag is
+   not a verdict, and scout does not treat it as one.
 
 ## Phase 2 — Filter by verify-fitness (the load-bearing step)
 
@@ -81,7 +85,9 @@ Two traps worth calling out by name, because they look titratable and aren't:
    - **corpus** — where the inputs come from (be specific: which dir / log / dataset). A baseline only
      *freezes* once the failure actually reproduces there — needing at least 3 failing cases at a rate
      of 10% or more; once frozen, a verdict against it stays **inconclusive below 20** scorable rows, so
-     more is better than either floor.
+     more is better than either floor. If the failing cases came from flagged runs, mix in cases nobody
+     flagged. Runs picked because they went badly tend to look better on a rerun with no change at all,
+     which can pass for an improvement.
    - **no prompt text.** The baton carries `goal`, `rubric`, and `corpus` — never the current prompt or
      the proposed change. The surface named in the recommendation (its file + symbol) is where
      `titration-improve` finds both versions itself.
