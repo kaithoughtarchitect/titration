@@ -5,7 +5,8 @@
 // separated out (classify.ts), so this is fully deterministic.
 // Run: npx tsx lib/__tests__/adaptive.test.ts
 
-import { CLASSIFY_SYSTEM, decideEscalation, pickProbe } from "../classify";
+import { readFileSync } from "node:fs";
+import { CLASSIFY_SYSTEM, decideEscalation, ORIGINS, pickProbe } from "../classify";
 import type { JudgeSpec } from "../judge";
 
 let failures = 0;
@@ -26,6 +27,31 @@ function check(name: string, cond: boolean, detail = "") {
   check(
     "a tool the agent calls is not the instrument",
     flat.includes("A tool the agent sees or calls during the run is part of the system, not the instrument"),
+  );
+}
+
+// The phrase checks above cannot tell whether judges still draw the line in the
+// right place. scripts/classify-boundary-eval.ts runs these cases against live
+// judges; this only guards the saved set, so it keeps both sides of the boundary.
+{
+  const cases: { id: string; expected: string; observation: string }[] = JSON.parse(
+    readFileSync(new URL("./fixtures/classify-boundary-cases.json", import.meta.url), "utf8"),
+  );
+  const expected = cases.map((c) => c.expected);
+  check(
+    "boundary cases name only canonical origins",
+    expected.every((e) => (ORIGINS as readonly string[]).includes(e)),
+    expected.join(","),
+  );
+  check("boundary cases have unique ids", new Set(cases.map((c) => c.id)).size === cases.length);
+  check("boundary cases all have an observation", cases.every((c) => c.observation.trim().length > 0));
+  check(
+    "boundary cases keep a tool failure on the system side",
+    cases.some((c) => c.id === "tool-rerun-evidence" && c.expected === "system-under-test"),
+  );
+  check(
+    "boundary cases keep a post-run scorer on the instrument side",
+    cases.some((c) => c.id === "post-run-scorer-agent-never-sees" && c.expected === "instrument-failure"),
   );
 }
 
