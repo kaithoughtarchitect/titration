@@ -97,6 +97,7 @@ Two traps worth calling out by name, because they look titratable and aren't:
    - → **`titration-improve`** to run it — it will **sharpen + confirm the rubric against real outputs
      with the user, then** `establish_baseline` → the **`goal_titrate` loop** (iterate to the goal — the
      default). (`verify` is only for a one-off "did this single change help?", never the loop.)
+   - → **`titration-diagnose`** *first* if the failure is real and several parts could be the cause.
    - → **`titration-harness`** *first* if the corpus needs a designed capture / a spend-gate before
      you commit to it.
    - **Say plainly when the harness step can be skipped.** If real captured outputs already exist

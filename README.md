@@ -150,9 +150,10 @@ See [Automatic repository memory](#automatic-repository-memory) for context requ
 
 ### Optional: agent skills
 
-`skills/` contains three skills that walk an agent through the whole flow —
+`skills/` contains four skills that walk an agent through the whole flow —
 **scout** (find what is worth measuring), **harness** (design and validate the measurement),
-**improve** (baseline, then improve against it). See [skills/README.md](skills/README.md).
+**diagnose** (work out which part to change), **improve** (baseline, then improve against it).
+See [skills/README.md](skills/README.md).
 
 ## Choosing judges
 
