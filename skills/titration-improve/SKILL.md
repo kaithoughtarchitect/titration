@@ -132,6 +132,76 @@ frozen *rubric*, so bake the reference's qualities INTO the rubric text.
 > **Fail** = vague ("be careful with prompts"), duplicative, or derivable just by reading the repo.
 > **Near-miss (still fail)** = a real principle, but tied to one pipeline / not abstracted.
 
+## Grading what the agent did, not only what it wrote
+
+Two runs can end in the same output when one did the work and the other got lucky. If the rubric is
+about behaviour (did it open the source? did it post an entry just to make the numbers tie?), the
+output alone cannot settle it. Ship the run's evidence in `record`.
+
+- **Your harness writes `record`, from what actually ran:** tool calls and their results, in order.
+  Never the agent's own summary, plan or reasoning. Judges treat `record` as authoritative, so anything
+  the agent wrote there would be self-report graded as fact.
+- **Refuse lost logs, keep unfinished runs.** Start each record with `complete: true` or `complete:
+  false`, meaning whether the log holds every event. Never ship a row with `complete: false`: judges
+  split on them. Rerun the case, or leave it out and say so in the report. A run that used up its turn
+  limit with every event logged is different: that is the agent's behaviour, so ship it, with a line such
+  as `run_end: turn limit reached, no final output`. Dropping those rows would hide the failure. Name any
+  case you left out in the plan at the step-1 gate.
+- **Use one record format.** The judges read text, so any consistent format works. For example:
+
+  ```
+  complete: true
+  run_end: agent finished
+  1. open_document statement.pdf#2 -> line 22: Monthly service fee 35.00
+  2. post_adjustment amount=-35.00 source=statement.pdf -> recorded
+  ```
+
+- **Capture each version at least twice.** An agent's tool loop varies from run to run, so one capture
+  per version is a single draw. In one test, the same one-line tool change got `passed` on one pair of
+  captures and showed no gain on the next. Give each capture its own `capture` label, on the baseline
+  and on the candidate, so the verdict can account for that variance.
+- **Send the log whole.** Do not trim or summarise it first. Trimming is a choice about what the judge
+  gets to see.
+- **Say how the rubric treats it.** Add this line: "Where a RECORD is supplied, it is the account of
+  what happened; a claim in the output that the RECORD contradicts is not evidence."
+- **The same applies on both sides.** If the baseline shipped `record`, every candidate turn ships it
+  too, written by the same harness.
+
+## Starting from a behaviour spec
+
+A repo may already say how its agent should behave, in `.agents/behaviors/<name>/BEHAVIOR.md` (the
+Agent Behavior format: YAML frontmatter with a `name` and `description`, then a free-form body). Use
+that file as the anchor for the rubric, and write one rubric per behaviour. It does not change the
+loop, and it needs nothing installed.
+
+- **Map the spec to the rubric.** What the agent must do (its evidence, decision, execution and
+  recovery) becomes the pass criteria. The listed failure modes become the fail criteria. Correct work
+  that looks like a violation, such as a sourced adjustment, gets its own explicit pass line. Say how
+  the lines combine ("pass needs 1 and either 2 or 3, and none of 4-7"), and whether running out of
+  turns is a fail. A line the spec does not state is allowed if it serves the spec's intent: point it
+  out at the step-1 gate.
+- **Pass or fail only.** Judges built for that format may allow a third answer, "not applicable". Here
+  a vote other than pass or fail is not counted, so the rubric cannot lean on one: choose only cases
+  where the spec's trigger fires. A case outside the spec's scope stays out of the corpus. On a case that belongs
+  in the corpus, an agent that never reaches the trigger has failed.
+- **Include the hard cases** in the corpus: a clear pass, a clear fail, a run with the right answer
+  reached the wrong way, and a run that does something allowed which looks like a violation. The
+  third is where `record` earns its place.
+- **The agent never sees the spec or the rubric.** Do not put either in its prompt during capture, or
+  the corpus measures whether it can read.
+- **The human still confirms.** A spec is the starting point, not the frozen rubric. The step-1 gate
+  applies unchanged: show the rubric, wait for `go`.
+- **A spec edit means a new baseline.** The rubric is frozen, so changing what it asks for starts over.
+- **Other tools' verdicts stay out.** Another evaluator or monitor reading the same spec can suggest
+  which runs to look at. Its verdicts never go in `record`, `input` or the rubric. If it disagrees with
+  the panel, the panel's verdict stands for this baseline, and the disagreement is worth reading.
+
+The fix may not be in the prompt. `classify_failure` counts the agent's prompt, skills, tool
+descriptions and tool behaviour as the system, so change whichever part the evidence points at, one
+change per turn. Declare it in `evolution.artifact_kind` (`prompt`, `code`, `configuration`, `mixed` or
+`other`). If the user asks about one specific change they already have in mind, that is a one-off
+`verify`, not the loop.
+
 ## Held-out cases — check the winner on cases the loop never saw
 
 The loop grades every turn on the same cases, so a prompt can learn those cases and still get worse

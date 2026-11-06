@@ -76,6 +76,22 @@ Keep deterministic **structural** checks — regex, counts, retention math — i
 files; those never need a judge. Use `goal_titrate` when the verdict needs to show up as an iterated
 run; `verify` is a single pass and persists nothing.
 
+## Capturing `record` for behaviour rubrics
+
+If the rubric asks what the agent did, the capture step also has to produce each row's `record` (see
+`titration-improve`, "Grading what the agent did").
+
+- **Log at the tool boundary.** Have the harness write down each tool call and result as it happens.
+  Do not ask the agent to report them, and do not copy in its reasoning.
+- **Mark completeness.** `complete: true` means the log holds every event. If log lines were lost, or
+  the harness itself crashed, write `complete: false`: rerun the case, or leave it out and report how
+  many you dropped, per arm.
+- **Keep unfinished runs.** An agent that used up its turn limit with every event logged has a complete
+  log and no final answer. Ship that row with a `run_end:` line and a harness-written `output` saying
+  there was no final answer. Finishing less often is a real difference between versions.
+- **Record both arms the same way.** Same harness, same format. A change in the log format is a change
+  in what the judges see.
+
 ## Boundaries
 
 - This skill *designs* and *validates* a harness. It does **not** run the improvement loop (that's
