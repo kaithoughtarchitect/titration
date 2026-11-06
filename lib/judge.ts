@@ -24,7 +24,10 @@ import { isCuratedFamily } from "./judges-roster-core";
 import { PUBLIC_REPO_URL } from "./public-repo-url";
 
 const OR_URL = "https://openrouter.ai/api/v1/chat/completions";
-const MAX_TOKENS = 4000; // headroom for reasoning + JSON (matches goal-titrate-judge.sh)
+// A reasoning model's thinking counts against max_tokens, so a low ceiling cuts off
+// the answer on exactly the cases it deliberates over most, and the judge drops off
+// the panel with invalid JSON. It is a ceiling, not a target: most calls use far less.
+const MAX_TOKENS = 16_000;
 const OPENROUTER_TIMEOUT_MS = 180_000;
 // Single-model helper calls (harness_design, harness_validate, propose_cards,
 // edge_propose) write a whole document, not a one-line verdict. A subscription CLI
