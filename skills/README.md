@@ -1,7 +1,8 @@
 # Titration agent skills
 
-Three agent skills that drive the local Titration MCP server end to end: find something worth
-measuring, measure it safely, then measure whether a change actually helped. Nothing here needs a
+Four agent skills that drive the local Titration MCP server end to end: find something worth
+measuring, measure it safely, work out which part to change, then measure whether a change actually
+helped. Nothing here needs a
 web server, an account, or a browser — except the one-shot local judge picker inside
 `titration-improve`, which opens a page on `127.0.0.1` on your own machine and nowhere else.
 
@@ -9,10 +10,12 @@ web server, an account, or a browser — except the one-shot local judge picker 
 |---|---|---|
 | [`titration-scout`](titration-scout/SKILL.md) | Reads your repo, finds the model-driven surfaces worth a cross-vendor verdict, ranks them, and drafts a goal + rubric for the top pick. Read-only; writes one JSON manifest to `.titration/scan/` and stops. | "What should I improve?" / "Where do I start?" |
 | [`titration-harness`](titration-harness/SKILL.md) | Designs and validates a paired-corpus test harness *before* you spend on capture — a 9-check report with a Proceed / Revise / Reject recommendation. | "Is my eval set sound before I spend money on it?" |
+| [`titration-diagnose`](titration-diagnose/SKILL.md) | Reruns the agent from saved points just before a bad decision, one change per fork against a control, to suggest which part to change. Spends agent calls only. Its result is a clue, never a verdict | You have a real failure and could change the prompt, a skill or a tool, and don't know which |
 | [`titration-improve`](titration-improve/SKILL.md) | Freezes a rubric + baseline, then runs the `goal_titrate` loop: you make each change and ship its outputs, Titration grades them via a cross-vendor judge panel and tells you whether it actually helped. | "Is v2 better than v1?" / "Did this prompt change help?" |
 
 Typical order: `titration-scout` → (optionally `titration-harness`, if the corpus needs a designed
-capture first) → `titration-improve`.
+capture first) → (optionally `titration-diagnose`, if several parts could be the cause) →
+`titration-improve`.
 
 ## What these skills need
 
@@ -28,7 +31,7 @@ capture first) → `titration-improve`.
 ## Install
 
 Each skill is one self-contained folder (`SKILL.md` plus whatever it needs) directly under this
-repo's `skills/`. There is no installer script — copy or symlink the three folders into wherever your
+repo's `skills/`. There is no installer script — copy or symlink the four folders into wherever your
 agent reads skills from. Symlinking means a `git pull` in this repo updates the installed skill
 immediately; copying is a one-time snapshot you re-copy after an update.
 
@@ -39,9 +42,9 @@ immediately; copying is a one-time snapshot you re-copy after an update.
 ```bash
 mkdir -p .claude/skills
 # copy:
-cp -r skills/titration-scout skills/titration-harness skills/titration-improve .claude/skills/
+cp -r skills/titration-scout skills/titration-harness skills/titration-diagnose skills/titration-improve .claude/skills/
 # — or symlink instead of copy:
-for d in titration-scout titration-harness titration-improve; do
+for d in titration-scout titration-harness titration-diagnose titration-improve; do
   ln -s "$(pwd)/skills/$d" ".claude/skills/$d"
 done
 ```
@@ -51,9 +54,9 @@ done
 ```powershell
 New-Item -ItemType Directory -Force -Path .claude\skills | Out-Null
 # copy:
-Copy-Item -Recurse -Force skills\titration-scout,skills\titration-harness,skills\titration-improve .claude\skills\
+Copy-Item -Recurse -Force skills\titration-scout,skills\titration-harness,skills\titration-diagnose,skills\titration-improve .claude\skills\
 # — or symlink instead of copy (Developer Mode or an elevated shell is required to create symlinks on Windows):
-foreach ($d in "titration-scout","titration-harness","titration-improve") {
+foreach ($d in "titration-scout","titration-harness","titration-diagnose","titration-improve") {
   New-Item -ItemType SymbolicLink -Path ".claude\skills\$d" -Target (Resolve-Path "skills\$d") -Force
 }
 ```
@@ -69,9 +72,9 @@ from. The commands are identical to the Claude Code ones above with the target d
 
 ```bash
 mkdir -p .agents/skills
-cp -r skills/titration-scout skills/titration-harness skills/titration-improve .agents/skills/
+cp -r skills/titration-scout skills/titration-harness skills/titration-diagnose skills/titration-improve .agents/skills/
 # — or symlink:
-for d in titration-scout titration-harness titration-improve; do
+for d in titration-scout titration-harness titration-diagnose titration-improve; do
   ln -s "$(pwd)/skills/$d" ".agents/skills/$d"
 done
 ```
@@ -80,15 +83,15 @@ done
 
 ```powershell
 New-Item -ItemType Directory -Force -Path .agents\skills | Out-Null
-Copy-Item -Recurse -Force skills\titration-scout,skills\titration-harness,skills\titration-improve .agents\skills\
+Copy-Item -Recurse -Force skills\titration-scout,skills\titration-harness,skills\titration-diagnose,skills\titration-improve .agents\skills\
 # — or symlink (Developer Mode / elevated shell required):
-foreach ($d in "titration-scout","titration-harness","titration-improve") {
+foreach ($d in "titration-scout","titration-harness","titration-diagnose","titration-improve") {
   New-Item -ItemType SymbolicLink -Path ".agents\skills\$d" -Target (Resolve-Path "skills\$d") -Force
 }
 ```
 
 If your agent isn't Claude Code or Codex and reads skills from a different path, check that agent's
-own documentation for the expected location — the three `skills/titration-*` folders here are
+own documentation for the expected location — the four `skills/titration-*` folders here are
 plain, framework-free Markdown (`SKILL.md` with a YAML frontmatter `name` + `description`) and don't
 need any Titration-specific tooling to install; only the destination path differs by agent.
 

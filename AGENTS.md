@@ -77,6 +77,6 @@ no-op on re-run).
 | `db/` | schema and migration notes |
 | `ingest/`, `query/` | base loader, embedding backfill, search CLI |
 | `retrieval-eval/` | retrieval gate on the base answer key |
-| `skills/` | agent skills (scout, harness, improve) |
+| `skills/` | agent skills (scout, harness, diagnose, improve) |
 | `docs/core-learnings/` | the curated base starter pack |
 | `judges-roster.json` | the judge pool shown in the picker |
